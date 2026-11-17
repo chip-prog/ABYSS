@@ -1,0 +1,155 @@
+// 積木定義：這個檔案描述引擎認得的所有「積木」。
+// Studio 的表單、卡片說明文字、防呆檢查都由這裡自動產生。
+// 要新增一種全新的效果時：在這裡加定義，並在 battle.js 的 EFFECTS 加上實作。
+
+export const CARD_TYPES = { attack: '攻擊', skill: '技能', blessing: '祝福', status: '狀態', curse: '詛咒', tribute: '生贄' };
+export const RARITIES = { starter: '初始', common: '普通', rare: '稀有', epic: '史詩', special: '特殊' };
+export const REWARD_WEIGHTS = { common: 60, rare: 30, epic: 10 };
+export const PUBLISH = { draft: '草稿', official: '正式' };
+
+export const TARGETS = { enemy: '敵方單體', allEnemies: '所有敵人', randomEnemy: '隨機敵人', self: '自己' };
+// 敵人使用同一套積木時，「敵方」指的就是玩家。
+export const TARGETS_ENEMY_SIDE = { enemy: '玩家', self: '自己' };
+
+export const ZONES = { hand: '手牌', draw: '抽牌堆', discard: '棄牌堆', deck: '牌組（永久）' };
+export const PILES = { discard: '棄牌堆', draw: '抽牌堆', exhaust: '消耗區' };
+
+// 數值加成來源（「每 1 點 X，額外 +N」）
+export const SCALE_SOURCES = {
+  block: '自身格擋',
+  discard: '棄牌堆張數',
+  draw: '抽牌堆張數',
+  exhaust: '消耗區張數',
+  hand: '手牌張數',
+  hpLost: '本回合失去的生命',
+  played: '本回合已打出的牌數',
+  tributes: '牌組中的生贄數',
+  // 另外還有 status:<狀態id>（自身層數）與 targetStatus:<狀態id>（目標層數），由 Studio 動態列出
+};
+
+// 欄位種類：number / target / status / card / scale / bool / zone / pile
+export const EFFECTS = {
+  damage: {
+    label: '造成傷害', group: '戰鬥',
+    fields: [
+      { key: 'amount', type: 'number', label: '傷害', def: 6 },
+      { key: 'target', type: 'target', label: '對象', def: 'enemy' },
+      { key: 'times', type: 'number', label: '次數', def: 1, min: 1 },
+      { key: 'scale', type: 'scale', label: '額外加成' },
+      { key: 'lifesteal', type: 'bool', label: '吸血（回復等同未被格擋的傷害）' },
+    ],
+  },
+  block: {
+    label: '獲得格擋', group: '戰鬥',
+    fields: [
+      { key: 'amount', type: 'number', label: '格擋', def: 5 },
+      { key: 'scale', type: 'scale', label: '額外加成' },
+    ],
+  },
+  applyStatus: {
+    label: '施加狀態', group: '戰鬥',
+    fields: [
+      { key: 'status', type: 'status', label: '狀態' },
+      { key: 'amount', type: 'number', label: '層數', def: 1 },
+      { key: 'target', type: 'target', label: '對象', def: 'enemy' },
+    ],
+  },
+  heal: { label: '回復生命', group: '戰鬥', fields: [{ key: 'amount', type: 'number', label: '生命', def: 4 }] },
+  loseHp: { label: '失去生命（無視格擋）', group: '戰鬥', fields: [{ key: 'amount', type: 'number', label: '生命', def: 3 }] },
+  draw: { label: '抽牌', group: '資源', fields: [{ key: 'amount', type: 'number', label: '張數', def: 1 }] },
+  energy: { label: '獲得能量', group: '資源', fields: [{ key: 'amount', type: 'number', label: '能量', def: 1 }] },
+  scry: { label: '觀想（看抽牌堆頂，可棄置）', group: '牌堆', fields: [{ key: 'amount', type: 'number', label: '張數', def: 3 }] },
+  discard: {
+    label: '棄置手牌', group: '牌堆',
+    fields: [{ key: 'amount', type: 'number', label: '張數', def: 1 }, { key: 'random', type: 'bool', label: '隨機' }],
+  },
+  exhaustCards: {
+    label: '消耗手牌', group: '牌堆',
+    fields: [{ key: 'amount', type: 'number', label: '張數', def: 1 }, { key: 'random', type: 'bool', label: '隨機' }],
+  },
+  retrieve: {
+    label: '從牌堆取回手牌', group: '牌堆',
+    fields: [{ key: 'amount', type: 'number', label: '張數', def: 1 }, { key: 'from', type: 'pile', label: '來源', def: 'discard' }],
+  },
+  addCard: {
+    label: '生成卡片', group: '牌堆',
+    fields: [
+      { key: 'card', type: 'card', label: '卡片' },
+      { key: 'count', type: 'number', label: '張數', def: 1, min: 1 },
+      { key: 'zone', type: 'zone', label: '放到', def: 'discard' },
+    ],
+  },
+  capture: {
+    label: '捕捉（將敵人化為生贄）', group: '深淵',
+    fields: [{ key: 'threshold', type: 'number', label: '敵人生命不高於', def: 10 }],
+  },
+};
+
+export const CONDITIONS = {
+  targetHasStatus: { label: '目標有狀態', fields: [{ key: 'status', type: 'status', label: '狀態' }] },
+  selfHasStatus: { label: '自己有狀態', fields: [{ key: 'status', type: 'status', label: '狀態' }] },
+  lostHpThisTurn: { label: '本回合曾失去生命', fields: [] },
+  hasBlock: { label: '自己有格擋', fields: [] },
+  discardGte: { label: '棄牌堆張數至少', fields: [{ key: 'n', type: 'number', label: '張數', def: 5 }] },
+  playedGte: { label: '本回合已打出的牌數至少', fields: [{ key: 'n', type: 'number', label: '張數', def: 2 }] },
+  hpBelowPct: { label: '自己生命不高於（%）', fields: [{ key: 'n', type: 'number', label: '%', def: 50 }] },
+  targetHpLte: { label: '目標生命不高於', fields: [{ key: 'n', type: 'number', label: '生命', def: 10 }] },
+  tributePaid: { label: '本次獻祭了生贄', fields: [] },
+};
+
+// 祝福牌與遺物的觸發時機
+export const TRIGGERS = {
+  battleStart: '戰鬥開始時',
+  turnStart: '每回合開始時',
+  turnEnd: '每回合結束時',
+  playCard: '每打出一張牌',
+  playAttack: '每打出一張攻擊牌',
+  playSkill: '每打出一張技能牌',
+  selfHarm: '每當在自己回合失去生命',
+  loseHp: '每當失去生命（任何時候）',
+  sacrifice: '每當進行獻祭',
+  exhaustCard: '每當有牌被消耗',
+  discardCard: '每當有牌被棄置（回合結束除外）',
+  shuffle: '每當洗牌',
+  enemyDeath: '每當敵人死亡或被捕捉',
+};
+
+// 卡片自身的特殊時機
+export const CARD_TRIGGERS = {
+  sacrificed: '被獻祭時',
+  discard: '被棄置時（回合結束除外）',
+  exhaust: '被消耗時',
+  drawn: '被抽到時',
+  turnEndInHand: '回合結束時仍在手牌',
+};
+
+export const KEYWORDS = {
+  exhaust: { label: '消耗', desc: '使用後在本場戰鬥中移除，不進棄牌堆。' },
+  unplayable: { label: '不可打出', desc: '這張牌不能被打出。' },
+  retain: { label: '保留', desc: '回合結束時不會被棄置。' },
+};
+export const DERIVED_KEYWORDS = {
+  sacrifice: { label: '獻祭', desc: '打出時，獻祭手牌中的一張生贄（永久失去）；沒有或不願獻祭時，改為付出卡片上寫的代價。' },
+  charge: { label: '充能', desc: '這張牌的傷害隨你的充能層數提高。' },
+  bulwark: { label: '壁壘', desc: '這張牌的傷害隨你當前的格擋提高。' },
+  capture: { label: '捕捉', desc: '把生命夠低的敵人化為「生贄」卡加入牌組。頭目無法捕捉。' },
+  scry: { label: '觀想', desc: '查看抽牌堆頂的牌，並可將其中任意張棄置。' },
+};
+
+export const STATUS_DECAY = { none: '不消退', minus1: '回合結束減 1 層', clear: '回合結束全部清除' };
+export const STATUS_KINDS = { buff: '增益', debuff: '減益' };
+export const ENCOUNTER_POOLS = { easy: '前段', hard: '後段', boss: '頭目' };
+
+export function newEffect(type) {
+  const e = { type };
+  for (const f of EFFECTS[type].fields) if (f.def !== undefined) e[f.key] = f.def;
+  return e;
+}
+
+export function blankCard(id) {
+  return {
+    id, name: '新卡片', faction: 'nameless', type: 'skill', rarity: 'common', cost: 1,
+    keywords: {}, sacrifice: null, effects: [], triggers: {}, powers: [],
+    text: '', flavor: '', image: '', upgrade: null, publish: 'draft',
+  };
+}

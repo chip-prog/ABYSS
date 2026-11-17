@@ -1,0 +1,3638 @@
+{
+ "version": 1,
+ "meta": {
+  "title": "ABYSS",
+  "subtitle": "第一章・鐘樓",
+  "lang": "zh-Hant"
+ },
+ "rules": {
+  "energy": 3,
+  "draw": 5,
+  "handLimit": 10,
+  "deckSize": 10,
+  "healAfterBattle": 5,
+  "restHealPct": 30,
+  "captureTiers": [
+   {
+    "maxHp": 25,
+    "card": "tribute_s"
+   },
+   {
+    "maxHp": 50,
+    "card": "tribute_m"
+   },
+   {
+    "maxHp": null,
+    "card": "tribute_l"
+   }
+  ],
+  "stages": [
+   {
+    "type": "battle",
+    "pool": "easy",
+    "count": 3
+   },
+   {
+    "type": "rest"
+   },
+   {
+    "type": "battle",
+    "pool": "hard",
+    "count": 2
+   },
+   {
+    "type": "rest"
+   },
+   {
+    "type": "battle",
+    "pool": "boss",
+    "count": 1
+   }
+  ]
+ },
+ "factions": [
+  {
+   "id": "crimson",
+   "name": "嫣紅",
+   "color": "#a8323a",
+   "desc": "血肉與鐵血。自損、吸血、以守為攻。"
+  },
+  {
+   "id": "arcane",
+   "name": "秘法",
+   "color": "#7a5cc4",
+   "desc": "咒法運轉與蝕咒。把整個牌堆當作資源。"
+  },
+  {
+   "id": "abyss",
+   "name": "深淵",
+   "color": "#2f8a80",
+   "desc": "秘密教團。獻祭生贄，驅使高費的不可名狀之力。"
+  },
+  {
+   "id": "nameless",
+   "name": "無名",
+   "color": "#8c7a5e",
+   "desc": "通用牌，所有角色都能取得。"
+  }
+ ],
+ "statuses": [
+  {
+   "publish": "official",
+   "id": "bleed",
+   "name": "流血",
+   "kind": "debuff",
+   "faction": "crimson",
+   "desc": "每層使受到的攻擊傷害 +1。回合結束時減 1 層。",
+   "takeAdd": 1,
+   "decay": "minus1"
+  },
+  {
+   "publish": "official",
+   "id": "fury",
+   "name": "狂怒",
+   "kind": "buff",
+   "faction": "crimson",
+   "desc": "每層使攻擊傷害 +1。回合結束時全部清除。",
+   "dealAdd": 1,
+   "decay": "clear"
+  },
+  {
+   "publish": "official",
+   "id": "charge",
+   "name": "充能",
+   "kind": "buff",
+   "faction": "arcane",
+   "desc": "帶有「充能」的牌，傷害隨層數提高。不會消退。",
+   "decay": "none"
+  },
+  {
+   "publish": "official",
+   "id": "hex",
+   "name": "蝕咒",
+   "kind": "debuff",
+   "faction": "arcane",
+   "desc": "回合結束時失去等同層數的生命，然後減 1 層。",
+   "tickDamage": 1,
+   "decay": "minus1"
+  },
+  {
+   "publish": "official",
+   "id": "weak",
+   "name": "虛弱",
+   "kind": "debuff",
+   "faction": "arcane",
+   "desc": "造成的攻擊傷害降低 25%。回合結束時減 1 層。",
+   "dealPct": -25,
+   "decay": "minus1"
+  },
+  {
+   "publish": "official",
+   "id": "delay",
+   "name": "延遲",
+   "kind": "debuff",
+   "faction": "arcane",
+   "desc": "下一個行動往後推，每層推遲一回合。延遲結束後，要先行動過一次才能再被延遲。",
+   "special": "delay",
+   "decay": "none"
+  },
+  {
+   "publish": "official",
+   "id": "strength",
+   "name": "力量",
+   "kind": "buff",
+   "faction": "nameless",
+   "desc": "每層使攻擊傷害 +1。不會消退。",
+   "dealAdd": 1,
+   "decay": "none"
+  }
+ ],
+ "cards": [
+  {
+   "id": "c_strike",
+   "name": "斬擊",
+   "faction": "crimson",
+   "type": "attack",
+   "rarity": "starter",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 6,
+     "target": "enemy",
+     "times": 1
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 9,
+      "target": "enemy",
+      "times": 1
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "c_guard",
+   "name": "架盾",
+   "faction": "crimson",
+   "type": "skill",
+   "rarity": "starter",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "block",
+     "amount": 5
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "block",
+      "amount": 8
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "c_bloodrite",
+   "name": "割腕禮",
+   "faction": "crimson",
+   "type": "skill",
+   "rarity": "starter",
+   "cost": 0,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "loseHp",
+     "amount": 3
+    },
+    {
+     "type": "draw",
+     "amount": 2
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "疼痛是最誠實的祈禱。",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "loseHp",
+      "amount": 3
+     },
+     {
+      "type": "draw",
+      "amount": 3
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "c_drain",
+   "name": "噬血",
+   "faction": "crimson",
+   "type": "attack",
+   "rarity": "starter",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 5,
+     "target": "enemy",
+     "times": 1,
+     "lifesteal": true
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 8,
+      "target": "enemy",
+      "times": 1,
+      "lifesteal": true
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "c_blooddebt",
+   "name": "血債",
+   "faction": "crimson",
+   "type": "attack",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 7,
+     "target": "enemy",
+     "times": 1
+    },
+    {
+     "type": "damage",
+     "amount": 6,
+     "target": "enemy",
+     "times": 1,
+     "if": {
+      "type": "lostHpThisTurn"
+     }
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 9,
+      "target": "enemy",
+      "times": 1
+     },
+     {
+      "type": "damage",
+      "amount": 8,
+      "target": "enemy",
+      "times": 1,
+      "if": {
+       "type": "lostHpThisTurn"
+      }
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "c_boil",
+   "name": "沸血",
+   "faction": "crimson",
+   "type": "skill",
+   "rarity": "common",
+   "cost": 0,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "loseHp",
+     "amount": 2
+    },
+    {
+     "type": "applyStatus",
+     "status": "fury",
+     "amount": 3,
+     "target": "self"
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "loseHp",
+      "amount": 2
+     },
+     {
+      "type": "applyStatus",
+      "status": "fury",
+      "amount": 5,
+      "target": "self"
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "c_painback",
+   "name": "痛楚回擊",
+   "faction": "crimson",
+   "type": "attack",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 4,
+     "target": "enemy",
+     "times": 1,
+     "scale": {
+      "by": "hpLost",
+      "per": 2
+     }
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 6,
+      "target": "enemy",
+      "times": 1,
+      "scale": {
+       "by": "hpLost",
+       "per": 2
+      }
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "c_rend",
+   "name": "撕裂",
+   "faction": "crimson",
+   "type": "attack",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 4,
+     "target": "enemy",
+     "times": 1
+    },
+    {
+     "type": "applyStatus",
+     "status": "bleed",
+     "amount": 3,
+     "target": "enemy"
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 5,
+      "target": "enemy",
+      "times": 1
+     },
+     {
+      "type": "applyStatus",
+      "status": "bleed",
+      "amount": 4,
+      "target": "enemy"
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "c_flurry",
+   "name": "亂刃",
+   "faction": "crimson",
+   "type": "attack",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 2,
+     "target": "enemy",
+     "times": 3
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 2,
+      "target": "enemy",
+      "times": 4
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "c_sip",
+   "name": "啜飲",
+   "faction": "crimson",
+   "type": "attack",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 4,
+     "target": "enemy",
+     "times": 1
+    },
+    {
+     "type": "heal",
+     "amount": 4,
+     "if": {
+      "type": "targetHasStatus",
+      "status": "bleed"
+     }
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 6,
+      "target": "enemy",
+      "times": 1
+     },
+     {
+      "type": "heal",
+      "amount": 5,
+      "if": {
+       "type": "targetHasStatus",
+       "status": "bleed"
+      }
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "c_bash",
+   "name": "盾擊",
+   "faction": "crimson",
+   "type": "attack",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 3,
+     "target": "enemy",
+     "times": 1,
+     "scale": {
+      "by": "block",
+      "per": 1
+     }
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 6,
+      "target": "enemy",
+      "times": 1,
+      "scale": {
+       "by": "block",
+       "per": 1
+      }
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "c_wall",
+   "name": "鐵壁",
+   "faction": "crimson",
+   "type": "skill",
+   "rarity": "common",
+   "cost": 2,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "block",
+     "amount": 12
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "block",
+      "amount": 16
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "c_warcry",
+   "name": "戰吼",
+   "faction": "crimson",
+   "type": "skill",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "block",
+     "amount": 6
+    },
+    {
+     "type": "draw",
+     "amount": 1
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "block",
+      "amount": 8
+     },
+     {
+      "type": "draw",
+      "amount": 1
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "c_bloodrage",
+   "name": "血怒",
+   "faction": "crimson",
+   "type": "blessing",
+   "rarity": "rare",
+   "cost": 2,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [],
+   "triggers": {},
+   "powers": [
+    {
+     "trigger": "selfHarm",
+     "effects": [
+      {
+       "type": "applyStatus",
+       "status": "fury",
+       "amount": 2,
+       "target": "self"
+      }
+     ]
+    }
+   ],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "cost": 1
+   },
+   "publish": "official"
+  },
+  {
+   "id": "c_cleave",
+   "name": "裂身斬",
+   "faction": "crimson",
+   "type": "attack",
+   "rarity": "rare",
+   "cost": 2,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "loseHp",
+     "amount": 4
+    },
+    {
+     "type": "damage",
+     "amount": 22,
+     "target": "enemy",
+     "times": 1
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "loseHp",
+      "amount": 4
+     },
+     {
+      "type": "damage",
+      "amount": 28,
+      "target": "enemy",
+      "times": 1
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "c_instinct",
+   "name": "嗜血本能",
+   "faction": "crimson",
+   "type": "blessing",
+   "rarity": "rare",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [],
+   "triggers": {},
+   "powers": [
+    {
+     "trigger": "playAttack",
+     "effects": [
+      {
+       "type": "applyStatus",
+       "status": "bleed",
+       "amount": 1,
+       "target": "randomEnemy"
+      }
+     ]
+    }
+   ],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "cost": 0
+   },
+   "publish": "official"
+  },
+  {
+   "id": "c_unyield",
+   "name": "不退",
+   "faction": "crimson",
+   "type": "skill",
+   "rarity": "rare",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "block",
+     "amount": 5
+    },
+    {
+     "type": "block",
+     "amount": 8,
+     "if": {
+      "type": "hpBelowPct",
+      "n": 50
+     }
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "block",
+      "amount": 7
+     },
+     {
+      "type": "block",
+      "amount": 10,
+      "if": {
+       "type": "hpBelowPct",
+       "n": 50
+      }
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "c_banner",
+   "name": "鐵血軍旗",
+   "faction": "crimson",
+   "type": "blessing",
+   "rarity": "rare",
+   "cost": 2,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [],
+   "triggers": {},
+   "powers": [
+    {
+     "trigger": "turnStart",
+     "effects": [
+      {
+       "type": "block",
+       "amount": 4
+      }
+     ]
+    }
+   ],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "powers": [
+     {
+      "trigger": "turnStart",
+      "effects": [
+       {
+        "type": "block",
+        "amount": 6
+       }
+      ]
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "c_feast",
+   "name": "血宴",
+   "faction": "crimson",
+   "type": "attack",
+   "rarity": "epic",
+   "cost": 2,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 8,
+     "target": "allEnemies",
+     "times": 1,
+     "lifesteal": true
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 11,
+      "target": "allEnemies",
+      "times": 1,
+      "lifesteal": true
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "c_ram",
+   "name": "攻城槌",
+   "faction": "crimson",
+   "type": "attack",
+   "rarity": "epic",
+   "cost": 3,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 10,
+     "target": "enemy",
+     "times": 1,
+     "scale": {
+      "by": "block",
+      "per": 2
+     }
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 14,
+      "target": "enemy",
+      "times": 1,
+      "scale": {
+       "by": "block",
+       "per": 2
+      }
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_strike",
+   "name": "刺擊",
+   "faction": "arcane",
+   "type": "attack",
+   "rarity": "starter",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 6,
+     "target": "enemy",
+     "times": 1
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 9,
+      "target": "enemy",
+      "times": 1
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_guard",
+   "name": "迴身",
+   "faction": "arcane",
+   "type": "skill",
+   "rarity": "starter",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "block",
+     "amount": 5
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "block",
+      "amount": 8
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_scry",
+   "name": "觀想",
+   "faction": "arcane",
+   "type": "skill",
+   "rarity": "starter",
+   "cost": 0,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "scry",
+     "amount": 3
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "牌堆即經卷，翻閱即修行。",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "scry",
+      "amount": 3
+     },
+     {
+      "type": "draw",
+      "amount": 1
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_bolt",
+   "name": "咒矢",
+   "faction": "arcane",
+   "type": "attack",
+   "rarity": "starter",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 4,
+     "target": "enemy",
+     "times": 1,
+     "scale": {
+      "by": "status:charge",
+      "per": 1
+     }
+    },
+    {
+     "type": "applyStatus",
+     "status": "charge",
+     "amount": 1,
+     "target": "self"
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 6,
+      "target": "enemy",
+      "times": 1,
+      "scale": {
+       "by": "status:charge",
+       "per": 1
+      }
+     },
+     {
+      "type": "applyStatus",
+      "status": "charge",
+      "amount": 1,
+      "target": "self"
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_focus",
+   "name": "凝神",
+   "faction": "arcane",
+   "type": "skill",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "applyStatus",
+     "status": "charge",
+     "amount": 2,
+     "target": "self"
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "applyStatus",
+      "status": "charge",
+      "amount": 3,
+      "target": "self"
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_missile",
+   "name": "奧術飛彈",
+   "faction": "arcane",
+   "type": "attack",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 3,
+     "target": "enemy",
+     "times": 2,
+     "scale": {
+      "by": "status:charge",
+      "per": 1
+     }
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 4,
+      "target": "enemy",
+      "times": 2,
+      "scale": {
+       "by": "status:charge",
+       "per": 1
+      }
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_cycle",
+   "name": "輪迴",
+   "faction": "arcane",
+   "type": "skill",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "draw",
+     "amount": 2
+    },
+    {
+     "type": "discard",
+     "amount": 1
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "draw",
+      "amount": 3
+     },
+     {
+      "type": "discard",
+      "amount": 1
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_echo",
+   "name": "殘響咒",
+   "faction": "arcane",
+   "type": "attack",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 6,
+     "target": "enemy",
+     "times": 1
+    }
+   ],
+   "triggers": {
+    "discard": [
+     {
+      "type": "damage",
+      "amount": 6,
+      "target": "randomEnemy",
+      "times": 1
+     }
+    ]
+   },
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 8,
+      "target": "enemy",
+      "times": 1
+     }
+    ],
+    "triggers": {
+     "discard": [
+      {
+       "type": "damage",
+       "amount": 9,
+       "target": "randomEnemy",
+       "times": 1
+      }
+     ]
+    }
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_hex",
+   "name": "淬咒",
+   "faction": "arcane",
+   "type": "skill",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "applyStatus",
+     "status": "hex",
+     "amount": 4,
+     "target": "enemy"
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "applyStatus",
+      "status": "hex",
+      "amount": 6,
+      "target": "enemy"
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_seal",
+   "name": "封脈",
+   "faction": "arcane",
+   "type": "skill",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "applyStatus",
+     "status": "weak",
+     "amount": 2,
+     "target": "enemy"
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "applyStatus",
+      "status": "weak",
+      "amount": 3,
+      "target": "enemy"
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_chain",
+   "name": "連印",
+   "faction": "arcane",
+   "type": "attack",
+   "rarity": "common",
+   "cost": 0,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 3,
+     "target": "enemy",
+     "times": 1
+    },
+    {
+     "type": "draw",
+     "amount": 1,
+     "if": {
+      "type": "playedGte",
+      "n": 2
+     }
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 5,
+      "target": "enemy",
+      "times": 1
+     },
+     {
+      "type": "draw",
+      "amount": 1,
+      "if": {
+       "type": "playedGte",
+       "n": 2
+      }
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_ember",
+   "name": "餘燼真言",
+   "faction": "arcane",
+   "type": "attack",
+   "rarity": "rare",
+   "cost": 2,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 6,
+     "target": "enemy",
+     "times": 1,
+     "scale": {
+      "by": "discard",
+      "per": 1
+     }
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 10,
+      "target": "enemy",
+      "times": 1,
+      "scale": {
+       "by": "discard",
+       "per": 1
+      }
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_recall",
+   "name": "回溯",
+   "faction": "arcane",
+   "type": "skill",
+   "rarity": "rare",
+   "cost": 1,
+   "keywords": {
+    "exhaust": true
+   },
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "retrieve",
+     "amount": 1,
+     "from": "discard"
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "cost": 0
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_wheel",
+   "name": "法輪常轉",
+   "faction": "arcane",
+   "type": "blessing",
+   "rarity": "rare",
+   "cost": 2,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [],
+   "triggers": {},
+   "powers": [
+    {
+     "trigger": "discardCard",
+     "effects": [
+      {
+       "type": "applyStatus",
+       "status": "charge",
+       "amount": 1,
+       "target": "self"
+      }
+     ]
+    }
+   ],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "cost": 1
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_miasma",
+   "name": "瘴霧",
+   "faction": "arcane",
+   "type": "skill",
+   "rarity": "rare",
+   "cost": 2,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "applyStatus",
+     "status": "hex",
+     "amount": 4,
+     "target": "allEnemies"
+    },
+    {
+     "type": "applyStatus",
+     "status": "weak",
+     "amount": 1,
+     "target": "allEnemies"
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "applyStatus",
+      "status": "hex",
+      "amount": 5,
+      "target": "allEnemies"
+     },
+     {
+      "type": "applyStatus",
+      "status": "weak",
+      "amount": 2,
+      "target": "allEnemies"
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_bind",
+   "name": "定身咒",
+   "faction": "arcane",
+   "type": "skill",
+   "rarity": "rare",
+   "cost": 2,
+   "keywords": {
+    "exhaust": true
+   },
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "applyStatus",
+     "status": "delay",
+     "amount": 1,
+     "target": "enemy"
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "cost": 1
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_hasten",
+   "name": "催命",
+   "faction": "arcane",
+   "type": "skill",
+   "rarity": "rare",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "applyStatus",
+     "status": "hex",
+     "amount": 0,
+     "target": "enemy",
+     "scale": {
+      "by": "targetStatus:hex",
+      "per": 1
+     }
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "使目標的〈蝕咒〉層數翻倍。",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "cost": 0
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_finale",
+   "name": "結印・終",
+   "faction": "arcane",
+   "type": "attack",
+   "rarity": "rare",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 5,
+     "target": "enemy",
+     "times": 1,
+     "scale": {
+      "by": "played",
+      "per": 3
+     }
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 5,
+      "target": "enemy",
+      "times": 1,
+      "scale": {
+       "by": "played",
+       "per": 4
+      }
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_sun",
+   "name": "大日真言",
+   "faction": "arcane",
+   "type": "attack",
+   "rarity": "epic",
+   "cost": 3,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 12,
+     "target": "allEnemies",
+     "times": 1,
+     "scale": {
+      "by": "status:charge",
+      "per": 3
+     }
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 16,
+      "target": "allEnemies",
+      "times": 1,
+      "scale": {
+       "by": "status:charge",
+       "per": 3
+      }
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "a_prison",
+   "name": "無間咒獄",
+   "faction": "arcane",
+   "type": "blessing",
+   "rarity": "epic",
+   "cost": 3,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [],
+   "triggers": {},
+   "powers": [
+    {
+     "trigger": "turnStart",
+     "effects": [
+      {
+       "type": "applyStatus",
+       "status": "hex",
+       "amount": 2,
+       "target": "allEnemies"
+      }
+     ]
+    }
+   ],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "powers": [
+     {
+      "trigger": "turnStart",
+      "effects": [
+       {
+        "type": "applyStatus",
+        "status": "hex",
+        "amount": 3,
+        "target": "allEnemies"
+       }
+      ]
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_strike",
+   "name": "觸擊",
+   "faction": "abyss",
+   "type": "attack",
+   "rarity": "starter",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 6,
+     "target": "enemy",
+     "times": 1
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 9,
+      "target": "enemy",
+      "times": 1
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_guard",
+   "name": "蜷伏",
+   "faction": "abyss",
+   "type": "skill",
+   "rarity": "starter",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "block",
+     "amount": 5
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "block",
+      "amount": 8
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_offering",
+   "name": "血祭",
+   "faction": "abyss",
+   "type": "skill",
+   "rarity": "starter",
+   "cost": 0,
+   "keywords": {},
+   "sacrifice": {
+    "alt": [
+     {
+      "type": "loseHp",
+      "amount": 3
+     }
+    ]
+   },
+   "effects": [
+    {
+     "type": "energy",
+     "amount": 2
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "祂們不在乎是誰的血。",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "energy",
+      "amount": 2
+     },
+     {
+      "type": "draw",
+      "amount": 1
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_net",
+   "name": "捕夢網",
+   "faction": "abyss",
+   "type": "attack",
+   "rarity": "starter",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 4,
+     "target": "enemy",
+     "times": 1
+    },
+    {
+     "type": "capture",
+     "threshold": 10
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "垂死者的夢，最容易被網住。",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 4,
+      "target": "enemy",
+      "times": 1
+     },
+     {
+      "type": "capture",
+      "threshold": 15
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_grasp",
+   "name": "深淵之握",
+   "faction": "abyss",
+   "type": "attack",
+   "rarity": "common",
+   "cost": 4,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 24,
+     "target": "enemy",
+     "times": 1
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 30,
+      "target": "enemy",
+      "times": 1
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_call",
+   "name": "深海的呼聲",
+   "faction": "abyss",
+   "type": "attack",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": {
+    "alt": [
+     {
+      "type": "addCard",
+      "card": "b_whisper",
+      "count": 1,
+      "zone": "draw"
+     }
+    ]
+   },
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 14,
+     "target": "enemy",
+     "times": 1
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 18,
+      "target": "enemy",
+      "times": 1
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_gouge",
+   "name": "剜心",
+   "faction": "abyss",
+   "type": "skill",
+   "rarity": "common",
+   "cost": 0,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "loseHp",
+     "amount": 5
+    },
+    {
+     "type": "energy",
+     "amount": 2
+    },
+    {
+     "type": "draw",
+     "amount": 1
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "loseHp",
+      "amount": 4
+     },
+     {
+      "type": "energy",
+      "amount": 2
+     },
+     {
+      "type": "draw",
+      "amount": 1
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_escort",
+   "name": "押解",
+   "faction": "abyss",
+   "type": "skill",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {
+    "exhaust": true
+   },
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "addCard",
+     "card": "b_prisoner",
+     "count": 1,
+     "zone": "hand"
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "addCard",
+      "card": "b_prisoner",
+      "count": 2,
+      "zone": "hand"
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_devour",
+   "name": "噬魂",
+   "faction": "abyss",
+   "type": "attack",
+   "rarity": "common",
+   "cost": 2,
+   "keywords": {},
+   "sacrifice": {
+    "alt": [
+     {
+      "type": "addCard",
+      "card": "b_whisper",
+      "count": 1,
+      "zone": "discard"
+     }
+    ]
+   },
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 12,
+     "target": "enemy",
+     "times": 1
+    },
+    {
+     "type": "block",
+     "amount": 12,
+     "if": {
+      "type": "tributePaid"
+     }
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 16,
+      "target": "enemy",
+      "times": 1
+     },
+     {
+      "type": "block",
+      "amount": 14,
+      "if": {
+       "type": "tributePaid"
+      }
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_lore",
+   "name": "禁忌知識",
+   "faction": "abyss",
+   "type": "skill",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "draw",
+     "amount": 3
+    },
+    {
+     "type": "addCard",
+     "card": "b_whisper",
+     "count": 1,
+     "zone": "discard"
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "draw",
+      "amount": 4
+     },
+     {
+      "type": "addCard",
+      "card": "b_whisper",
+      "count": 1,
+      "zone": "discard"
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_blade",
+   "name": "囈語之刃",
+   "faction": "abyss",
+   "type": "attack",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 10,
+     "target": "enemy",
+     "times": 1
+    },
+    {
+     "type": "addCard",
+     "card": "b_whisper",
+     "count": 1,
+     "zone": "draw"
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 13,
+      "target": "enemy",
+      "times": 1
+     },
+     {
+      "type": "addCard",
+      "card": "b_whisper",
+      "count": 1,
+      "zone": "draw"
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_burn",
+   "name": "焚稿",
+   "faction": "abyss",
+   "type": "skill",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "exhaustCards",
+     "amount": 1
+    },
+    {
+     "type": "block",
+     "amount": 8
+    },
+    {
+     "type": "draw",
+     "amount": 1
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "exhaustCards",
+      "amount": 1
+     },
+     {
+      "type": "block",
+      "amount": 11
+     },
+     {
+      "type": "draw",
+      "amount": 1
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_touch",
+   "name": "舊日之觸",
+   "faction": "abyss",
+   "type": "attack",
+   "rarity": "rare",
+   "cost": 5,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 26,
+     "target": "allEnemies",
+     "times": 1
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "cost": 4
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_altar",
+   "name": "祭壇",
+   "faction": "abyss",
+   "type": "blessing",
+   "rarity": "rare",
+   "cost": 2,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [],
+   "triggers": {},
+   "powers": [
+    {
+     "trigger": "sacrifice",
+     "effects": [
+      {
+       "type": "draw",
+       "amount": 1
+      },
+      {
+       "type": "block",
+       "amount": 4
+      }
+     ]
+    }
+   ],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "cost": 1
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_banquet",
+   "name": "虛空盛宴",
+   "faction": "abyss",
+   "type": "skill",
+   "rarity": "rare",
+   "cost": 1,
+   "keywords": {
+    "exhaust": true
+   },
+   "sacrifice": {
+    "alt": [
+     {
+      "type": "loseHp",
+      "amount": 6
+     }
+    ]
+   },
+   "effects": [
+    {
+     "type": "energy",
+     "amount": 3
+    },
+    {
+     "type": "draw",
+     "amount": 2
+    },
+    {
+     "type": "heal",
+     "amount": 6,
+     "if": {
+      "type": "tributePaid"
+     }
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "energy",
+      "amount": 4
+     },
+     {
+      "type": "draw",
+      "amount": 2
+     },
+     {
+      "type": "heal",
+      "amount": 6,
+      "if": {
+       "type": "tributePaid"
+      }
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_cage",
+   "name": "囚籠",
+   "faction": "abyss",
+   "type": "skill",
+   "rarity": "rare",
+   "cost": 2,
+   "keywords": {
+    "exhaust": true
+   },
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "capture",
+     "threshold": 20
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "capture",
+      "threshold": 28
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_breed",
+   "name": "飼育",
+   "faction": "abyss",
+   "type": "skill",
+   "rarity": "rare",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "block",
+     "amount": 4,
+     "scale": {
+      "by": "tributes",
+      "per": 3
+     }
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "block",
+      "amount": 6,
+      "scale": {
+       "by": "tributes",
+       "per": 4
+      }
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_madfeed",
+   "name": "以狂為食",
+   "faction": "abyss",
+   "type": "blessing",
+   "rarity": "rare",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [],
+   "triggers": {},
+   "powers": [
+    {
+     "trigger": "exhaustCard",
+     "effects": [
+      {
+       "type": "block",
+       "amount": 3
+      },
+      {
+       "type": "damage",
+       "amount": 4,
+       "target": "randomEnemy",
+       "times": 1
+      }
+     ]
+    }
+   ],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "powers": [
+     {
+      "trigger": "exhaustCard",
+      "effects": [
+       {
+        "type": "block",
+        "amount": 4
+       },
+       {
+        "type": "damage",
+        "amount": 6,
+        "target": "randomEnemy",
+        "times": 1
+       }
+      ]
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_unnamable",
+   "name": "不可名狀之物",
+   "faction": "abyss",
+   "type": "attack",
+   "rarity": "epic",
+   "cost": 6,
+   "keywords": {
+    "exhaust": true
+   },
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 50,
+     "target": "enemy",
+     "times": 1
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 60,
+      "target": "enemy",
+      "times": 1
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_stars",
+   "name": "群星歸位",
+   "faction": "abyss",
+   "type": "blessing",
+   "rarity": "epic",
+   "cost": 3,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [],
+   "triggers": {},
+   "powers": [
+    {
+     "trigger": "turnStart",
+     "effects": [
+      {
+       "type": "addCard",
+       "card": "b_prisoner",
+       "count": 1,
+       "zone": "hand"
+      }
+     ]
+    }
+   ],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "cost": 2
+   },
+   "publish": "official"
+  },
+  {
+   "id": "b_prisoner",
+   "name": "囚徒",
+   "faction": "abyss",
+   "type": "tribute",
+   "rarity": "special",
+   "cost": -1,
+   "keywords": {
+    "unplayable": true
+   },
+   "sacrifice": null,
+   "effects": [],
+   "triggers": {
+    "sacrificed": [
+     {
+      "type": "draw",
+      "amount": 1
+     }
+    ]
+   },
+   "powers": [],
+   "text": "",
+   "flavor": "他早已不再求饒。",
+   "image": "",
+   "upgrade": null,
+   "publish": "official"
+  },
+  {
+   "id": "tribute_s",
+   "name": "生贄（小）",
+   "faction": "abyss",
+   "type": "tribute",
+   "rarity": "special",
+   "cost": -1,
+   "keywords": {
+    "unplayable": true
+   },
+   "sacrifice": null,
+   "effects": [],
+   "triggers": {
+    "sacrificed": [
+     {
+      "type": "energy",
+      "amount": 1
+     }
+    ]
+   },
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": null,
+   "publish": "official"
+  },
+  {
+   "id": "tribute_m",
+   "name": "生贄（中）",
+   "faction": "abyss",
+   "type": "tribute",
+   "rarity": "special",
+   "cost": -1,
+   "keywords": {
+    "unplayable": true
+   },
+   "sacrifice": null,
+   "effects": [],
+   "triggers": {
+    "sacrificed": [
+     {
+      "type": "energy",
+      "amount": 1
+     },
+     {
+      "type": "draw",
+      "amount": 1
+     }
+    ]
+   },
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": null,
+   "publish": "official"
+  },
+  {
+   "id": "tribute_l",
+   "name": "生贄（大）",
+   "faction": "abyss",
+   "type": "tribute",
+   "rarity": "special",
+   "cost": -1,
+   "keywords": {
+    "unplayable": true
+   },
+   "sacrifice": null,
+   "effects": [],
+   "triggers": {
+    "sacrificed": [
+     {
+      "type": "energy",
+      "amount": 2
+     },
+     {
+      "type": "draw",
+      "amount": 2
+     }
+    ]
+   },
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": null,
+   "publish": "official"
+  },
+  {
+   "id": "b_whisper",
+   "name": "低語",
+   "faction": "abyss",
+   "type": "status",
+   "rarity": "special",
+   "cost": -1,
+   "keywords": {
+    "unplayable": true
+   },
+   "sacrifice": null,
+   "effects": [],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "你聽不懂，但你開始想聽懂。",
+   "image": "",
+   "upgrade": null,
+   "publish": "official"
+  },
+  {
+   "id": "b_madness",
+   "name": "瘋狂",
+   "faction": "abyss",
+   "type": "curse",
+   "rarity": "special",
+   "cost": -1,
+   "keywords": {
+    "unplayable": true
+   },
+   "sacrifice": null,
+   "effects": [],
+   "triggers": {
+    "turnEndInHand": [
+     {
+      "type": "loseHp",
+      "amount": 1
+     }
+    ]
+   },
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": null,
+   "publish": "official"
+  },
+  {
+   "id": "n_breath",
+   "name": "喘息",
+   "faction": "nameless",
+   "type": "skill",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "block",
+     "amount": 4
+    },
+    {
+     "type": "draw",
+     "amount": 1
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "block",
+      "amount": 6
+     },
+     {
+      "type": "draw",
+      "amount": 1
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "n_smash",
+   "name": "猛擊",
+   "faction": "nameless",
+   "type": "attack",
+   "rarity": "common",
+   "cost": 2,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 14,
+     "target": "enemy",
+     "times": 1
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 18,
+      "target": "enemy",
+      "times": 1
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "n_aid",
+   "name": "急救",
+   "faction": "nameless",
+   "type": "skill",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {
+    "exhaust": true
+   },
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "heal",
+     "amount": 6
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "heal",
+      "amount": 9
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "n_spark",
+   "name": "靈光",
+   "faction": "nameless",
+   "type": "skill",
+   "rarity": "common",
+   "cost": 0,
+   "keywords": {
+    "exhaust": true
+   },
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "draw",
+     "amount": 2
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "draw",
+      "amount": 3
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "n_sweep",
+   "name": "橫掃",
+   "faction": "nameless",
+   "type": "attack",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 5,
+     "target": "allEnemies",
+     "times": 1
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 8,
+      "target": "allEnemies",
+      "times": 1
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "n_wait",
+   "name": "伺機",
+   "faction": "nameless",
+   "type": "skill",
+   "rarity": "common",
+   "cost": 1,
+   "keywords": {
+    "retain": true
+   },
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "block",
+     "amount": 7
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "block",
+      "amount": 10
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "n_flaw",
+   "name": "破綻",
+   "faction": "nameless",
+   "type": "skill",
+   "rarity": "common",
+   "cost": 0,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "applyStatus",
+     "status": "weak",
+     "amount": 1,
+     "target": "enemy"
+    },
+    {
+     "type": "draw",
+     "amount": 1
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "applyStatus",
+      "status": "weak",
+      "amount": 2,
+      "target": "enemy"
+     },
+     {
+      "type": "draw",
+      "amount": 1
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "n_gather",
+   "name": "蓄勢",
+   "faction": "nameless",
+   "type": "skill",
+   "rarity": "rare",
+   "cost": 1,
+   "keywords": {
+    "exhaust": true
+   },
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "energy",
+     "amount": 2
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "cost": 0
+   },
+   "publish": "official"
+  },
+  {
+   "id": "n_fire",
+   "name": "無名之火",
+   "faction": "nameless",
+   "type": "attack",
+   "rarity": "rare",
+   "cost": 1,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [
+    {
+     "type": "damage",
+     "amount": 4,
+     "target": "enemy",
+     "times": 1,
+     "scale": {
+      "by": "hand",
+      "per": 2
+     }
+    }
+   ],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "effects": [
+     {
+      "type": "damage",
+      "amount": 6,
+      "target": "enemy",
+      "times": 1,
+      "scale": {
+       "by": "hand",
+       "per": 2
+      }
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "n_stand",
+   "name": "不屈",
+   "faction": "nameless",
+   "type": "blessing",
+   "rarity": "rare",
+   "cost": 2,
+   "keywords": {},
+   "sacrifice": null,
+   "effects": [],
+   "triggers": {},
+   "powers": [
+    {
+     "trigger": "turnEnd",
+     "effects": [
+      {
+       "type": "block",
+       "amount": 3
+      }
+     ]
+    }
+   ],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": {
+    "powers": [
+     {
+      "trigger": "turnEnd",
+      "effects": [
+       {
+        "type": "block",
+        "amount": 5
+       }
+      ]
+     }
+    ]
+   },
+   "publish": "official"
+  },
+  {
+   "id": "n_daze",
+   "name": "暈眩",
+   "faction": "nameless",
+   "type": "status",
+   "rarity": "special",
+   "cost": -1,
+   "keywords": {
+    "unplayable": true
+   },
+   "sacrifice": null,
+   "effects": [],
+   "triggers": {},
+   "powers": [],
+   "text": "",
+   "flavor": "",
+   "image": "",
+   "upgrade": null,
+   "publish": "official"
+  }
+ ],
+ "characters": [
+  {
+   "id": "verti",
+   "name": "薇爾緹",
+   "title": "血誓騎士",
+   "faction": "crimson",
+   "hp": 80,
+   "relic": "r_chalice",
+   "deck": [
+    "c_strike",
+    "c_strike",
+    "c_strike",
+    "c_strike",
+    "c_guard",
+    "c_guard",
+    "c_guard",
+    "c_guard",
+    "c_bloodrite",
+    "c_drain"
+   ],
+   "desc": "以血立誓，以血償還。自損換取力量，再從敵人身上討回來。",
+   "image": "",
+   "publish": "official"
+  },
+  {
+   "id": "tanga",
+   "name": "曇伽",
+   "title": "持咒者",
+   "faction": "arcane",
+   "hp": 70,
+   "relic": "r_wheel",
+   "deck": [
+    "a_strike",
+    "a_strike",
+    "a_strike",
+    "a_strike",
+    "a_guard",
+    "a_guard",
+    "a_guard",
+    "a_guard",
+    "a_scry",
+    "a_bolt"
+   ],
+   "desc": "牌堆、棄牌區皆是經卷。蓄積充能，或以蝕咒慢慢耗盡對手。",
+   "image": "",
+   "publish": "official"
+  },
+  {
+   "id": "isera",
+   "name": "伊瑟菈",
+   "title": "教團祭司",
+   "faction": "abyss",
+   "hp": 65,
+   "relic": "r_shackle",
+   "deck": [
+    "b_strike",
+    "b_strike",
+    "b_strike",
+    "b_strike",
+    "b_guard",
+    "b_guard",
+    "b_guard",
+    "b_guard",
+    "b_offering",
+    "b_net"
+   ],
+   "desc": "捕捉、囚禁、獻祭。以生贄換取驅使不可名狀之物的能量。",
+   "image": "",
+   "publish": "official"
+  }
+ ],
+ "enemies": [
+  {
+   "id": "hound",
+   "name": "腐沼獵犬",
+   "hp": [
+    18,
+    22
+   ],
+   "boss": false,
+   "pattern": "cycle",
+   "moves": [
+    {
+     "name": "撕咬",
+     "effects": [
+      {
+       "type": "damage",
+       "amount": 6,
+       "target": "enemy",
+       "times": 1
+      }
+     ]
+    },
+    {
+     "name": "低吼",
+     "effects": [
+      {
+       "type": "applyStatus",
+       "status": "strength",
+       "amount": 2,
+       "target": "self"
+      }
+     ]
+    },
+    {
+     "name": "撲擊",
+     "effects": [
+      {
+       "type": "damage",
+       "amount": 8,
+       "target": "enemy",
+       "times": 1
+      }
+     ]
+    }
+   ],
+   "image": "",
+   "publish": "official"
+  },
+  {
+   "id": "swarm",
+   "name": "蝕肉蟲群",
+   "hp": [
+    13,
+    16
+   ],
+   "boss": false,
+   "pattern": "random",
+   "moves": [
+    {
+     "name": "啃咬",
+     "effects": [
+      {
+       "type": "damage",
+       "amount": 2,
+       "target": "enemy",
+       "times": 2
+      }
+     ]
+    },
+    {
+     "name": "蝕液",
+     "effects": [
+      {
+       "type": "damage",
+       "amount": 2,
+       "target": "enemy",
+       "times": 1
+      },
+      {
+       "type": "applyStatus",
+       "status": "bleed",
+       "amount": 2,
+       "target": "enemy"
+      }
+     ]
+    }
+   ],
+   "image": "",
+   "publish": "official"
+  },
+  {
+   "id": "cultist",
+   "name": "蠟面信徒",
+   "hp": [
+    22,
+    26
+   ],
+   "boss": false,
+   "pattern": "cycle",
+   "moves": [
+    {
+     "name": "囈語",
+     "effects": [
+      {
+       "type": "damage",
+       "amount": 4,
+       "target": "enemy",
+       "times": 1
+      },
+      {
+       "type": "addCard",
+       "card": "n_daze",
+       "count": 1,
+       "zone": "discard"
+      }
+     ]
+    },
+    {
+     "name": "鞭笞",
+     "effects": [
+      {
+       "type": "damage",
+       "amount": 7,
+       "target": "enemy",
+       "times": 1
+      }
+     ]
+    }
+   ],
+   "image": "",
+   "publish": "official"
+  },
+  {
+   "id": "lantern",
+   "name": "骨燈守衛",
+   "hp": [
+    28,
+    32
+   ],
+   "boss": false,
+   "pattern": "cycle",
+   "moves": [
+    {
+     "name": "舉盾推進",
+     "effects": [
+      {
+       "type": "block",
+       "amount": 6
+      },
+      {
+       "type": "damage",
+       "amount": 5,
+       "target": "enemy",
+       "times": 1
+      }
+     ]
+    },
+    {
+     "name": "重擊",
+     "effects": [
+      {
+       "type": "damage",
+       "amount": 10,
+       "target": "enemy",
+       "times": 1
+      }
+     ]
+    }
+   ],
+   "image": "",
+   "publish": "official"
+  },
+  {
+   "id": "knight",
+   "name": "鏽甲騎士",
+   "hp": [
+    44,
+    50
+   ],
+   "boss": false,
+   "pattern": "cycle",
+   "moves": [
+    {
+     "name": "蓄力",
+     "effects": [
+      {
+       "type": "applyStatus",
+       "status": "strength",
+       "amount": 3,
+       "target": "self"
+      },
+      {
+       "type": "block",
+       "amount": 8
+      }
+     ]
+    },
+    {
+     "name": "劈斬",
+     "effects": [
+      {
+       "type": "damage",
+       "amount": 11,
+       "target": "enemy",
+       "times": 1
+      }
+     ]
+    },
+    {
+     "name": "連斬",
+     "effects": [
+      {
+       "type": "damage",
+       "amount": 4,
+       "target": "enemy",
+       "times": 2
+      }
+     ]
+    }
+   ],
+   "image": "",
+   "publish": "official"
+  },
+  {
+   "id": "stitched",
+   "name": "縫合屍",
+   "hp": [
+    54,
+    60
+   ],
+   "boss": false,
+   "pattern": "cycle",
+   "moves": [
+    {
+     "name": "重拳",
+     "effects": [
+      {
+       "type": "damage",
+       "amount": 13,
+       "target": "enemy",
+       "times": 1
+      }
+     ]
+    },
+    {
+     "name": "嚎叫",
+     "effects": [
+      {
+       "type": "applyStatus",
+       "status": "weak",
+       "amount": 2,
+       "target": "enemy"
+      },
+      {
+       "type": "block",
+       "amount": 6
+      }
+     ]
+    },
+    {
+     "name": "砸地",
+     "effects": [
+      {
+       "type": "damage",
+       "amount": 8,
+       "target": "enemy",
+       "times": 1
+      },
+      {
+       "type": "addCard",
+       "card": "n_daze",
+       "count": 1,
+       "zone": "discard"
+      }
+     ]
+    }
+   ],
+   "image": "",
+   "publish": "official"
+  },
+  {
+   "id": "bellkeeper",
+   "name": "無目的守鐘人",
+   "hp": [
+    140,
+    140
+   ],
+   "boss": true,
+   "pattern": "cycle",
+   "moves": [
+    {
+     "name": "鐘鳴",
+     "effects": [
+      {
+       "type": "applyStatus",
+       "status": "strength",
+       "amount": 2,
+       "target": "self"
+      },
+      {
+       "type": "block",
+       "amount": 12
+      }
+     ]
+    },
+    {
+     "name": "審判",
+     "effects": [
+      {
+       "type": "damage",
+       "amount": 15,
+       "target": "enemy",
+       "times": 1
+      }
+     ]
+    },
+    {
+     "name": "迴響",
+     "effects": [
+      {
+       "type": "damage",
+       "amount": 5,
+       "target": "enemy",
+       "times": 3
+      }
+     ]
+    },
+    {
+     "name": "沉默之鐘",
+     "effects": [
+      {
+       "type": "applyStatus",
+       "status": "weak",
+       "amount": 2,
+       "target": "enemy"
+      },
+      {
+       "type": "addCard",
+       "card": "n_daze",
+       "count": 2,
+       "zone": "draw"
+      }
+     ]
+    },
+    {
+     "name": "終響",
+     "effects": [
+      {
+       "type": "damage",
+       "amount": 22,
+       "target": "enemy",
+       "times": 1
+      }
+     ]
+    }
+   ],
+   "image": "",
+   "publish": "official"
+  }
+ ],
+ "encounters": [
+  {
+   "id": "e1",
+   "name": "落單的獵犬",
+   "pool": "easy",
+   "enemies": [
+    "hound"
+   ],
+   "publish": "official"
+  },
+  {
+   "id": "e2",
+   "name": "蟲群",
+   "pool": "easy",
+   "enemies": [
+    "swarm",
+    "swarm"
+   ],
+   "publish": "official"
+  },
+  {
+   "id": "e3",
+   "name": "巡夜信徒",
+   "pool": "easy",
+   "enemies": [
+    "cultist"
+   ],
+   "publish": "official"
+  },
+  {
+   "id": "e4",
+   "name": "骨燈哨站",
+   "pool": "easy",
+   "enemies": [
+    "lantern"
+   ],
+   "publish": "official"
+  },
+  {
+   "id": "h1",
+   "name": "獵犬與蟲",
+   "pool": "hard",
+   "enemies": [
+    "hound",
+    "swarm"
+   ],
+   "publish": "official"
+  },
+  {
+   "id": "h2",
+   "name": "鏽甲騎士",
+   "pool": "hard",
+   "enemies": [
+    "knight"
+   ],
+   "publish": "official"
+  },
+  {
+   "id": "h3",
+   "name": "縫合屍",
+   "pool": "hard",
+   "enemies": [
+    "stitched"
+   ],
+   "publish": "official"
+  },
+  {
+   "id": "h4",
+   "name": "信徒與守衛",
+   "pool": "hard",
+   "enemies": [
+    "cultist",
+    "lantern"
+   ],
+   "publish": "official"
+  },
+  {
+   "id": "boss1",
+   "name": "鐘樓之頂",
+   "pool": "boss",
+   "enemies": [
+    "bellkeeper"
+   ],
+   "publish": "official"
+  }
+ ],
+ "relics": [
+  {
+   "id": "r_chalice",
+   "name": "緋紅聖杯",
+   "desc": "",
+   "flavor": "杯中之物從未乾涸。",
+   "powers": [
+    {
+     "trigger": "enemyDeath",
+     "effects": [
+      {
+       "type": "heal",
+       "amount": 4
+      }
+     ]
+    }
+   ],
+   "image": "",
+   "publish": "official"
+  },
+  {
+   "id": "r_wheel",
+   "name": "轉經輪",
+   "desc": "",
+   "flavor": "每轉一圈，世界便重來一次。",
+   "powers": [
+    {
+     "trigger": "shuffle",
+     "effects": [
+      {
+       "type": "applyStatus",
+       "status": "charge",
+       "amount": 1,
+       "target": "self"
+      },
+      {
+       "type": "draw",
+       "amount": 1
+      }
+     ]
+    }
+   ],
+   "image": "",
+   "publish": "official"
+  },
+  {
+   "id": "r_shackle",
+   "name": "囚徒的鐐銬",
+   "desc": "",
+   "flavor": "鎖的另一端永遠有人。",
+   "powers": [
+    {
+     "trigger": "battleStart",
+     "effects": [
+      {
+       "type": "addCard",
+       "card": "b_prisoner",
+       "count": 1,
+       "zone": "hand"
+      }
+     ]
+    }
+   ],
+   "image": "",
+   "publish": "official"
+  }
+ ]
+}
