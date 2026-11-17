@@ -76,7 +76,7 @@ export async function startBattle(state) {
 }
 
 const log = (state, msg) => { state.log.push(msg); if (state.log.length > 200) state.log.shift(); };
-const emit = (state, ev) => state.events.push(ev);
+const emit = (state, ev) => { state.events.push(ev); if (state.events.length > 400) state.events.splice(0, 200); };
 const over = (state) => state.phase === 'won' || state.phase === 'lost';
 const alive = (state) => state.enemies.filter((e) => !e.dead);
 
@@ -162,11 +162,13 @@ async function dealDamage(state, src, tgt, base) {
   tgt.block -= blocked;
   if (blocked) emit(state, { type: 'block', uid: tgt.uid, amount: -blocked });
   log(state, `${src.name} 對 ${tgt.name} 造成 ${d} 點傷害${blocked ? `（${blocked} 點被格擋）` : ''}`);
+  emit(state, { type: 'struck', uid: tgt.uid, blocked: d - blocked <= 0 });
   return loseHp(state, tgt, d - blocked);
 }
 
 async function die(state, actor, captured = false) {
   actor.dead = true; actor.hp = Math.max(0, actor.hp);
+  emit(state, { type: 'die', uid: actor.uid, captured });
   if (actor.isPlayer) { state.phase = 'lost'; log(state, '你倒下了。'); return; }
   if (!captured) log(state, `${actor.name} 被擊倒`);
   await fire(state, 'enemyDeath');
@@ -399,6 +401,10 @@ export async function playCard(state, cardUid, targetUid) {
     state.player.energy -= def.cost;
     removeFrom(state.hand, inst);
     log(state, `打出「${def.name}」`);
+    // 給畫面用：這張牌要讓紙偶擺出哪個姿勢
+    const pose = tribute ? 'sacrifice' : def.type === 'attack' ? 'attack' : def.type === 'blessing' ? 'blessing'
+      : (def.effects || []).some((e) => e.type === 'block') ? 'block' : 'skill';
+    emit(state, { type: 'act', uid: 'player', pose });
 
     if (def.sacrifice) {
       if (tribute) {
@@ -479,12 +485,11 @@ export async function endTurn(state) {
         log(state, `${en.name} 的行動被延遲`);
       } else {
         log(state, `${en.name} 使出「${en.intent.name}」`);
-        en.acting = true;
+        emit(state, { type: 'act', uid: en.uid, pose: (en.intent.effects || []).some((e) => e.type === 'damage') ? 'attack' : 'charge' });
         await runEffects(state, en.intent.effects || [], { source: en });
         en.delayImmune = false;
         advanceIntent(state, en);
         await state.tick();
-        en.acting = false;
       }
       if (over(state)) return;
       await endOfTurnStatuses(state, en);

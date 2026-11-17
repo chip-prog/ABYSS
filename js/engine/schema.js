@@ -153,3 +153,23 @@ export function blankCard(id) {
     text: '', flavor: '', image: '', upgrade: null, publish: 'draft',
   };
 }
+
+// 紙偶姿勢。fallback：缺圖時依序改用哪個姿勢。
+export const HERO_POSES = {
+  idle: { label: '待機', when: '平時' },
+  attack: { label: '攻擊', when: '打出攻擊牌', fallback: ['idle'] },
+  block: { label: '格擋', when: '打出會獲得格擋的牌', fallback: ['idle'] },
+  skill: { label: '技能', when: '打出其他技能牌', fallback: ['idle'] },
+  blessing: { label: '祝福', when: '打出祝福牌', fallback: ['skill', 'idle'] },
+  hitBlocked: { label: '受擊（無扣血）', when: '攻擊被格擋完全擋下', fallback: ['block', 'idle'] },
+  hit: { label: '受擊（有扣血）', when: '失去生命', fallback: ['idle'] },
+  sacrifice: { label: '獻祭', when: '獻祭了一張生贄', fallback: ['skill', 'idle'] },
+  down: { label: '倒下', when: '戰敗', fallback: ['hit', 'idle'] },
+};
+export const ENEMY_POSES = {
+  idle: { label: '待機', when: '平時' },
+  attack: { label: '攻擊', when: '使出會造成傷害的招式', fallback: ['idle'] },
+  charge: { label: '蓄力', when: '使出不造成傷害的招式', fallback: ['idle'] },
+  hitBlocked: { label: '受擊（無扣血）', when: '攻擊被格擋完全擋下', fallback: ['idle'] },
+  hit: { label: '受擊（有扣血）', when: '失去生命', fallback: ['idle'] },
+};

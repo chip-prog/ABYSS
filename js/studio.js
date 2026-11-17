@@ -1,6 +1,9 @@
 // Studio：不用寫程式就能編輯遊戲內容的工作台。
 // 所有修改只存在這台電腦的瀏覽器裡（測試環境），匯出後才會交給別人或套用到遊戲。
-import { h, fill, cardEl, modal, toast, confirmBox, clone, loadOfficial, loadWorking, KEY_WORK } from './ui/common.js';
+import { h, fill, cardEl, modal, toast, confirmBox, clone, sleep, loadOfficial, KEY_WORK } from './ui/common.js';
+import { kvGet, kvSet, initImages, imgUrl, isLocal, localKey, hasImage, imageSize, imageKeys, getBlob, addImage, delImage, walkRefs, fileToBlob } from './ui/store.js';
+import { zipFiles, unzip } from './ui/zip.js';
+import { makePuppet, poseTransform } from './ui/puppet.js';
 import { indexContent } from './engine/battle.js';
 import { uid } from './engine/rng.js';
 import * as SC from './engine/schema.js';
@@ -24,14 +27,14 @@ const KIND_LABEL = { card: '卡片', character: '角色', enemy: '敵人', encou
 // ───────── 儲存 ─────────
 function commit(structural = false) {
   idx = indexContent(C);
-  issues = validate(C);
+  issues = validate(C).concat(imageIssues());
   clearTimeout(saveTimer);
   $save.textContent = '儲存中…';
   saveTimer = setTimeout(() => {
-    try {
-      localStorage.setItem(KEY_WORK, JSON.stringify(C));
+    kvSet('content', C).then(() => {
+      localStorage.removeItem(KEY_WORK); // 舊版的儲存位置，搬完就清掉
       $save.textContent = `已自動儲存 ${new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}`;
-    } catch { $save.textContent = '⚠ 儲存空間已滿（圖片太多），請先匯出備份'; }
+    }).catch(() => { $save.textContent = '⚠ 儲存失敗，請先匯出備份'; });
   }, 300);
   if (structural) render(); else { previewFn?.(); drawNav(); }
 }
@@ -89,21 +92,92 @@ function publishToggle(o) {
 }
 const pubBadge = (o) => h('span', { class: 'badge ' + (o.publish === 'official' ? 'official' : 'draft') }, o.publish === 'official' ? '正式' : '草稿');
 
-function imageField(o) {
+function imageField(o, { max = 600, onChange } = {}) {
   const wrap = h('div', { class: 'row' });
-  const draw = () => fill(wrap, 
-    o.image ? h('img', { src: o.image, class: 'thumb', alt: '' }) : h('span', { class: 'faint small' }, '尚未上傳，會使用預設圖樣'),
+  const draw = () => fill(wrap,
+    o.image ? h('img', { src: imgUrl(o.image), class: 'thumb', alt: '' }) : h('span', { class: 'faint small' }, '尚未上傳，會使用預設圖樣'),
     h('label', { class: 'btn sm' }, o.image ? '更換圖片' : '上傳圖片', h('input', { type: 'file', accept: 'image/*', class: 'hidden', onchange: async (e) => {
       const file = e.target.files[0]; if (!file) return;
-      const img = new Image(); img.src = URL.createObjectURL(file); await img.decode();
-      const k = Math.min(1, 360 / Math.max(img.width, img.height));
-      const cv = h('canvas', { width: Math.round(img.width * k), height: Math.round(img.height * k) });
-      cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
-      o.image = cv.toDataURL('image/jpeg', 0.78); commit(); draw();
+      try { o.image = await addImage(await fileToBlob(file, max)); } catch { return toast('這張圖片無法讀取'); }
+      commit(); draw(); onChange?.();
     } })),
-    o.image ? h('button', { class: 'btn sm ghost', onclick: () => { o.image = ''; commit(); draw(); } }, '移除') : null);
+    o.image ? h('button', { class: 'btn sm ghost', onclick: () => { o.image = ''; delete o.imagePos; commit(); draw(); onChange?.(); } }, '移除') : null);
   draw();
   return wrap;
+}
+const slider = (label, value, min, max, oninput, unit = '') => {
+  const out = h('span', { class: 'slider-val' }, value + unit);
+  return h('label', { class: 'slider' }, h('span', {}, label), h('input', { type: 'range', min, max, value, oninput: (e) => { out.textContent = e.target.value + unit; oninput(Number(e.target.value)); } }), out);
+};
+const inBool = (o, k, label) => h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: o[k] !== false, onchange: (e) => { o[k] = e.target.checked; commit(); } }), label);
+
+// 圖片相關的檢查：遺失或檔案過大
+function imageIssues() {
+  const out = [];
+  const scan = (kind, x) => {
+    const refs = []; (function walk(n) { if (!n || typeof n !== 'object') return; for (const [k, v] of Object.entries(n)) { if ((k === 'image' || k === 'img') && typeof v === 'string' && v) refs.push(v); else walk(v); } })(x);
+    for (const r of refs) {
+      if (!isLocal(r)) continue;
+      if (!hasImage(localKey(r))) out.push({ level: 'error', kind, id: x.id, name: x.name, msg: '有一張圖片遺失了，請重新上傳' });
+      else if (imageSize(localKey(r)) > 1500000) out.push({ level: 'warn', kind, id: x.id, name: x.name, msg: `有一張圖片檔案偏大（${(imageSize(localKey(r)) / 1e6).toFixed(1)} MB），會拖慢載入` });
+    }
+  };
+  for (const [kind, list] of [['card', C.cards], ['character', C.characters], ['enemy', C.enemies], ['relic', C.relics]]) for (const x of list || []) scan(kind, x);
+  return out;
+}
+
+// ───────── 紙偶姿勢編輯器 ─────────
+const POSE_MOVE = { attack: 'lunge', hit: 'recoil', hitBlocked: 'nudge', block: 'nudge', skill: 'nudge', blessing: 'raise', sacrifice: 'raise', charge: 'raise', down: 'fall' };
+function posesEditor(ent, defs, side, color) {
+  ent.poses ||= {};
+  const opt = { ghost: false };
+  const ghost = h('img', { class: 'pose-ghost', alt: '' });
+  const stageBox = h('div', { class: 'pose-stage' });
+  let puppet;
+  const syncGhost = () => {
+    const p = ent.poses.idle;
+    ghost.hidden = !(opt.ghost && p?.img);
+    if (!ghost.hidden) { ghost.src = imgUrl(p.img); ghost.style.transform = poseTransform(p); }
+  };
+  const build = (pose = 'idle') => {
+    puppet = makePuppet({ name: ent.name, poses: ent.poses, defs, side, color, paperEdge: C.rules.fx?.paperEdge !== false });
+    fill(stageBox, h('div', { class: 'pose-box' }, ghost, puppet.el), h('div', { class: 'pose-ground' }, '地面'));
+    puppet.setPose(pose, true); syncGhost();
+  };
+  const preview = async (name) => {
+    build(); await sleep(30);
+    await puppet.setPose(name);
+    await puppet.play(POSE_MOVE[name]);
+    if (name !== 'idle') { await sleep(name === 'down' ? 500 : 350); build(); }
+  };
+  const slots = h('div', { class: 'pose-slots' });
+  const drawSlots = () => fill(slots, Object.entries(defs).map(([name, d]) => {
+    const p = ent.poses[name];
+    const has = !!p?.img;
+    return h('div', { class: 'pose-slot' + (has ? ' has' : '') },
+      h('div', { class: 'pose-thumb' }, has ? h('img', { src: imgUrl(p.img), alt: '' }) : h('span', {}, '無圖')),
+      h('div', { class: 'grow' },
+        h('div', {}, h('b', {}, d.label), h('span', { class: 'faint small' }, `　${d.when}`)),
+        h('div', { class: 'row', style: { marginTop: '4px' } },
+          h('label', { class: 'btn sm' }, has ? '更換' : '上傳', h('input', { type: 'file', accept: 'image/*', class: 'hidden', onchange: async (e) => {
+            const file = e.target.files[0]; if (!file) return;
+            try { const img = await addImage(await fileToBlob(file, 900)); ent.poses[name] = { scale: 1, x: 0, y: 0, ...(ent.poses[name] || {}), img }; } catch { return toast('這張圖片無法讀取'); }
+            commit(); drawSlots(); build(name);
+          } })),
+          has ? h('button', { class: 'btn sm ghost', onclick: () => { delete ent.poses[name]; commit(); drawSlots(); build(); } }, '移除') : null,
+          h('button', { class: 'btn sm ghost', onclick: () => preview(name) }, '▶ 預覽')),
+        has ? h('div', { class: 'pose-sliders' },
+          slider('大小', Math.round((p.scale || 1) * 100), 30, 250, (v) => { p.scale = v / 100; commit(); build(name); }, '%'),
+          slider('左右', p.x || 0, -200, 200, (v) => { p.x = v; commit(); build(name); }),
+          slider('上下', p.y || 0, -200, 200, (v) => { p.y = v; commit(); build(name); })) : null));
+  }));
+  drawSlots(); build();
+  return section('紙偶姿勢',
+    h('p', { class: 'dim small' }, `上傳去背的圖片（${side === 'left' ? '面向右' : '面向左'}）。缺少的姿勢會自動改用待機圖；全部沒有時，會顯示暫代的紙牌。`),
+    h('div', { class: 'pose-wrap' },
+      h('div', { class: 'pose-preview' }, stageBox,
+        h('label', { class: 'check small' }, h('input', { type: 'checkbox', onchange: (e) => { opt.ghost = e.target.checked; syncGhost(); } }), '疊上半透明的待機圖來比對位置')),
+      slots));
 }
 
 // ───────── 效果積木編輯器 ─────────
@@ -302,7 +376,8 @@ const VIEWS = {
         section('基本資料',
           h('div', { class: 'grid2' }, field('名字', inText(ch, 'name')), field('稱號', inText(ch, 'title')), field('陣營', inSel(ch, 'faction', ents(C.factions))), field('初始生命', inNum(ch, 'hp', { min: 1 })),
             field('初始遺物', inSel(ch, 'relic', ents(C.relics), { empty: '（無）' }))),
-          field('介紹', inArea(ch, 'desc')), field('肖像', imageField(ch)), field('狀態', publishToggle(ch))),
+          field('介紹', inArea(ch, 'desc')), field('肖像（選角畫面用，可留空）', imageField(ch)), field('狀態', publishToggle(ch))),
+        posesEditor(ch, SC.HERO_POSES, 'left', idx.factions.get(ch.faction)?.color),
         section('初始牌組', deckBox));
     },
   }),
@@ -329,7 +404,8 @@ const VIEWS = {
             field('生命（最低～最高）', h('span', { class: 'row' }, inNum(hp, 'lo', { min: 1, after: setHp }), '～', inNum(hp, 'hi', { min: 1, after: setHp })), '每場戰鬥會在範圍內隨機'),
             field('出招方式', inSel(en, 'pattern', [['cycle', '依序循環'], ['random', '隨機（不連續重複）']])),
             field('類別', inCheck(en, 'boss', '這是頭目（無法被捕捉）'))),
-          field('圖像', imageField(en)), field('狀態', publishToggle(en))),
+          field('狀態', publishToggle(en))),
+        posesEditor(en, SC.ENEMY_POSES, 'right', '#7a3a34'),
         section('招式', moves));
     },
   }),
@@ -417,6 +493,9 @@ const VIEWS = {
         h('div', { class: 'deck-rows' }, R.captureTiers.map((t, i) => h('div', { class: 'deck-row' },
           i < R.captureTiers.length - 1 ? [h('span', {}, '最大生命不高於'), inNum(t, 'maxHp', { min: 1 })] : h('span', {}, '其餘（更高的）'),
           h('span', {}, '→ 變成'), cardSelect(t, 'card'))))),
+      section('視覺效果',
+        inBool(R.fx ||= {}, 'closeup', '出手特寫：出招時背景壓暗、角色放大、背後放射光'), h('br'),
+        inBool(R.fx, 'paperEdge', '紙片白邊：自動替紙偶加上剪紙的白邊與陰影')),
       section('關卡流程（經典模式・第一章）', stages),
       issueBox('rules', 'rules'));
   },
@@ -438,7 +517,7 @@ const VIEWS = {
       if (!ids.length) return toast('牌組是空的');
       const deck = ids.map((id) => ({ uid: uid(), id }));
       const top = S.only ? [] : deck.slice(-S.extra.length).slice(0, 3).map((c) => c.uid);
-      const state = await runBattle(stage, idx, { player: { hp: ch.hp, maxHp: ch.hp, name: ch.name, image: ch.image }, deck, top, relics: ch.relic ? [ch.relic] : [], enemies: enc.enemies.filter((id) => idx.enemies.has(id)), seed: Date.now() });
+      const state = await runBattle(stage, idx, { player: { hp: ch.hp, maxHp: ch.hp, name: ch.name, poses: ch.poses, color: idx.factions.get(ch.faction)?.color }, deck, top, relics: ch.relic ? [ch.relic] : [], enemies: enc.enemies.filter((id) => idx.enemies.has(id)), seed: Date.now() });
       fill(stage, h('div', { class: 'empty' },
         h('h2', {}, state.phase === 'won' ? '勝利' : '落敗'),
         h('p', { class: 'dim' }, `用了 ${state.turn} 回合，剩餘生命 ${state.player.hp}。`, state.captured.length ? `捕獲：${state.captured.join('、')}。` : ''),
@@ -476,19 +555,17 @@ const VIEWS = {
         d.total ? h('p', {}, `和正式遊戲相比：新增 ${d.added.length} 項、修改 ${d.changed.length} 項、刪除 ${d.removed.length} 項`, d.other ? '，另有規則或陣營設定的變更' : '', '。') : h('p', { class: 'dim' }, '和正式遊戲完全相同。'),
         d.total ? h('details', {}, h('summary', {}, '查看清單'), h('div', { class: 'small dim', style: { whiteSpace: 'pre-line', marginTop: '6px' } }, [...d.added.map((x) => '＋ ' + x), ...d.changed.map((x) => '～ ' + x), ...d.removed.map((x) => '－ ' + x)].join('\n'))) : null),
       section('匯出',
-        h('p', { class: 'dim' }, '把目前的全部內容存成一個檔案。可以當備份，也可以交給負責審核的人。'),
-        h('div', { class: 'row' },
-          h('button', { class: 'btn primary', onclick: () => download(`abyss-內容-${stamp()}.json`) }, '匯出內容檔'),
-          h('button', { class: 'btn', onclick: () => download('content.json') }, '匯出為 content.json（套用到遊戲用）'))),
+        h('p', { class: 'dim' }, '把目前的全部內容和你上傳的圖片打包成一個壓縮檔。可以當備份、交給負責審核的人，也用來套用到正式遊戲。'),
+        h('button', { class: 'btn primary', onclick: exportZip }, '匯出內容包（.zip）')),
       section('匯入',
-        h('p', { class: 'dim' }, '讀入別人交來的內容檔。合併時，同代號的項目以匯入的為準，其餘保留。'),
-        h('label', { class: 'btn' }, '選擇內容檔…', h('input', { type: 'file', accept: '.json,application/json', class: 'hidden', onchange: (e) => importFile(e.target.files[0]) }))),
+        h('p', { class: 'dim' }, '讀入別人交來的內容包。合併時，同代號的項目以匯入的為準，其餘保留。舊版的 .json 檔也可以匯入。'),
+        h('label', { class: 'btn' }, '選擇內容包…', h('input', { type: 'file', accept: '.zip,.json,application/zip,application/json', class: 'hidden', onchange: (e) => importFile(e.target.files[0]) }))),
       section('套用到正式遊戲',
         h('ol', { class: 'dim' },
           h('li', {}, '在「檢查」確認沒有錯誤，並把要上線的項目切換成「正式」。'),
-          h('li', {}, '按上面的「匯出為 content.json」。'),
-          h('li', {}, '用這個檔案取代儲存庫裡的 content/content.json。在 GitHub 網頁上進入 content 資料夾，按 Add file → Upload files，把檔案拖進去再按 Commit 即可。'),
-          h('li', {}, '遊戲重新整理後就會使用新內容。標成「草稿」的項目不會出現。'))),
+          h('li', {}, '按上面的「匯出內容包」，把下載的 zip 解壓縮。裡面有 content 和 assets 兩個資料夾。'),
+          h('li', {}, '打開 GitHub 上的儲存庫首頁，按 Add file → Upload files，把這兩個資料夾一起拖進去，再按 Commit changes。'),
+          h('li', {}, '一兩分鐘後重新整理遊戲，就會使用新內容。標成「草稿」的項目不會出現。'))),
       section('還原',
         h('p', { class: 'dim' }, '放棄這台電腦上所有尚未匯出的修改，回到正式遊戲目前的內容。'),
         h('button', { class: 'btn danger', onclick: async () => { if (await confirmBox('確定要放棄所有修改，還原成正式內容嗎？\n建議先匯出一份備份。', '還原', true)) { C = clone(official); commit(true); toast('已還原成正式內容'); } } }, '還原成正式內容')));
@@ -545,7 +622,15 @@ function cardEditor(c) {
     section('文字與圖片',
       field('說明文字', inArea(c, 'text', '留空就會依效果自動產生（建議留空）'), '只有自動產生的文字不夠清楚時才需要手寫'),
       field('風味文字', inText(c, 'flavor', '可留空')),
-      field('卡圖', imageField(c))),
+      field('卡圖', (() => {
+        const box = h('div', {});
+        const draw = () => fill(box, imageField(c, { max: 600, onChange: draw }),
+          c.image ? h('div', { class: 'pose-sliders', style: { marginTop: '8px' } },
+            slider('左右', c.imagePos?.x ?? 50, 0, 100, (v) => { (c.imagePos ||= { x: 50, y: 50, zoom: 1 }).x = v; commit(); }, '%'),
+            slider('上下', c.imagePos?.y ?? 50, 0, 100, (v) => { (c.imagePos ||= { x: 50, y: 50, zoom: 1 }).y = v; commit(); }, '%'),
+            slider('放大', Math.round((c.imagePos?.zoom ?? 1) * 100), 100, 300, (v) => { (c.imagePos ||= { x: 50, y: 50, zoom: 1 }).zoom = v / 100; commit(); }, '%')) : null);
+        draw(); return box;
+      })())),
     section('升級版', upBox));
 
   return h('div', { class: 'page' },
@@ -563,10 +648,23 @@ function cardEditor(c) {
 // ───────── 匯入匯出 ─────────
 const LISTS = ['cards', 'characters', 'enemies', 'encounters', 'relics', 'statuses', 'factions'];
 const stamp = () => { const d = new Date(), p = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`; };
-function download(name) {
-  const a = h('a', { href: URL.createObjectURL(new Blob([JSON.stringify(C, null, 1)], { type: 'application/json' })), download: name });
+function saveFile(blob, name) {
+  const a = h('a', { href: URL.createObjectURL(blob), download: name });
   document.body.append(a); a.click(); a.remove();
-  toast(`已匯出 ${name}`);
+}
+// 匯出：內容檔放在 content/，你上傳的圖片放在 assets/，結構和儲存庫一致
+async function exportZip() {
+  const out = clone(C), keys = new Set();
+  await walkRefs(out, (v) => { if (isLocal(v)) { keys.add(localKey(v)); return 'assets/' + localKey(v); } });
+  const files = [{ name: 'content/content.json', data: new TextEncoder().encode(JSON.stringify(out, null, 1)) }];
+  for (const k of keys) { const b = await getBlob(k); if (b) files.push({ name: 'assets/' + k, data: new Uint8Array(await b.arrayBuffer()) }); }
+  const name = `abyss-pack-${stamp()}.zip`;
+  saveFile(zipFiles(files), name);
+  toast(`已匯出 ${name}（${files.length - 1} 張圖片）`);
+}
+// 舊格式（圖片直接寫在內容裡）→ 轉成獨立圖片
+async function convertDataUrls(content) {
+  await walkRefs(content, async (v) => { if (v.startsWith('data:')) return addImage(await (await fetch(v)).blob()); });
 }
 function diff(a, b) {
   const out = { added: [], changed: [], removed: [], other: false };
@@ -582,7 +680,26 @@ function diff(a, b) {
 async function importFile(file) {
   if (!file) return;
   let data;
-  try { data = JSON.parse(await file.text()); if (!Array.isArray(data.cards) || !data.rules) throw 0; } catch { return toast('這不是有效的內容檔'); }
+  try {
+    if (/\.zip$/i.test(file.name)) {
+      const files = await unzip(await file.arrayBuffer());
+      const main = [...files.keys()].find((n) => n.endsWith('content.json'));
+      if (!main) throw 0;
+      data = JSON.parse(new TextDecoder().decode(files.get(main)));
+      const prefix = main.slice(0, main.length - 'content/content.json'.length);
+      // 內容包裡附的圖片存進這台電腦的 Studio
+      await walkRefs(data, async (v) => {
+        if (!v.startsWith('assets/')) return;
+        const bytes = files.get(prefix + v) || files.get(v);
+        if (!bytes) return;
+        const key = v.slice(7), ext = key.split('.').pop();
+        if (!hasImage(key)) await addImage(new Blob([bytes], { type: 'image/' + (ext === 'jpg' ? 'jpeg' : ext) }), key);
+        return 'local:' + key;
+      });
+    } else data = JSON.parse(await file.text());
+    if (!Array.isArray(data.cards) || !data.rules) throw 0;
+    await convertDataUrls(data);
+  } catch { return toast('這不是有效的內容包'); }
   const d = diff(C, data);
   const opt = { draft: true };
   const m = modal('匯入內容', h('div', {},
@@ -612,8 +729,18 @@ async function importFile(file) {
 (async () => {
   try {
     official = await loadOfficial();
-    C = loadWorking() || clone(official);
+    await initImages();
+    C = await kvGet('content');
+    if (!C) { const old = localStorage.getItem(KEY_WORK); if (old) C = JSON.parse(old); } // 從舊版搬過來
+    const fresh = !C;
+    C ||= clone(official);
     C.meta ||= {}; for (const k of LISTS) C[k] ||= [];
+    await convertDataUrls(C);
+    // 已經放進儲存庫的圖片，改用儲存庫裡的檔案
+    const off = JSON.stringify(official);
+    await walkRefs(C, (v) => (isLocal(v) && off.includes(`"assets/${localKey(v)}"`) ? 'assets/' + localKey(v) : undefined));
+    // 清掉已經沒有任何內容在用的圖片
+    if (!fresh) { const used = new Set(); await walkRefs(C, (v) => { if (isLocal(v)) used.add(localKey(v)); }); for (const k of imageKeys()) if (!used.has(k)) await delImage(k); }
     commit(true);
   } catch (e) {
     fill($main, h('div', { class: 'empty' }, '載入失敗：' + (e.message || e)));

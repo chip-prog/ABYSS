@@ -4,6 +4,7 @@ import { indexContent, cardDef } from './engine/battle.js';
 import { describePowers } from './engine/describe.js';
 import { newRun, pickEncounter, rewardCards, applyBattleResult, addCardToRun, restHeal, upgradable, isLive } from './engine/run.js';
 import { runBattle } from './ui/battle-view.js';
+import { imgUrl } from './ui/store.js';
 
 const preview = new URLSearchParams(location.search).has('preview');
 const SAVE = KEY_RUN + (preview ? '.preview' : '');
@@ -52,7 +53,7 @@ function select() {
     h('div', { class: 'char-row' }, chars.map((c) => {
       const fac = idx.factions.get(c.faction), relic = idx.relics.get(c.relic);
       return h('div', { class: 'char panel', style: { '--fc': fac?.color } },
-        h('div', { class: 'medal hero' }, c.image ? h('img', { src: c.image, alt: '' }) : h('span', {}, [...c.name][0])),
+        (() => { const idle = imgUrl(c.poses?.idle?.img), port = imgUrl(c.image); return h('div', { class: 'medal' + (!port && idle ? ' cutout' : '') }, port || idle ? h('img', { src: port || idle, alt: '' }) : h('span', {}, [...c.name][0])); })(),
         h('h2', {}, c.name, c.publish === 'draft' ? h('span', { class: 'badge draft', style: { marginLeft: '8px' } }, '草稿') : null),
         h('div', { class: 'char-title' }, `${c.title || ''}・${fac?.name || ''}`),
         h('p', { class: 'dim' }, c.desc || ''),
@@ -76,7 +77,7 @@ async function advance() {
   const stageEl = h('div', { class: 'battle-wrap' });
   frame(hud(), h('div', { class: 'enc-name' }, enc.name), stageEl);
   const state = await runBattle(stageEl, idx, {
-    player: { hp: run.hp, maxHp: run.maxHp, name: run.name, image: ch.image },
+    player: { hp: run.hp, maxHp: run.maxHp, name: run.name, poses: ch.poses, color: idx.factions.get(ch.faction)?.color },
     deck: run.deck, relics: run.relics, enemies: enc.enemies, seed: run.seed + run.stage * 31,
   });
   applyBattleResult(idx, run, state);
@@ -132,7 +133,7 @@ function ending(win) {
 
 (async () => {
   try {
-    raw = (preview && loadWorking()) || await loadOfficial();
+    raw = (preview && await loadWorking()) || await loadOfficial();
     idx = indexContent(raw);
     document.title = raw.meta?.title || 'ABYSS';
     title();

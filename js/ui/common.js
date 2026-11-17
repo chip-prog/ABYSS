@@ -2,6 +2,7 @@
 import { CARD_TYPES } from '../engine/schema.js';
 import { cardDef, isUnplayable } from '../engine/battle.js';
 import { describeCard, keywordsOf } from '../engine/describe.js';
+import { imgUrl, kvGet, initImages } from './store.js';
 
 export const KEY_WORK = 'abyss.studio.content'; // Studio 的工作內容（測試環境）
 export const KEY_RUN = 'abyss.run';
@@ -34,8 +35,9 @@ export async function loadOfficial() {
   if (!r.ok) throw new Error('讀不到正式內容檔 content/content.json');
   return r.json();
 }
-export function loadWorking() {
-  try { return JSON.parse(localStorage.getItem(KEY_WORK)); } catch { return null; }
+// Studio 的工作內容（測試環境）。同時把上傳的圖片準備好。
+export async function loadWorking() {
+  try { await initImages(); return (await kvGet('content')) || null; } catch { return null; }
 }
 
 const GLYPHS = {
@@ -61,7 +63,7 @@ export function cardEl(idx, source, opts = {}) {
   },
     h('div', { class: 'card-cost' + (na ? ' na' : '') }, na ? '✕' : String(def.cost)),
     h('div', { class: 'card-name' }, def.name),
-    h('div', { class: 'card-art' }, def.image ? h('img', { src: def.image, alt: '' }) : h('div', { html: `<svg viewBox="0 0 40 40">${GLYPHS[def.type] || ''}</svg>`, style: { display: 'contents' } })),
+    h('div', { class: 'card-art' }, def.image && imgUrl(def.image) ? h('img', { src: imgUrl(def.image), alt: '', style: def.imagePos ? { objectPosition: `${def.imagePos.x ?? 50}% ${def.imagePos.y ?? 50}%`, scale: String(def.imagePos.zoom ?? 1) } : {} }) : h('div', { html: `<svg viewBox="0 0 40 40">${GLYPHS[def.type] || ''}</svg>`, style: { display: 'contents' } })),
     h('div', { class: 'card-type' }, `${CARD_TYPES[def.type] || ''}・${fac?.name || ''}`),
     h('div', { class: 'card-text' }, h('div', { html: richText(describeCard(idx, def)) + (def.flavor && opts.flavor !== false ? `<div class="flavor">${esc(def.flavor)}</div>` : '') })),
     h('div', { class: 'card-rarity' }),

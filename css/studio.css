@@ -106,3 +106,21 @@ details.box > summary { cursor: pointer; margin-bottom: 8px; }
 .deck-row { display: flex; align-items: center; gap: 8px; padding: 4px 10px; background: rgba(10,6,4,.4); border-radius: 5px; flex-wrap: wrap; }
 
 .sandbox-stage { min-height: 660px; position: relative; overflow: hidden; }
+
+/* 紙偶姿勢編輯 */
+.pose-wrap { display: flex; gap: 22px; align-items: flex-start; flex-wrap: wrap; }
+.pose-preview { width: 340px; flex: none; position: sticky; top: 10px; }
+.pose-stage { position: relative; height: 380px; border-radius: 6px; border: 1px solid var(--wood-4); overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
+  background: radial-gradient(ellipse at 50% 30%, #3a2a1c, #140d09 80%); }
+.pose-box { position: relative; width: 220px; height: 270px; }
+.pose-ghost { position: absolute; left: 50%; bottom: 0; height: 100%; transform-origin: 50% 100%; opacity: .35; pointer-events: none; filter: sepia(1) hue-rotate(160deg) saturate(3); }
+.pose-ground { width: 100%; height: 44px; border-top: 2px dashed var(--gold); color: var(--gold); font-size: 11px; letter-spacing: .3em; text-align: right; padding: 2px 10px; background: rgba(0,0,0,.35); }
+.pose-slots { flex: 1; min-width: 320px; display: flex; flex-direction: column; gap: 8px; }
+.pose-slot { display: flex; gap: 12px; padding: 8px 10px; background: rgba(10,6,4,.45); border: 1px dashed var(--wood-4); border-radius: 6px; }
+.pose-slot.has { border-style: solid; border-color: var(--brass-lo); }
+.pose-thumb { width: 64px; height: 78px; flex: none; display: grid; place-items: center; border-radius: 4px; background: repeating-conic-gradient(#2a2018 0 25%, #1c1510 0 50%) 0 0 / 14px 14px; color: var(--ink-faint); font-size: 12px; }
+.pose-thumb img { max-width: 100%; max-height: 100%; }
+.pose-sliders { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 6px; }
+.slider { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-dim); }
+.slider input { width: 120px; accent-color: var(--brass); }
+.slider-val { min-width: 44px; color: var(--ink); }
