@@ -385,7 +385,7 @@ export async function playCard(state, cardUid, targetUid) {
   }
   const ctx = { source: state.player, target, card: inst, tributePaid: false };
 
-  // 獻祭：先決定要獻祭哪張生贄，或改付替代代價
+  // 獻祭：先決定要獻祭哪張生贄，或支付代價
   let tribute = null;
   if (def.sacrifice) {
     const tributes = state.hand.filter((c) => c !== inst && state.idx.cards.get(c.id)?.type === 'tribute');

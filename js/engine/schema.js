@@ -94,7 +94,7 @@ export const CONDITIONS = {
   playedGte: { label: '本回合已打出的牌數至少', fields: [{ key: 'n', type: 'number', label: '張數', def: 2 }] },
   hpBelowPct: { label: '自己生命不高於（%）', fields: [{ key: 'n', type: 'number', label: '%', def: 50 }] },
   targetHpLte: { label: '目標生命不高於', fields: [{ key: 'n', type: 'number', label: '生命', def: 10 }] },
-  tributePaid: { label: '本次獻祭了生贄', fields: [] },
+  tributePaid: { label: '本次獻上了生贄', fields: [] },
 };
 
 // 祝福牌與遺物的觸發時機
@@ -129,7 +129,7 @@ export const KEYWORDS = {
   retain: { label: '保留', desc: '回合結束時不會被棄置。' },
 };
 export const DERIVED_KEYWORDS = {
-  sacrifice: { label: '獻祭', desc: '打出時，獻祭手牌中的一張生贄（永久失去）；沒有或不願獻祭時，改為付出卡片上寫的代價。' },
+  sacrifice: { label: '獻祭', desc: '打出時，永久失去手牌中的一張生贄；若無法獻祭時，必須支付代價。' },
   charge: { label: '充能', desc: '這張牌的傷害隨你的充能層數提高。' },
   bulwark: { label: '壁壘', desc: '這張牌的傷害隨你當前的格擋提高。' },
   capture: { label: '捕捉', desc: '把生命夠低的敵人化為「生贄」卡加入牌組。頭目無法捕捉。' },

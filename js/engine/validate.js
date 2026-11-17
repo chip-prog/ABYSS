@@ -38,7 +38,7 @@ export function validate(raw) {
     for (const [tag, v] of variants) {
       const L = (s) => (tag ? `${tag}・${s}` : s);
       checkEffects('card', c, v.effects, L('打出效果'));
-      checkEffects('card', c, v.sacrifice?.alt, L('獻祭替代代價'));
+      checkEffects('card', c, v.sacrifice?.alt, L('獻祭的代價'));
       for (const p of v.powers || []) {
         if (!TRIGGERS[p.trigger]) add('error', 'card', c.id, c.name, L('祝福效果沒有選擇時機'));
         checkEffects('card', c, p.effects, L('祝福效果'));
@@ -49,7 +49,7 @@ export function validate(raw) {
       if (unplayable && fx.length) add('warn', 'card', c.id, c.name, L('不可打出的牌設定了打出效果，永遠不會生效'));
       if (!unplayable && !fx.length && !(v.powers || []).length && !v.sacrifice && ['attack', 'skill', 'blessing'].includes(c.type)) add('warn', 'card', c.id, c.name, L('這張牌打出後沒有任何效果'));
       if (c.type === 'blessing' && !(v.powers || []).length && !fx.length) add('error', 'card', c.id, c.name, L('祝福牌沒有設定持續效果'));
-      if (v.sacrifice && !(v.sacrifice.alt || []).length) add('warn', 'card', c.id, c.name, L('獻祭沒有替代代價，手上沒有生贄時等於免費'));
+      if (v.sacrifice && !(v.sacrifice.alt || []).length) add('warn', 'card', c.id, c.name, L('獻祭沒有設定代價，手上沒有生贄時等於免費'));
       const sum = (t) => fx.filter((e) => e.type === t && !e.if?.type).reduce((s, e) => s + (Number(e.amount) || 0) * (e.times || 1), 0);
       const cost = Math.max(0, v.cost);
       if (!unplayable && !v.keywords?.exhaust && sum('energy') > cost && !v.sacrifice && !sum('loseHp')) add('warn', 'card', c.id, c.name, L('淨賺能量且不會消耗，可能造成無限循環'));

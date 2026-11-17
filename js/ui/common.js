@@ -50,7 +50,24 @@ const GLYPHS = {
 };
 
 // 把說明文字裡的數字與〈狀態〉標出來
-const richText = (s) => esc(s).replace(/〈[^〉]+〉/g, (m) => `<i>${m}</i>`).replace(/(\d+)/g, '<b>$1</b>');
+// 卡面文字上色：「卡名」→ 該卡陣營色粗體、〈狀態〉→ 紫色、能量數字 → 湖水綠、其他數字 → 暗紅。
+// 以「§」開頭的行是置中粗體的標題行。
+export function richText(idx, s) {
+  const byName = new Map([...idx.cards.values()].map((c) => [c.name, c]));
+  return String(s ?? '').split('\n').map((line) => {
+    const head = line.startsWith('§');
+    const html = esc(head ? line.slice(1) : line).replace(/「([^」]+)」|〈([^〉]+)〉|(\d+)(?=點能量)|(\d+)/g, (m, card, st, en, num) => {
+      if (card != null) {
+        const col = idx.factions.get(byName.get(card)?.faction)?.color;
+        return `<span class="cn" style="color:${col ? `color-mix(in srgb, ${col} 78%, #000)` : 'inherit'}">${card}</span>`;
+      }
+      if (st != null) return `<i>${m}</i>`;
+      if (en != null) return `<b class="en">${en}</b>`;
+      return `<b>${num}</b>`;
+    });
+    return `<div class="ln${head ? ' head' : ''}">${html}</div>`;
+  }).join('');
+}
 
 export function cardEl(idx, source, opts = {}) {
   const def = source.effects ? source : cardDef(idx, source);
@@ -65,7 +82,7 @@ export function cardEl(idx, source, opts = {}) {
     h('div', { class: 'card-name' }, def.name),
     h('div', { class: 'card-art' }, def.image && imgUrl(def.image) ? h('img', { src: imgUrl(def.image), alt: '', style: def.imagePos ? { objectPosition: `${def.imagePos.x ?? 50}% ${def.imagePos.y ?? 50}%`, scale: String(def.imagePos.zoom ?? 1) } : {} }) : h('div', { html: `<svg viewBox="0 0 40 40">${GLYPHS[def.type] || ''}</svg>`, style: { display: 'contents' } })),
     h('div', { class: 'card-type' }, `${CARD_TYPES[def.type] || ''}・${fac?.name || ''}`),
-    h('div', { class: 'card-text' }, h('div', { html: richText(describeCard(idx, def)) + (def.flavor && opts.flavor !== false ? `<div class="flavor">${esc(def.flavor)}</div>` : '') })),
+    h('div', { class: 'card-text' }, h('div', { class: 'card-desc', html: richText(idx, describeCard(idx, def)) }), h('div', { class: 'card-flavor' }, opts.flavor !== false ? def.flavor || '' : '')),
     h('div', { class: 'card-rarity' }),
     def.publish === 'draft' ? h('div', { class: 'ribbon' }, '草稿') : null,
   );

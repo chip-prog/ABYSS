@@ -7,7 +7,7 @@ import { makePuppet, poseTransform } from './ui/puppet.js';
 import { indexContent } from './engine/battle.js';
 import { uid } from './engine/rng.js';
 import * as SC from './engine/schema.js';
-import { effectText, describePowers, keywordsOf, scaleLabel } from './engine/describe.js';
+import { effectText, describePowers, keywordsOf, scaleLabel, describeCard } from './engine/describe.js';
 import { validate } from './engine/validate.js';
 import { runBattle } from './ui/battle-view.js';
 
@@ -27,7 +27,7 @@ const KIND_LABEL = { card: '卡片', character: '角色', enemy: '敵人', encou
 // ───────── 儲存 ─────────
 function commit(structural = false) {
   idx = indexContent(C);
-  issues = validate(C).concat(imageIssues());
+  issues = validate(C).concat(imageIssues(), textIssues());
   clearTimeout(saveTimer);
   $save.textContent = '儲存中…';
   saveTimer = setTimeout(() => {
@@ -123,6 +123,30 @@ function imageIssues() {
     }
   };
   for (const [kind, list] of [['card', C.cards], ['character', C.characters], ['enemy', C.enemies], ['relic', C.relics]]) for (const x of list || []) scan(kind, x);
+  return out;
+}
+
+// 卡面文字是否超出版面：說明最多四行、風味文字最多兩行。實際排版一次來量，結果依文字快取。
+const fitCache = new Map();
+let measurer;
+function textIssues() {
+  const out = [];
+  if (!document.fonts || !document.body) return out;
+  measurer ||= document.body.appendChild(h('div', { style: { position: 'fixed', left: '-9999px', top: '0', visibility: 'hidden' } }));
+  for (const c of C.cards) {
+    const key = describeCard(idx, c) + '\u0000' + (c.flavor || '');
+    let r = fitCache.get(key);
+    if (!r) {
+      const el = cardEl(idx, c, { width: 170, tips: false });
+      measurer.append(el);
+      const over = (x) => x && x.scrollHeight > x.clientHeight + 1;
+      r = { desc: over(el.querySelector('.card-desc')), flavor: over(el.querySelector('.card-flavor')) };
+      el.remove();
+      fitCache.set(key, r);
+    }
+    if (r.desc) out.push({ level: 'warn', kind: 'card', id: c.id, name: c.name, msg: '卡片說明超過四行，卡面會被截斷。請精簡效果，或在「說明文字」手寫較短的版本' });
+    if (r.flavor) out.push({ level: 'warn', kind: 'card', id: c.id, name: c.name, msg: '風味文字超過兩行，卡面會被截斷' });
+  }
   return out;
 }
 
@@ -599,8 +623,8 @@ function cardEditor(c) {
   drawUp();
   const sacBox = h('div', {});
   const drawSac = () => fill(sacBox, 
-    h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: !!c.sacrifice, onchange: (e) => { c.sacrifice = e.target.checked ? { alt: [{ type: 'loseHp', amount: 3 }] } : null; commit(); drawSac(); } }), h('b', {}, '獻祭'), '：打出時要獻祭一張生贄，或改付下面的替代代價'),
-    ...(c.sacrifice ? [h('div', { class: 'sub-title' }, '替代代價（沒有生贄、或不想獻祭時付出）'), effectsEditor(c.sacrifice.alt ||= [], 'player', '沒有替代代價（等於免費）')] : []));
+    h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: !!c.sacrifice, onchange: (e) => { c.sacrifice = e.target.checked ? { alt: [{ type: 'loseHp', amount: 3 }] } : null; commit(); drawSac(); } }), h('b', {}, '獻祭'), '：打出時要獻上手牌中的一張生贄；無法獻祭時，必須支付下面的代價'),
+    ...(c.sacrifice ? [h('div', { class: 'sub-title' }, '代價（無法獻祭生贄時支付）'), effectsEditor(c.sacrifice.alt ||= [], 'player', '沒有代價（等於免費）')] : []));
   drawSac();
 
   const form = h('div', { class: 'edit-form' },
@@ -616,12 +640,12 @@ function cardEditor(c) {
       h('div', { class: 'row' }, Object.entries(SC.KEYWORDS).map(([k, v]) => h('span', { title: v.desc }, inCheck(c.keywords, k, v.label, { structural: k === 'unplayable', before: () => { if (k === 'unplayable') c.cost = c.keywords.unplayable ? -1 : Math.max(0, c.cost); } })))),
       h('div', { class: 'faint small' }, '消耗：使用後在本場戰鬥中移除。保留：回合結束不會被棄掉。不可打出：只能留在手上或被其他效果處理。'),
       h('hr', { class: 'rule' }), sacBox),
-    playable ? section('打出時的效果', effectsEditor(c.effects, 'player', '還沒有效果，從下面加入。')) : null,
+    playable ? section(c.sacrifice ? '恩寵（打出時的效果）' : '打出時的效果', effectsEditor(c.effects, 'player', '還沒有效果，從下面加入。')) : null,
     c.type === 'blessing' ? section('祝福的持續效果', powersEditor(c.powers, '打出後，在指定的時機反覆發動，直到戰鬥結束。')) : null,
     h('details', { class: 'box panel', open: Object.keys(c.triggers).length > 0 }, h('summary', {}, h('h3', { style: { display: 'inline' } }, '進階：特殊時機'), h('span', { class: 'faint small' }, '　這張牌被棄置、被消耗、被獻祭時發動的效果')), triggersEditor(c.triggers)),
     section('文字與圖片',
-      field('說明文字', inArea(c, 'text', '留空就會依效果自動產生（建議留空）'), '只有自動產生的文字不夠清楚時才需要手寫'),
-      field('風味文字', inText(c, 'flavor', '可留空')),
+      field('說明文字', inArea(c, 'text', '留空就會依效果自動產生（建議留空）'), '只有自動產生的文字不夠清楚時才需要手寫。最多四行；某行開頭加「§」會變成置中粗體的標題行；用「」包住卡名、〈〉包住狀態名會自動上色。'),
+      field('風味文字', inText(c, 'flavor', '可留空'), '顯示在卡片最下方，最多兩行'),
       field('卡圖', (() => {
         const box = h('div', {});
         const draw = () => fill(box, imageField(c, { max: 600, onChange: draw }),
@@ -742,6 +766,7 @@ async function importFile(file) {
     // 清掉已經沒有任何內容在用的圖片
     if (!fresh) { const used = new Set(); await walkRefs(C, (v) => { if (isLocal(v)) used.add(localKey(v)); }); for (const k of imageKeys()) if (!used.has(k)) await delImage(k); }
     commit(true);
+    document.fonts?.ready.then(() => { fitCache.clear(); commit(true); });
   } catch (e) {
     fill($main, h('div', { class: 'empty' }, '載入失敗：' + (e.message || e)));
   }

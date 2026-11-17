@@ -24,7 +24,7 @@ export function runBattle(root, idx, opts) {
           h('div', { class: 'card-pick' }, req.tributes.map((c) => { const el = cardEl(idx, c, { width: 150 }); el.onclick = () => { m.close(); res(c.uid); }; return el; })),
           h('div', { class: 'row', style: { justifyContent: 'center' } },
             h('button', { class: 'btn ghost', onclick: () => { m.close(); res('cancel'); } }, '取消出牌'),
-            h('button', { class: 'btn', onclick: () => { m.close(); res(null); } }, alt ? `不獻祭生贄，改為：${alt}` : '不獻祭生贄'))), { closable: false });
+            h('button', { class: 'btn', onclick: () => { m.close(); res(null); } }, alt ? `不獻祭，支付代價：${alt}` : '不獻祭'))), { closable: false });
         return;
       }
       const picked = new Set();

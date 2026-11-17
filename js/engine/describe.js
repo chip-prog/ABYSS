@@ -22,7 +22,7 @@ function condText(idx, c) {
     case 'playedGte': return `若本回合已打出至少 ${c.n} 張牌`;
     case 'hpBelowPct': return `若生命不高於 ${c.n}%`;
     case 'targetHpLte': return `若目標生命不高於 ${c.n}`;
-    case 'tributePaid': return '若獻祭了生贄';
+    case 'tributePaid': return '若獻上生贄';
     default: return CONDITIONS[c.type]?.label || '';
   }
 }
@@ -58,26 +58,51 @@ export function effectText(idx, e, side = 'player') {
     case 'capture': t = `捕捉生命不高於 ${e.threshold} 的敵人`; break;
     default: t = '（未知效果）';
   }
-  return e.if?.type ? `${condText(idx, e.if)}，${t}` : t;
+  return tight(e.if?.type ? `${condText(idx, e.if)}，${t}` : t);
 }
+// 卡面文字：數字前後不留空格（「造成 6 點傷害」→「造成6點傷害」）
+const tight = (s) => s.replace(/ ?([+-]?\d+) ?/g, '$1');
 
 export const effectsText = (idx, list, side) => (list || []).map((e) => effectText(idx, e, side)).join('，');
 
+// 卡片說明的格式：
+//   第一行（置中粗體）：獻祭・不可打出・保留・消耗 等關鍵字
+//   獻祭牌：「代價：…」一行、「恩寵：…」一行，條件效果各自換行
+//   其他牌：連續的無條件效果合成一句，條件效果另起一行
+// 以「§」開頭的行會顯示成置中粗體的標題行。
 export function describeCard(idx, def) {
   if (def.text) return def.text;
   const lines = [];
   const kw = def.keywords || {};
-  const head = ['unplayable', 'retain'].filter((k) => kw[k]).map((k) => KEYWORDS[k].label + '。').join('');
-  if (head) lines.push(head);
+  const head = [def.sacrifice ? '獻祭' : null, ...['unplayable', 'retain', 'exhaust'].filter((k) => kw[k]).map((k) => KEYWORDS[k].label)].filter(Boolean);
+  if (head.length) lines.push('§' + head.join('・'));
   if (def.sacrifice) {
-    const alt = effectsText(idx, def.sacrifice.alt);
-    lines.push(`獻祭${alt ? `（或改為：${alt}）` : ''}。`);
-  }
-  if (def.effects?.length) for (const e of def.effects) lines.push(effectText(idx, e) + '。');
-  for (const p of def.powers || []) lines.push(`${TRIGGERS[p.trigger] || '？'}，${effectsText(idx, p.effects)}。`);
-  for (const [k, fx] of Object.entries(def.triggers || {})) if (fx?.length) lines.push(`${CARD_TRIGGERS[k]}：${effectsText(idx, fx)}。`);
-  if (kw.exhaust) lines.push('消耗。');
+    lines.push(`代價：${sentences(idx, def.sacrifice.alt, true)[0] || '無'}。`);
+    const grace = sentences(idx, def.effects, true);
+    lines.push(`恩寵：${grace[0] || '無'}。`, ...grace.slice(1).map((x) => x + '。'));
+  } else lines.push(...sentences(idx, def.effects, false).map((x) => x + '。'));
+  for (const p of def.powers || []) lines.push(`${short(TRIGGERS[p.trigger] || '？')}，${effectsText(idx, p.effects)}。`);
+  for (const [k, fx] of Object.entries(def.triggers || {})) if (fx?.length) lines.push(`${short(CARD_TRIGGERS[k])}：${effectsText(idx, fx)}。`);
   return lines.join('\n');
+}
+// 卡面上省略括號裡的補充說明（Studio 的選單仍會顯示）
+const short = (s) => String(s).replace(/（[^）]*）/g, '');
+// 把效果串成句子：無條件的效果用「，」接在一起，有條件的效果自成一句
+function sentences(idx, effects, terse) {
+  const out = [];
+  let cur = null;
+  for (const e of effects || []) {
+    let t = effectText(idx, e);
+    // 代價、恩寵裡的生命與能量只寫數量：「3點生命」「2點能量」
+    if (terse && !e.if?.type) {
+      if (e.type === 'loseHp') t = `${e.amount}點生命`;
+      if (e.type === 'energy') t = `${e.amount}點能量`;
+    }
+    if (e.if?.type) { out.push(t); cur = null; }
+    else if (cur !== null) out[cur] += '，' + t;
+    else { out.push(t); cur = out.length - 1; }
+  }
+  return out;
 }
 
 export function describePowers(idx, powers) {
