@@ -180,7 +180,8 @@ export const CARD_RATIO = 1.5;
 export const FRAME_LAYOUT = {
   art: { left: 13, top: 12, right: 87.5, bottom: 54.5 },
   cost: { x: 15.6, y: 7.9, size: 13 },
-  name: { left: 33, right: 86, top: 6.4, bottom: 11.6 },
+  // 名稱以 center 為中心（預設卡片中線）；left、right 是不能超過的範圍（例如避開封蠟）
+  name: { left: 31, right: 88, center: 50, top: 6.4, bottom: 11.6 },
   text: { left: 12, right: 89, top: 61.2, bottom: 89.8 },
   gem: { x: 51.3, y: 54.9, size: 7 },
 };

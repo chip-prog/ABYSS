@@ -189,7 +189,8 @@ function frameEditor(f) {
     fill(tune, Object.entries(SC.FRAME_PARTS).map(([part, d]) => h('div', { class: 'tune-row' },
       h('b', {}, d.label),
       d.kind === 'box'
-        ? [slider('左', L[part].left, 0, 100, (v) => set(part, 'left', v), '%'), slider('右', L[part].right, 0, 100, (v) => set(part, 'right', v), '%'),
+        ? [part === 'name' ? slider('中線', L[part].center ?? 50, 0, 100, (v) => set(part, 'center', v), '%') : null,
+           slider(part === 'name' ? '最左' : '左', L[part].left, 0, 100, (v) => set(part, 'left', v), '%'), slider(part === 'name' ? '最右' : '右', L[part].right, 0, 100, (v) => set(part, 'right', v), '%'),
            slider('上', L[part].top, 0, 100, (v) => set(part, 'top', v), '%'), slider('下', L[part].bottom, 0, 100, (v) => set(part, 'bottom', v), '%')]
         : [slider('左右', L[part].x, 0, 100, (v) => set(part, 'x', v), '%'), slider('上下', L[part].y, 0, 100, (v) => set(part, 'y', v), '%'), slider('大小', L[part].size, 2, 30, (v) => set(part, 'size', v), '%')])),
       h('button', { class: 'btn sm ghost', onclick: () => { delete f.frame.layout; commit(); drawTune(); } }, '全部恢復預設位置'));
@@ -202,7 +203,7 @@ function frameEditor(f) {
         field('卡框', imgUpload(f.frame, 'img', { label: '上傳卡框', onChange: drawPreview })),
         field('卡背', imgUpload(f.back, 'img', { label: '上傳卡背', onChange: drawPreview }), '沒上傳時使用「規則」頁的共用卡背'),
         h('div', { class: 'sub-title' }, '位置微調'),
-        h('p', { class: 'faint small' }, '卡框和預設位置有落差時再調整。數值是卡片寬度、高度的百分比。'),
+        h('p', { class: 'faint small' }, '卡框和預設位置有落差時再調整。數值是卡片寬度、高度的百分比。名稱會對齊「中線」，太長時才往內讓開，不會超出「最左／最右」。'),
         tune),
       preview));
 }

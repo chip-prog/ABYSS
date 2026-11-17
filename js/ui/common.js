@@ -111,9 +111,12 @@ function tipsEl(idx, def) {
 function framedCard(idx, def, fac, na, upgraded, opts) {
   const L = frameLayout(fac);
   const nb = L.name, chars = Math.max(1, [...def.name].length);
-  // 名稱在布條內置中；字太多時自動縮小（單位：卡片字級 em，卡片寬 = 13.5em）
+  // 名稱對齊中線（預設卡片正中）；太長會碰到範圍邊界時才往內讓開，再不夠就縮小字級。
+  // 單位：卡片字級 em，卡片寬 = 13.5em。
   const boxW = ((nb.right - nb.left) / 100) * 13.5, boxH = ((nb.bottom - nb.top) / 100) * 13.5 * CARD_RATIO;
-  const nameSize = Math.min(0.95, boxH * 0.84, (boxW * 0.86) / (chars * 1.12));
+  const nameSize = Math.min(0.95, boxH * 0.84, (boxW * 0.92) / (chars * 1.12));
+  const textW = (chars * 1.12 * nameSize / 13.5) * 100; // 名稱寬度（卡片寬度的 %）
+  const center = Math.min(Math.max(nb.center ?? 50, nb.left + textW / 2), nb.right - textW / 2);
   const el = h('div', {
     class: `card framed r-${def.rarity} t-${def.type}${upgraded ? ' upgraded' : ''}${opts.class ? ' ' + opts.class : ''}`,
     style: { '--fc': fac.color || '#8c7a5e', ...(opts.width ? { '--cw': opts.width + 'px' } : {}) },
@@ -122,7 +125,7 @@ function framedCard(idx, def, fac, na, upgraded, opts) {
     h('img', { class: 'fc-frame', src: imgUrl(fac.frame.img), alt: '', draggable: false }),
     h('div', { class: 'fc-gem g-' + def.rarity, style: point(L.gem) }),
     h('div', { class: 'fc-cost' + (na ? ' na' : ''), style: point(L.cost) }, na ? '✕' : String(def.cost)),
-    h('div', { class: 'fc-name', style: { ...box(nb), fontSize: `${nameSize}em` } }, h('span', {}, def.name)),
+    h('div', { class: 'fc-name', style: { left: pct(center), top: pct(nb.top), height: pct(nb.bottom - nb.top), translate: '-50% 0', fontSize: `${nameSize}em` } }, h('span', {}, def.name)),
     h('div', { class: 'fc-text', style: box(L.text) },
       h('div', { class: 'fc-type' }, `${CARD_TYPES[def.type] || ''}・${fac.name || ''}`),
       h('div', { class: 'card-desc', html: richText(idx, describeCard(idx, def)) }),
