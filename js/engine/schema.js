@@ -173,3 +173,24 @@ export const ENEMY_POSES = {
   hitBlocked: { label: '受擊（無扣血）', when: '攻擊被格擋完全擋下', fallback: ['idle'] },
   hit: { label: '受擊（有扣血）', when: '失去生命', fallback: ['idle'] },
 };
+
+// 卡框版面：各區域在卡面上的位置（x 為卡片寬度的 %，y 為卡片高度的 %）。
+// 每個陣營的卡框可以在 Studio 微調，沒調整的項目用這裡的預設值。
+export const CARD_RATIO = 1.5;
+export const FRAME_LAYOUT = {
+  art: { left: 13, top: 12, right: 87.5, bottom: 54.5 },
+  cost: { x: 15.6, y: 7.9, size: 13 },
+  name: { left: 33, right: 86, top: 6.4, bottom: 11.6 },
+  text: { left: 12, right: 89, top: 61.2, bottom: 89.8 },
+  gem: { x: 51.3, y: 54.9, size: 7 },
+};
+export const FRAME_PARTS = {
+  art: { label: '卡圖', kind: 'box' }, name: { label: '名稱', kind: 'box' }, text: { label: '文字區', kind: 'box' },
+  cost: { label: '費用', kind: 'point' }, gem: { label: '稀有度寶石', kind: 'point' },
+};
+export function frameLayout(fac) {
+  const L = fac?.frame?.layout || {};
+  const out = {};
+  for (const [k, v] of Object.entries(FRAME_LAYOUT)) out[k] = { ...v, ...(L[k] || {}) };
+  return out;
+}

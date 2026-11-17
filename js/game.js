@@ -77,7 +77,7 @@ async function advance() {
   const stageEl = h('div', { class: 'battle-wrap' });
   frame(hud(), h('div', { class: 'enc-name' }, enc.name), stageEl);
   const state = await runBattle(stageEl, idx, {
-    player: { hp: run.hp, maxHp: run.maxHp, name: run.name, poses: ch.poses, color: idx.factions.get(ch.faction)?.color },
+    player: { hp: run.hp, maxHp: run.maxHp, name: run.name, poses: ch.poses, color: idx.factions.get(ch.faction)?.color, faction: ch.faction },
     deck: run.deck, relics: run.relics, enemies: enc.enemies, seed: run.seed + run.stage * 31,
   });
   applyBattleResult(idx, run, state);
@@ -96,7 +96,7 @@ function reward(state) {
     state.captured.length ? h('p', { class: 'gold' }, `捕獲生贄：${state.captured.join('、')}`) : null,
     h('p', { class: 'dim' }, '選一張牌加入牌組'),
     h('div', { class: 'card-pick' }, options.map((c) => {
-      const el = cardEl(idx, c, { width: 190 });
+      const el = cardEl(idx, c, { width: 200 });
       el.onclick = () => { addCardToRun(run, c.id); next(); };
       return el;
     })),
@@ -115,7 +115,7 @@ function rest() {
       h('button', { class: 'btn primary', onclick: () => { restHeal(idx, run); done(); } }, `休息：回復 ${heal} 點生命`),
       h('button', { class: 'btn', disabled: !ups.length, onclick: () => {
         const m = modal('選擇一張牌升級', h('div', { class: 'card-pick' }, ups.map((c) => {
-          const el = h('div', { class: 'up-pair' }, cardEl(idx, c, { width: 150 }), h('span', {}, '→'), cardEl(idx, { ...c, upgraded: true }, { width: 150 }));
+          const el = h('div', { class: 'up-pair' }, cardEl(idx, c, { width: 170 }), h('span', {}, '→'), cardEl(idx, { ...c, upgraded: true }, { width: 170 }));
           el.onclick = () => { c.upgraded = true; m.close(); done(); };
           return el;
         })), { wide: true });

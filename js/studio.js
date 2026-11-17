@@ -1,12 +1,13 @@
 // Studio：不用寫程式就能編輯遊戲內容的工作台。
 // 所有修改只存在這台電腦的瀏覽器裡（測試環境），匯出後才會交給別人或套用到遊戲。
-import { h, fill, cardEl, modal, toast, confirmBox, clone, sleep, loadOfficial, KEY_WORK } from './ui/common.js';
+import { h, fill, cardEl, cardBackEl, modal, toast, confirmBox, clone, sleep, loadOfficial, KEY_WORK } from './ui/common.js';
 import { kvGet, kvSet, initImages, imgUrl, isLocal, localKey, hasImage, imageSize, imageKeys, getBlob, addImage, delImage, walkRefs, fileToBlob } from './ui/store.js';
 import { zipFiles, unzip } from './ui/zip.js';
 import { makePuppet, poseTransform } from './ui/puppet.js';
 import { indexContent } from './engine/battle.js';
 import { uid } from './engine/rng.js';
 import * as SC from './engine/schema.js';
+import { frameLayout } from './engine/schema.js';
 import { effectText, describePowers, keywordsOf, scaleLabel, describeCard } from './engine/describe.js';
 import { validate } from './engine/validate.js';
 import { runBattle } from './ui/battle-view.js';
@@ -21,8 +22,8 @@ const SECTIONS = [
   ['relics', '遺物', '✧'], ['statuses', '狀態', '❖'], ['factions', '陣營', '⚑'], ['rules', '規則', '⚙'],
   null, ['sandbox', '試玩沙盒', '▶'], ['check', '檢查', '✓'], ['io', '匯入／匯出', '⇄'],
 ];
-const KIND_SECTION = { card: 'cards', character: 'characters', enemy: 'enemies', encounter: 'encounters', relic: 'relics', status: 'statuses', rules: 'rules' };
-const KIND_LABEL = { card: '卡片', character: '角色', enemy: '敵人', encounter: '遭遇', relic: '遺物', status: '狀態', rules: '規則' };
+const KIND_SECTION = { faction: 'factions', card: 'cards', character: 'characters', enemy: 'enemies', encounter: 'encounters', relic: 'relics', status: 'statuses', rules: 'rules' };
+const KIND_LABEL = { faction: '陣營', card: '卡片', character: '角色', enemy: '敵人', encounter: '遭遇', relic: '遺物', status: '狀態', rules: '規則' };
 
 // ───────── 儲存 ─────────
 function commit(structural = false) {
@@ -122,7 +123,8 @@ function imageIssues() {
       else if (imageSize(localKey(r)) > 1500000) out.push({ level: 'warn', kind, id: x.id, name: x.name, msg: `有一張圖片檔案偏大（${(imageSize(localKey(r)) / 1e6).toFixed(1)} MB），會拖慢載入` });
     }
   };
-  for (const [kind, list] of [['card', C.cards], ['character', C.characters], ['enemy', C.enemies], ['relic', C.relics]]) for (const x of list || []) scan(kind, x);
+  for (const [kind, list] of [['faction', C.factions], ['card', C.cards], ['character', C.characters], ['enemy', C.enemies], ['relic', C.relics]]) for (const x of list || []) scan(kind, x);
+  scan('rules', { id: 'rules', name: '共用卡背', ...C.meta });
   return out;
 }
 
@@ -148,6 +150,61 @@ function textIssues() {
     if (r.flavor) out.push({ level: 'warn', kind: 'card', id: c.id, name: c.name, msg: '風味文字超過兩行，卡面會被截斷' });
   }
   return out;
+}
+
+// 上傳一張圖到 o[key]（卡框、卡背用；保留透明背景）
+function imgUpload(o, key, { max = 1210, label = '上傳圖片', onChange } = {}) {
+  const wrap = h('div', { class: 'row' });
+  const draw = () => fill(wrap,
+    o[key] ? h('img', { src: imgUrl(o[key]), class: 'thumb tall', alt: '' }) : h('span', { class: 'faint small' }, '尚未上傳'),
+    h('label', { class: 'btn sm' }, o[key] ? '更換' : label, h('input', { type: 'file', accept: 'image/*', class: 'hidden', onchange: async (e) => {
+      const file = e.target.files[0]; if (!file) return;
+      try { o[key] = await addImage(await fileToBlob(file, max)); } catch { return toast('這張圖片無法讀取'); }
+      commit(); draw(); onChange?.();
+    } })),
+    o[key] ? h('button', { class: 'btn sm ghost', onclick: () => { delete o[key]; commit(); draw(); onChange?.(); } }, '移除') : null);
+  draw();
+  return wrap;
+}
+
+// ───────── 卡框與卡背 ─────────
+function frameEditor(f) {
+  f.frame ||= {}; f.back ||= {};
+  const preview = h('div', { class: 'frame-preview' });
+  const sample = () => {
+    const mine = C.cards.filter((c) => c.faction === f.id);
+    const pick = (fn) => mine.find(fn) || mine[0];
+    const longest = [...mine].sort((a, b) => [...b.name].length - [...a.name].length)[0];
+    return [pick((c) => c.sacrifice) || pick((c) => c.flavor), longest].filter(Boolean)
+      .map((c, i) => ({ ...c, faction: f.id, rarity: ['rare', 'epic'][i] }));
+  };
+  const drawPreview = () => fill(preview,
+    ...(f.frame.img ? sample().map((c) => cardEl(idx, c, { width: 250, tips: false })) : [h('div', { class: 'empty small' }, '上傳卡框後，這裡會顯示套用後的卡片。')]),
+    h('div', { class: 'frame-back' }, cardBackEl(idx, f.id, 160), h('div', { class: 'faint small' }, f.back.img ? '卡背' : '卡背（未上傳，使用共用卡背）')));
+  const prev = previewFn; previewFn = () => { prev?.(); drawPreview(); };
+  const tune = h('div', {});
+  const drawTune = () => {
+    const L = frameLayout(f);
+    const set = (part, k, v) => { ((f.frame.layout ||= {})[part] ||= {})[k] = v; commit(); };
+    fill(tune, Object.entries(SC.FRAME_PARTS).map(([part, d]) => h('div', { class: 'tune-row' },
+      h('b', {}, d.label),
+      d.kind === 'box'
+        ? [slider('左', L[part].left, 0, 100, (v) => set(part, 'left', v), '%'), slider('右', L[part].right, 0, 100, (v) => set(part, 'right', v), '%'),
+           slider('上', L[part].top, 0, 100, (v) => set(part, 'top', v), '%'), slider('下', L[part].bottom, 0, 100, (v) => set(part, 'bottom', v), '%')]
+        : [slider('左右', L[part].x, 0, 100, (v) => set(part, 'x', v), '%'), slider('上下', L[part].y, 0, 100, (v) => set(part, 'y', v), '%'), slider('大小', L[part].size, 2, 30, (v) => set(part, 'size', v), '%')])),
+      h('button', { class: 'btn sm ghost', onclick: () => { delete f.frame.layout; commit(); drawTune(); } }, '全部恢復預設位置'));
+  };
+  drawTune(); drawPreview();
+  return section('卡框與卡背',
+    h('p', { class: 'dim small' }, '卡框：去背 PNG，比例 1：1.5（例如 800 × 1200），卡圖窗挖空透明，不要畫任何文字。沒有上傳卡框的陣營，會使用預設的簡易卡面。'),
+    h('div', { class: 'frame-wrap' },
+      h('div', { class: 'frame-side' },
+        field('卡框', imgUpload(f.frame, 'img', { label: '上傳卡框', onChange: drawPreview })),
+        field('卡背', imgUpload(f.back, 'img', { label: '上傳卡背', onChange: drawPreview }), '沒上傳時使用「規則」頁的共用卡背'),
+        h('div', { class: 'sub-title' }, '位置微調'),
+        h('p', { class: 'faint small' }, '卡框和預設位置有落差時再調整。數值是卡片寬度、高度的百分比。'),
+        tune),
+      preview));
 }
 
 // ───────── 紙偶姿勢編輯器 ─────────
@@ -362,7 +419,7 @@ const VIEWS = {
     const draw = () => {
       const list = C.cards.filter((c) => (!f.q || c.name.includes(f.q)) && (!f.faction || c.faction === f.faction) && (!f.type || c.type === f.type) && (!f.publish || c.publish === f.publish));
       count.textContent = `顯示 ${list.length} / ${C.cards.length} 張`;
-      fill(grid, ...list.map((c) => { const el = cardEl(idx, c, { width: 150, flavor: false }); el.onclick = () => go('cards', c.id); return el; }),
+      fill(grid, ...list.map((c) => { const el = cardEl(idx, c, { width: 170, flavor: false }); el.onclick = () => go('cards', c.id); return el; }),
         ...(list.length ? [] : [h('div', { class: 'empty' }, '沒有符合條件的卡片。')]));
     };
     const chip = (key, val, label, color) => h('button', { class: 'fchip' + (f[key] === val ? ' on' : ''), style: color ? { '--fc': color } : {}, onclick: () => { f[key] = f[key] === val ? '' : val; render(); } }, label);
@@ -486,10 +543,12 @@ const VIEWS = {
     kind: 'faction', items: C.factions, title: '陣營', intro: '陣營決定卡片的顏色，以及角色能拿到哪些牌。',
     row: (f) => h('span', {}, h('span', { class: 'swatch', style: { background: f.color } }), f.name),
     newItem: () => ({ id: 'faction_' + uid(), name: '新陣營', color: '#7a6a8a', desc: '' }),
-    editor: (f) => section('基本資料',
-      h('div', { class: 'grid2' }, field('名稱', inText(f, 'name')), field('代表色', h('input', { type: 'color', value: f.color, oninput: (e) => { f.color = e.target.value; commit(); } }))),
-      field('說明', inArea(f, 'desc')),
-      f.id === 'nameless' ? h('p', { class: 'gold small' }, '「無名」是通用陣營：所有角色的獎勵都會出現它的牌。請不要刪除。') : null),
+    editor: (f) => h('div', {},
+      section('基本資料',
+        h('div', { class: 'grid2' }, field('名稱', inText(f, 'name')), field('代表色', h('input', { type: 'color', value: f.color, oninput: (e) => { f.color = e.target.value; commit(); } }), '卡名文字會用這個顏色；建議和卡框的主色一致')),
+        field('說明', inArea(f, 'desc')),
+        f.id === 'nameless' ? h('p', { class: 'gold small' }, '「無名」是通用陣營：所有角色的獎勵都會出現它的牌。請不要刪除。') : null),
+      frameEditor(f)),
   }),
 
   rules() {
@@ -508,6 +567,7 @@ const VIEWS = {
     return h('div', { class: 'page narrow' },
       h('h1', {}, '規則'),
       section('遊戲名稱', h('div', { class: 'grid2' }, field('標題', inText(C.meta, 'title')), field('副標題', inText(C.meta, 'subtitle')))),
+      section('共用卡背', h('p', { class: 'dim small' }, '沒有上傳自己卡背的陣營會使用這張。比例 1：1.5。'), imgUpload(C.meta.cardBack ||= {}, 'img', { label: '上傳卡背' })),
       section('戰鬥基本規則', h('div', { class: 'grid2' },
         field('每回合能量', inNum(R, 'energy', { min: 0 })), field('每回合抽牌數', inNum(R, 'draw', { min: 0 })),
         field('手牌上限', inNum(R, 'handLimit', { min: 1 })), field('初始牌組張數', inNum(R, 'deckSize', { min: 1 }), '只用來提醒，不會強制'),
@@ -541,7 +601,7 @@ const VIEWS = {
       if (!ids.length) return toast('牌組是空的');
       const deck = ids.map((id) => ({ uid: uid(), id }));
       const top = S.only ? [] : deck.slice(-S.extra.length).slice(0, 3).map((c) => c.uid);
-      const state = await runBattle(stage, idx, { player: { hp: ch.hp, maxHp: ch.hp, name: ch.name, poses: ch.poses, color: idx.factions.get(ch.faction)?.color }, deck, top, relics: ch.relic ? [ch.relic] : [], enemies: enc.enemies.filter((id) => idx.enemies.has(id)), seed: Date.now() });
+      const state = await runBattle(stage, idx, { player: { hp: ch.hp, maxHp: ch.hp, name: ch.name, poses: ch.poses, color: idx.factions.get(ch.faction)?.color, faction: ch.faction }, deck, top, relics: ch.relic ? [ch.relic] : [], enemies: enc.enemies.filter((id) => idx.enemies.has(id)), seed: Date.now() });
       fill(stage, h('div', { class: 'empty' },
         h('h2', {}, state.phase === 'won' ? '勝利' : '落敗'),
         h('p', { class: 'dim' }, `用了 ${state.turn} 回合，剩餘生命 ${state.player.hp}。`, state.captured.length ? `捕獲：${state.captured.join('、')}。` : ''),
@@ -758,6 +818,13 @@ async function importFile(file) {
     if (!C) { const old = localStorage.getItem(KEY_WORK); if (old) C = JSON.parse(old); } // 從舊版搬過來
     const fresh = !C;
     C ||= clone(official);
+    // 正式內容新增的卡框、卡背：工作內容裡還沒有的就補上（不覆蓋自己上傳的）
+    const offFac = new Map((official.factions || []).map((x) => [x.id, x]));
+    for (const f of C.factions || []) {
+      const o = offFac.get(f.id); if (!o) continue;
+      for (const k of ['frame', 'back']) if (o[k]?.img && !f[k]?.img) f[k] = clone(o[k]);
+    }
+    if (official.meta?.cardBack?.img && !C.meta?.cardBack?.img) (C.meta ||= {}).cardBack = clone(official.meta.cardBack);
     C.meta ||= {}; for (const k of LISTS) C[k] ||= [];
     await convertDataUrls(C);
     // 已經放進儲存庫的圖片，改用儲存庫裡的檔案

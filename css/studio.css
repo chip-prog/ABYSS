@@ -124,3 +124,13 @@ details.box > summary { cursor: pointer; margin-bottom: 8px; }
 .slider { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-dim); }
 .slider input { width: 120px; accent-color: var(--brass); }
 .slider-val { min-width: 44px; color: var(--ink); }
+
+/* 卡框與卡背 */
+.thumb.tall { width: 56px; height: 84px; object-fit: contain; background: repeating-conic-gradient(#2a2018 0 25%, #1c1510 0 50%) 0 0 / 12px 12px; }
+.frame-wrap { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+.frame-side { flex: 1; min-width: 300px; }
+.frame-preview { display: flex; gap: 18px; align-items: flex-end; flex-wrap: wrap; position: sticky; top: 10px; }
+.frame-back { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.tune-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; padding: 6px 0; border-bottom: 1px dashed rgba(109,86,48,.35); }
+.tune-row > b { width: 76px; color: var(--brass-hi); }
+.tune-row .slider input { width: 90px; }

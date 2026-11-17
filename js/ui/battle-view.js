@@ -1,6 +1,6 @@
 // 戰鬥畫面：遊戲本體與 Studio 試玩沙盒共用。
 // 紙偶是常駐的元素（不會每次重畫），其餘資訊在每次狀態改變後重畫。
-import { h, fill, cardEl, modal, sleep, showCards } from './common.js';
+import { h, fill, cardEl, cardBackEl, modal, sleep, showCards } from './common.js';
 import { createBattle, startBattle, playCard, endTurn, canPlay, cardDef, needsTarget, intentSummary } from '../engine/battle.js';
 import { effectsText, describePowers } from '../engine/describe.js';
 import { HERO_POSES, ENEMY_POSES } from '../engine/schema.js';
@@ -21,7 +21,7 @@ export function runBattle(root, idx, opts) {
         const alt = effectsText(idx, req.alt);
         const m = modal('獻祭：選擇一張生贄', h('div', {},
           h('p', { class: 'dim', style: { textAlign: 'center', margin: 0 } }, '被獻祭的生贄會永久離開牌組，並觸發它自己的額外效果。'),
-          h('div', { class: 'card-pick' }, req.tributes.map((c) => { const el = cardEl(idx, c, { width: 150 }); el.onclick = () => { m.close(); res(c.uid); }; return el; })),
+          h('div', { class: 'card-pick' }, req.tributes.map((c) => { const el = cardEl(idx, c, { width: 170 }); el.onclick = () => { m.close(); res(c.uid); }; return el; })),
           h('div', { class: 'row', style: { justifyContent: 'center' } },
             h('button', { class: 'btn ghost', onclick: () => { m.close(); res('cancel'); } }, '取消出牌'),
             h('button', { class: 'btn', onclick: () => { m.close(); res(null); } }, alt ? `不獻祭，支付代價：${alt}` : '不獻祭'))), { closable: false });
@@ -33,7 +33,7 @@ export function runBattle(root, idx, opts) {
       const m = modal(req.title, h('div', {},
         h('p', { class: 'dim small', style: { textAlign: 'center', margin: 0 } }, req.min === req.max ? `請選 ${req.min} 張` : `可選 ${req.min}～${req.max} 張`),
         h('div', { class: 'card-pick' }, req.cards.map((c) => {
-          const el = cardEl(idx, c, { width: 150 });
+          const el = cardEl(idx, c, { width: 170 });
           el.onclick = () => {
             if (picked.has(c.uid)) picked.delete(c.uid);
             else { if (req.max === 1) { picked.clear(); m.box.querySelectorAll('.picked').forEach((x) => x.classList.remove('picked')); } if (picked.size >= req.max) return; picked.add(c.uid); }
@@ -118,9 +118,9 @@ export function runBattle(root, idx, opts) {
       fill(bottomEl,
         h('div', { class: 'side' },
           h('div', { class: 'energy', title: '能量' }, `${p.energy}`, h('small', {}, `/${state.rules.energy}`)),
-          h('button', { class: 'btn sm ghost', onclick: () => showCards(idx, '抽牌堆', sorted(state.draw), '順序已打亂顯示') }, `抽牌堆 ${state.draw.length}`)),
+          h('div', { class: 'pile' }, cardBackEl(idx, opts.player.faction), h('button', { class: 'btn sm ghost grow', onclick: () => showCards(idx, '抽牌堆', sorted(state.draw), '順序已打亂顯示') }, `抽牌堆 ${state.draw.length}`))),
         h('div', { class: 'hand' }, state.hand.map((inst) => {
-          const el = cardEl(idx, inst, { width: 150, class: (my && canPlay(state, inst) ? 'playable' : 'dimmed') + (selected === inst.uid ? ' selected' : '') });
+          const el = cardEl(idx, inst, { width: 180, class: (my && canPlay(state, inst) ? 'playable' : 'dimmed') + (selected === inst.uid ? ' selected' : '') });
           el.onclick = () => onCard(inst);
           return el;
         })),

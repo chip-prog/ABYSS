@@ -87,12 +87,16 @@
   background: radial-gradient(circle at 35% 30%, #f0c96a, #9a6a1e 60%, #3c2a0e); border: 3px solid #2a1c0a; box-shadow: 0 0 22px rgba(224,184,74,.35), 0 6px 14px rgba(0,0,0,.6);
 }
 .energy small { font-size: 15px; opacity: .8; align-self: end; margin-bottom: 22px; }
-.hand { flex: 1; display: flex; justify-content: center; align-items: flex-end; min-height: 226px; padding: 0 10px; }
-.hand .card { margin: 0 -14px; cursor: pointer; transition: transform .14s, margin .14s; }
-.hand .card:hover { transform: translateY(-34px) scale(1.12); z-index: 20; margin: 0 6px; }
+.hand { flex: 1; display: flex; justify-content: center; align-items: flex-end; min-height: 280px; padding: 0 10px; }
+.hand .card { margin: 0 -20px; cursor: pointer; transition: transform .14s, margin .14s; }
+.hand .card:hover { transform: translateY(-40px) scale(1.12); z-index: 20; margin: 0 8px; }
 .hand .card.selected { transform: translateY(-44px) scale(1.12); z-index: 21; outline: 3px solid var(--ember); outline-offset: 2px; }
 .hand .card.playable { box-shadow: 0 0 0 2px rgba(224,184,74,.55), 0 0 18px rgba(224,184,74,.35), 0 6px 14px rgba(0,0,0,.6); }
 .hand .card.dimmed { filter: brightness(.62) saturate(.7); cursor: default; }
+.hand .card.framed.playable { box-shadow: none; filter: drop-shadow(0 0 3px rgba(240,200,110,.95)) drop-shadow(0 0 10px rgba(224,184,74,.5)); }
+.hand .card.framed.selected { outline: none; filter: drop-shadow(0 0 4px var(--ember)) drop-shadow(0 0 12px var(--ember)); }
+.pile { display: flex; align-items: center; gap: 8px; }
+.pile .card-back { --cw: 34px; }
 
 .battle-log { position: absolute; right: 160px; bottom: 250px; width: 340px; max-height: 300px; overflow: auto; padding: 10px 14px; font-size: 13px; z-index: 30; }
 .float-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 40; }

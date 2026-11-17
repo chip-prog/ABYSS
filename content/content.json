@@ -3,7 +3,10 @@
  "meta": {
   "title": "ABYSS",
   "subtitle": "第一章・鐘樓",
-  "lang": "zh-Hant"
+  "lang": "zh-Hant",
+  "cardBack": {
+   "img": "assets/backs/default.webp"
+  }
  },
  "rules": {
   "energy": 3,
@@ -59,25 +62,40 @@
    "id": "crimson",
    "name": "嫣紅",
    "color": "#a8323a",
-   "desc": "血肉與鐵血。自損、吸血、以守為攻。"
+   "desc": "血肉與鐵血。自損、吸血、以守為攻。",
+   "back": {
+    "img": "assets/backs/crimson.webp"
+   },
+   "frame": {
+    "img": "assets/frames/crimson.webp"
+   }
   },
   {
    "id": "arcane",
    "name": "秘法",
    "color": "#7a5cc4",
-   "desc": "咒法運轉與蝕咒。把整個牌堆當作資源。"
+   "desc": "咒法運轉與蝕咒。把整個牌堆當作資源。",
+   "back": {
+    "img": "assets/backs/arcane.webp"
+   }
   },
   {
    "id": "abyss",
    "name": "深淵",
    "color": "#2f8a80",
-   "desc": "秘密教團。獻祭生贄，驅使高費的不可名狀之力。"
+   "desc": "秘密教團。獻祭生贄，驅使高費的不可名狀之力。",
+   "back": {
+    "img": "assets/backs/abyss.webp"
+   }
   },
   {
    "id": "nameless",
    "name": "無名",
    "color": "#8c7a5e",
-   "desc": "通用牌，所有角色都能取得。"
+   "desc": "通用牌，所有角色都能取得。",
+   "back": {
+    "img": "assets/backs/nameless.webp"
+   }
   }
  ],
  "statuses": [

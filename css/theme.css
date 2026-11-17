@@ -72,7 +72,7 @@ input[type=checkbox] { accent-color: var(--brass); width: 16px; height: 16px; }
 /* ───────── 卡片 ───────── */
 .card {
   --cw: 170px; --fc: #8c7a5e;
-  position: relative; width: var(--cw); height: calc(var(--cw) * 1.42); font-size: calc(var(--cw) / 13.5); flex: none;
+  position: relative; width: var(--cw); height: calc(var(--cw) * 1.5); font-size: calc(var(--cw) / 13.5); flex: none;
   border-radius: .7em; padding: .55em; color: var(--parch-ink); user-select: none;
   background: linear-gradient(160deg, color-mix(in srgb, var(--fc) 70%, #000), color-mix(in srgb, var(--fc) 28%, #0c0705) 60%, #0c0705);
   border: .12em solid color-mix(in srgb, var(--fc) 60%, var(--brass));
@@ -131,6 +131,40 @@ input[type=checkbox] { accent-color: var(--brass); width: 16px; height: 16px; }
 .card:hover .card-tips { display: block; }
 .tip { background: rgba(18,12,8,.96); border: 1px solid var(--brass-lo); border-radius: 5px; padding: 6px 10px; margin-top: 4px; box-shadow: 0 4px 12px rgba(0,0,0,.6); }
 .tip b { color: var(--brass-hi); margin-right: 6px; }
+
+/* ───────── 有卡框的卡片 ───────── */
+.card.framed { padding: 0; background: none; border: 0; box-shadow: none; display: block; color: var(--parch-ink); font-family: 'Noto Serif TC', var(--serif); }
+.card.framed > * { position: absolute; }
+.fc-art { overflow: hidden; display: grid; place-items: center; background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--fc) 45%, #1a1009), #0d0806 85%); }
+.fc-art img { width: 100%; height: 100%; object-fit: cover; }
+.fc-art svg { width: 40%; height: 60%; opacity: .7; fill: none; stroke: color-mix(in srgb, var(--fc) 40%, #f0dcae); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.fc-frame { inset: 0; width: 100%; height: 100%; pointer-events: none; filter: drop-shadow(0 .25em .5em rgba(0,0,0,.55)); }
+.fc-cost, .fc-gem { aspect-ratio: 1; translate: -50% -50%; }
+.fc-cost { display: grid; place-items: center; font-weight: 900; font-size: 1.45em; line-height: 1; color: #fbe9c4; -webkit-text-stroke: .17em #2a0a08; paint-order: stroke fill; }
+.fc-cost.na { font-size: 1.1em; }
+.fc-name { display: flex; align-items: center; justify-content: center; font-weight: 900; letter-spacing: .12em; white-space: nowrap; line-height: 1; color: #f6e6c4; -webkit-text-stroke: .17em #1c0d08; paint-order: stroke fill; }
+.fc-name span { margin-right: -.12em; }
+.card.framed.upgraded .fc-name { color: #b9e89c; }
+.fc-text { display: flex; flex-direction: column; text-align: center; font-size: .65em; letter-spacing: .05em; }
+.fc-type { font-size: .9em; letter-spacing: .35em; line-height: 1.5; color: #6b5a3c; border-bottom: 1px solid rgba(107,90,60,.35); }
+.card.framed .card-desc { height: calc(1.4em * 4); line-height: 1.4; margin-top: .15em; font-weight: 600; }
+.card.framed .card-flavor { margin-top: auto; height: auto; min-height: calc(1.3em * 2 * .86 + .3em); font-size: .86em; line-height: 1.3; }
+.card.framed b { color: #7a1f1f; } .card.framed b.en { color: #0e5f5c; }
+.card.framed i { font-style: normal; color: #4a2f7a; font-weight: 700; }
+.card.framed .cn { font-weight: 900; }
+.card.framed .ribbon { top: 13%; right: 4%; }
+/* 稀有度寶石：鑲在卡圖下緣的尖刺上 */
+.fc-gem { rotate: 45deg; border: .08em solid #160a06; box-shadow: inset .12em .12em .2em rgba(255,255,255,.55), inset -.12em -.12em .25em rgba(0,0,0,.6); }
+.g-starter, .g-special { background: #5b5048; }
+.g-common { background: #d9cfbb; }
+.g-rare { background: #3f78c9; box-shadow: 0 0 .5em #3f78c9, inset .12em .12em .2em rgba(255,255,255,.55), inset -.12em -.12em .25em rgba(0,0,0,.6); }
+.g-epic { background: #e2b23c; box-shadow: 0 0 .7em #f0c050, inset .12em .12em .2em rgba(255,255,255,.7), inset -.12em -.12em .25em rgba(0,0,0,.5); }
+
+/* 卡背 */
+.card-back { --cw: 60px; width: var(--cw); height: calc(var(--cw) * 1.5); flex: none; border-radius: calc(var(--cw) / 18); overflow: hidden;
+  background: repeating-linear-gradient(45deg, #3a2a1c 0 6px, #2c1f15 6px 12px); border: 1px solid var(--brass-lo); box-shadow: 0 3px 8px rgba(0,0,0,.6); }
+.card-back img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card-back:has(img) { background: none; border: 0; }
 
 /* 彈出視窗 */
 .modal-back { position: fixed; inset: 0; background: rgba(6,4,2,.78); display: grid; place-items: center; z-index: 200; padding: 20px; }

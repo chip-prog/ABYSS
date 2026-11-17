@@ -1,5 +1,5 @@
 // 遊戲與 Studio 共用的畫面工具：建立元素、卡片外觀、彈出視窗、內容讀取。
-import { CARD_TYPES } from '../engine/schema.js';
+import { CARD_TYPES, CARD_RATIO, frameLayout } from '../engine/schema.js';
 import { cardDef, isUnplayable } from '../engine/battle.js';
 import { describeCard, keywordsOf } from '../engine/describe.js';
 import { imgUrl, kvGet, initImages } from './store.js';
@@ -74,6 +74,7 @@ export function cardEl(idx, source, opts = {}) {
   if (!def) return h('div', { class: 'card' }, h('div', { class: 'card-name' }, '（遺失的卡片）'));
   const fac = idx.factions.get(def.faction);
   const na = isUnplayable(def);
+  if (fac?.frame?.img && imgUrl(fac.frame.img)) return framedCard(idx, def, fac, na, source.upgraded || opts.upgraded, opts);
   const el = h('div', {
     class: `card r-${def.rarity} t-${def.type}${source.upgraded || opts.upgraded ? ' upgraded' : ''}${opts.class ? ' ' + opts.class : ''}`,
     style: { '--fc': fac?.color || '#8c7a5e', ...(opts.width ? { '--cw': opts.width + 'px' } : {}) },
@@ -91,6 +92,51 @@ export function cardEl(idx, source, opts = {}) {
     if (kws.length) el.append(h('div', { class: 'card-tips' }, kws.map((k) => h('div', { class: 'tip' }, h('b', {}, k.label), k.desc))));
   }
   return el;
+}
+
+const pct = (n) => `${n}%`;
+const box = (b) => ({ left: pct(b.left), top: pct(b.top), width: pct(b.right - b.left), height: pct(b.bottom - b.top) });
+const point = (c) => ({ left: pct(c.x), top: pct(c.y), width: pct(c.size) });
+function artEl(def) {
+  return def.image && imgUrl(def.image)
+    ? h('img', { src: imgUrl(def.image), alt: '', style: def.imagePos ? { objectPosition: `${def.imagePos.x ?? 50}% ${def.imagePos.y ?? 50}%`, scale: String(def.imagePos.zoom ?? 1) } : {} })
+    : h('div', { html: `<svg viewBox="0 0 40 40">${GLYPHS[def.type] || ''}</svg>`, style: { display: 'contents' } });
+}
+function tipsEl(idx, def) {
+  const kws = keywordsOf(idx, def);
+  return kws.length ? h('div', { class: 'card-tips' }, kws.map((k) => h('div', { class: 'tip' }, h('b', {}, k.label), k.desc))) : null;
+}
+
+// 有上傳卡框的陣營：卡圖 → 卡框 → 程式排上的文字
+function framedCard(idx, def, fac, na, upgraded, opts) {
+  const L = frameLayout(fac);
+  const nb = L.name, chars = Math.max(1, [...def.name].length);
+  // 名稱在布條內置中；字太多時自動縮小（單位：卡片字級 em，卡片寬 = 13.5em）
+  const boxW = ((nb.right - nb.left) / 100) * 13.5, boxH = ((nb.bottom - nb.top) / 100) * 13.5 * CARD_RATIO;
+  const nameSize = Math.min(0.95, boxH * 0.84, (boxW * 0.86) / (chars * 1.12));
+  const el = h('div', {
+    class: `card framed r-${def.rarity} t-${def.type}${upgraded ? ' upgraded' : ''}${opts.class ? ' ' + opts.class : ''}`,
+    style: { '--fc': fac.color || '#8c7a5e', ...(opts.width ? { '--cw': opts.width + 'px' } : {}) },
+  },
+    h('div', { class: 'fc-art', style: box(L.art) }, artEl(def)),
+    h('img', { class: 'fc-frame', src: imgUrl(fac.frame.img), alt: '', draggable: false }),
+    h('div', { class: 'fc-gem g-' + def.rarity, style: point(L.gem) }),
+    h('div', { class: 'fc-cost' + (na ? ' na' : ''), style: point(L.cost) }, na ? '✕' : String(def.cost)),
+    h('div', { class: 'fc-name', style: { ...box(nb), fontSize: `${nameSize}em` } }, h('span', {}, def.name)),
+    h('div', { class: 'fc-text', style: box(L.text) },
+      h('div', { class: 'fc-type' }, `${CARD_TYPES[def.type] || ''}・${fac.name || ''}`),
+      h('div', { class: 'card-desc', html: richText(idx, describeCard(idx, def)) }),
+      h('div', { class: 'card-flavor' }, opts.flavor !== false ? def.flavor || '' : '')),
+    def.publish === 'draft' ? h('div', { class: 'ribbon' }, '草稿') : null,
+    opts.tips !== false ? tipsEl(idx, def) : null);
+  return el;
+}
+
+// 卡背：陣營自己的卡背 → 共用卡背 → 素面
+export function cardBackEl(idx, factionId, width = 60) {
+  const ref = idx.factions.get(factionId)?.back?.img || idx.raw.meta?.cardBack?.img;
+  const url = imgUrl(ref);
+  return h('div', { class: 'card-back', style: { '--cw': width + 'px' } }, url ? h('img', { src: url, alt: '', draggable: false }) : null);
 }
 
 export function modal(title, body, { closable = true, wide = false } = {}) {
@@ -124,5 +170,5 @@ export function confirmBox(msg, okLabel = '確定', danger = false) {
 export function showCards(idx, title, cards, note) {
   modal(title, h('div', {},
     note ? h('p', { class: 'dim small', style: { textAlign: 'center', margin: 0 } }, note) : null,
-    cards.length ? h('div', { class: 'card-pick' }, cards.map((c) => cardEl(idx, c, { width: 150 }))) : h('p', { class: 'dim', style: { textAlign: 'center' } }, '（空）')), { wide: true });
+    cards.length ? h('div', { class: 'card-pick' }, cards.map((c) => cardEl(idx, c, { width: 170 }))) : h('p', { class: 'dim', style: { textAlign: 'center' } }, '（空）')), { wide: true });
 }
