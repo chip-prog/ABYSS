@@ -133,7 +133,8 @@ function ending(win) {
 
 (async () => {
   try {
-    raw = (preview && await loadWorking()) || await loadOfficial();
+    const off = await loadOfficial();
+    raw = (preview && await loadWorking()) || off;
     idx = indexContent(raw);
     applyMood(document.body, raw.rules);
     document.title = raw.meta?.title || 'ABYSS';

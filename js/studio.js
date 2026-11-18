@@ -986,7 +986,11 @@ async function importFile(file) {
     }
     if (official.meta?.cardBack?.img && !C.meta?.cardBack?.img) (C.meta ||= {}).cardBack = clone(official.meta.cardBack);
     // 正式內容的舞台素材：工作內容裡空著的就補上
-    for (const [k, v] of Object.entries(official.meta?.stage || {})) if (v?.img && !C.meta.stage?.[k]?.img) (C.meta.stage ||= {})[k] = clone(v);
+    // 舞台素材：空著的補上；原本就是儲存庫素材（不是自己上傳的）的，跟著正式內容更新
+    for (const [k, v] of Object.entries(official.meta?.stage || {})) {
+      const mine = C.meta.stage?.[k];
+      if (v?.img && (!mine?.img || (mine.img.startsWith('assets/') && JSON.stringify(mine) !== JSON.stringify(v)))) (C.meta.stage ||= {})[k] = clone(v);
+    }
     // 正式內容的場景：工作內容沒有的整組補上；已有的只補上空著的畫板（不覆蓋自己上傳的）
     C.scenes ||= [];
     for (const o of official.scenes || []) {

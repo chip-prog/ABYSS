@@ -2,7 +2,7 @@
 import { CARD_TYPES, CARD_RATIO, frameLayout, MOOD } from '../engine/schema.js';
 import { cardDef, isUnplayable } from '../engine/battle.js';
 import { describeCard, keywordsOf } from '../engine/describe.js';
-import { imgUrl, kvGet, initImages } from './store.js';
+import { imgUrl, kvGet, initImages, setAssetVersion } from './store.js';
 
 export const KEY_WORK = 'abyss.studio.content'; // Studio 的工作內容（測試環境）
 export const KEY_RUN = 'abyss.run';
@@ -33,7 +33,9 @@ export const clone = (x) => JSON.parse(JSON.stringify(x));
 export async function loadOfficial() {
   const r = await fetch('content/content.json', { cache: 'no-store' });
   if (!r.ok) throw new Error('讀不到正式內容檔 content/content.json');
-  return r.json();
+  const text = await r.text();
+  setAssetVersion(text);
+  return JSON.parse(text);
 }
 // Studio 的工作內容（測試環境）。同時把上傳的圖片準備好。
 export async function loadWorking() {

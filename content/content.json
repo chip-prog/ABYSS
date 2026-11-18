@@ -12,7 +12,7 @@
     "img": "assets/stage/wallpaper.webp"
    },
    "floor": {
-    "img": "assets/stage/floor.webp",
+    "img": "assets/stage/floor-v2.webp",
     "horizon": 60.6
    },
    "fore": {

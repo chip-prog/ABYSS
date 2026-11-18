@@ -41,9 +41,16 @@ function setUrl(key, blob) {
 }
 
 // 參照 → 可以放進 <img src> 的網址
+let assetV = '';
+// 正式內容一有變動，圖片網址就換一個版本號，瀏覽器才不會繼續用快取裡的舊圖
+export function setAssetVersion(text) {
+  let x = 0; for (let i = 0; i < text.length; i++) x = (x * 31 + text.charCodeAt(i)) | 0;
+  assetV = (x >>> 0).toString(36);
+}
 export function imgUrl(ref) {
   if (!ref) return '';
   if (ref.startsWith('local:')) return urls.get(ref.slice(6)) || '';
+  if (ref.startsWith('assets/') && assetV) return `${ref}?v=${assetV}`;
   return ref;
 }
 export const isLocal = (ref) => typeof ref === 'string' && ref.startsWith('local:');
