@@ -166,7 +166,8 @@
 
 /* 舞台地板 */
 .scene-floor { position: absolute; left: 0; right: 0; bottom: 0; top: var(--floor, 46%); }
-.scene-floor img { position: absolute; left: 0; top: 0; width: 100%; height: auto; translate: 0 calc(-100% * var(--horizon, .5)); }
+/* 地板深度：把地板圖上下壓扁，讓三聯畫露出更多 */
+.scene-floor img { position: absolute; left: 0; top: 0; width: 100%; height: auto; transform-origin: 50% 0; translate: 0 calc(-100% * var(--horizon, .5) * var(--depth, 1)); scale: 1 var(--depth, 1); }
 .scene-floor:not(.has) {
   background: linear-gradient(180deg, #2a1c12 0, #3a2818 2%, #24180f 30%, #0d0806 100%),
     repeating-linear-gradient(90deg, rgba(0,0,0,.25) 0 2px, transparent 2px 12%);
@@ -180,7 +181,7 @@
 /* 前景：畫面兩側的柱子或帷幕，蓋在紙偶前面，製造前後層次 */
 .scene-front { position: absolute; inset: 0; z-index: 3; pointer-events: none; container-type: size; overflow: hidden; }
 .scene-fore { position: absolute; inset: 0; }
-.scene-fore img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
+.scene-fore img { width: 100%; height: calc(100% + var(--lift, 0%)); object-fit: cover; object-position: 50% 0; translate: 0 calc(-1 * var(--lift, 0%)); }
 .scene-fore:not(.has) {
   background:
     linear-gradient(90deg, #070504 0, #0d0907 3.5%, rgba(13,9,7,.85) 5%, transparent 9%, transparent 91%, rgba(13,9,7,.85) 95%, #0d0907 96.5%, #070504 100%),

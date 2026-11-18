@@ -83,12 +83,12 @@ export function makeScene(idx, scene) {
     h('div', { class: 'scene-light' }, h('i'), h('i'), h('i')),
     h('div', { class: 'parts back' }, partsOf(sc, 'back')),
     tri,
-    h('div', { class: 'scene-floor' + (floor ? ' has' : ''), style: { '--floor': `${S.floorTop}%`, '--horizon': String((st.floor?.horizon ?? 50) / 100) } },
+    h('div', { class: 'scene-floor' + (floor ? ' has' : ''), style: { '--floor': `${S.floorTop}%`, '--depth': String(S.floorDepth / 100), '--horizon': String((st.floor?.horizon ?? 50) / 100) } },
       floor ? h('img', { src: floor, alt: '', draggable: false }) : null),
     h('div', { class: 'parts mid' }, partsOf(sc, 'mid')),
     h('div', { class: 'scene-motes' }));
   // 最前方的零件和前景要蓋在紙偶前面，由戰鬥畫面另外放
-  const fore = h('div', { class: 'scene-front' }, h('div', { class: 'parts front' }, partsOf(sc, 'front')), layer('scene-fore', st.fore));
+  const fore = h('div', { class: 'scene-front' }, h('div', { class: 'parts front' }, partsOf(sc, 'front')), layer('scene-fore', st.fore, { '--lift': `${S.foreLift}%` }));
   return {
     el, fore, sidePad: S.sidePad,
     open: () => { tri.classList.remove('closed'); [el, fore].forEach((x) => x.classList.add('entered')); },
