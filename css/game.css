@@ -64,20 +64,53 @@ body.game .hand { margin-bottom: -58px; }
   animation: motes 18s linear infinite; }
 .fsel-head { position: relative; text-align: center; margin-bottom: 4vh; }
 .fsel-head h1 { font-size: 32px; letter-spacing: .4em; margin-right: -.4em; }
-.books { position: relative; display: flex; gap: 5vw; align-items: flex-end; justify-content: center; padding: 0 20px; }
-.books::after { content: ''; position: absolute; left: -6%; right: -6%; bottom: 58px; height: 34px; border-radius: 50%; background: radial-gradient(ellipse, rgba(0,0,0,.6), transparent 70%); z-index: -1; }
-.book { font: inherit; color: var(--ink); background: none; border: 0; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 0; transition: transform .2s steps(3, end); }
-.book-img { width: min(22vw, 260px); filter: drop-shadow(0 18px 18px rgba(0,0,0,.7)) brightness(.85); transition: filter .2s; }
+.books { position: absolute; left: 0; right: 0; bottom: var(--surface, 58%); display: flex; gap: 4vw; align-items: flex-end; justify-content: center; }
+/* 書的陰影落在桌面上 */
+.book::before { content: ''; position: absolute; left: 6%; right: 6%; bottom: -10px; height: 22px; border-radius: 50%; background: radial-gradient(ellipse, rgba(0,0,0,.7), transparent 70%); z-index: -1; }
+.book { position: relative; font: inherit; color: var(--ink); background: none; border: 0; cursor: pointer; display: flex; flex-direction: column; align-items: center; padding: 0; transition: transform .2s steps(3, end); }
+.book-img { width: min(17vw, 220px); filter: drop-shadow(0 18px 18px rgba(0,0,0,.7)) brightness(.85); transition: filter .2s; }
 .book:hover { transform: translateY(-16px) rotate(-2deg); }
 .book:hover .book-img, .book:hover .book-ph { filter: drop-shadow(0 0 18px color-mix(in srgb, var(--fc) 70%, #f6d77a)) drop-shadow(0 24px 20px rgba(0,0,0,.7)) brightness(1.08); }
 .book.opening { animation: bookopen .5s steps(5, end) forwards; }
 @keyframes bookopen { to { transform: translateY(-40px) scale(1.25); opacity: 0; } }
-.book-label { text-align: center; max-width: 240px; }
-.book-label b { display: block; font-size: 22px; letter-spacing: .4em; margin-right: -.4em; color: color-mix(in srgb, var(--fc) 45%, #f1dca3); }
-.book-label span { font-size: 13px; color: var(--ink-dim); }
+.book:hover .book-label { transform: translateY(16px) rotate(2deg); }
+/* 紙條：釘在桌子前緣，不跟著書抬起 */
+.book-label { position: absolute; top: calc(100% + var(--edge, 9vh)); left: 50%; translate: -50% 0; width: min(15vw, 200px); padding: 8px 10px 9px; text-align: center; color: #2b2016;
+  background: linear-gradient(180deg, #e2d3ad, #c9b88d); box-shadow: 0 4px 8px rgba(0,0,0,.6); rotate: var(--tilt, -2deg);
+  clip-path: polygon(0 4%, 8% 0, 40% 3%, 70% 0, 100% 3%, 98% 50%, 100% 96%, 60% 100%, 30% 97%, 2% 100%, 0 50%); }
+.book:nth-child(2) .book-label { --tilt: 1.5deg; } .book:nth-child(3) .book-label { --tilt: -1deg; }
+.book-label::before { content: ''; position: absolute; left: 50%; top: 4px; width: 9px; height: 9px; translate: -50% 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #9a8a7a, #3a2c22); box-shadow: 0 1px 2px #000; }
+.book-label b { display: block; margin-top: 6px; font-size: 19px; letter-spacing: .4em; margin-right: -.4em; color: color-mix(in srgb, var(--fc) 75%, #000); }
+.book-label span { font-size: 12px; color: #5a4a32; line-height: 1.5; display: block; }
+
+/* ───────── 木桌 ───────── */
+.desk { position: relative; width: min(92vw, 1180px); height: min(54vh, 520px); --surface: 58%; --edge: 9vh; }
+.desk-img { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; object-fit: contain; object-position: bottom; filter: brightness(.8); }
+.desk-ph { position: absolute; inset: 0; }
+/* 桌面：略微透視、木紋、刮痕與缺角 */
+.desk-top { position: absolute; left: 4%; right: 4%; bottom: 40%; height: 20%;
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,.25) 0 2px, transparent 2px 9%),
+    repeating-linear-gradient(0deg, rgba(255,220,170,.05) 0 2px, transparent 2px 7px),
+    linear-gradient(180deg, #4a3220, #3a2617 60%, #2c1c10);
+  clip-path: polygon(6% 0, 30% 2%, 31% 0, 70% 1%, 94% 0, 100% 100%, 82% 100%, 80% 94%, 77% 100%, 0 100%);
+  box-shadow: inset 0 8px 18px rgba(0,0,0,.5); }
+.desk-top::after { content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 120% at 50% 0%, rgba(255,214,140,.22), transparent 70%),
+    linear-gradient(170deg, transparent 40%, rgba(0,0,0,.35) 41%, transparent 43%), linear-gradient(8deg, transparent 62%, rgba(0,0,0,.3) 63%, transparent 65%); }
+/* 桌子前緣的厚板 */
+.desk-front { position: absolute; left: 0; right: 0; bottom: 26%; height: 14%;
+  background: repeating-linear-gradient(90deg, rgba(0,0,0,.3) 0 3px, transparent 3px 24%), linear-gradient(180deg, #3b2717, #24170d);
+  clip-path: polygon(0 0, 100% 0, 99% 70%, 96% 100%, 60% 92%, 58% 100%, 20% 96%, 3% 100%, 1% 60%);
+  box-shadow: 0 10px 20px rgba(0,0,0,.6); }
+.desk-front::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: rgba(255,220,170,.18); }
+/* 桌腳：一隻歪了 */
+.desk-leg { position: absolute; bottom: 0; width: 5%; height: 28%; background: linear-gradient(90deg, #1c120a, #33221394, #1c120a); }
+.desk-leg.l { left: 7%; rotate: 2deg; } .desk-leg.r { right: 7%; rotate: -4deg; transform-origin: top; }
+.fsel-head { margin-bottom: 0; }
 .fsel-back { position: absolute; left: 24px; bottom: 24px; }
 /* 暫代的書 */
-.book-ph { position: relative; width: min(18vw, 210px); aspect-ratio: 3 / 4; filter: drop-shadow(0 18px 18px rgba(0,0,0,.7)) brightness(.85); transform: perspective(700px) rotateX(18deg); transition: filter .2s; }
+.book-ph { position: relative; width: min(14vw, 180px); aspect-ratio: 3 / 4; filter: drop-shadow(0 18px 18px rgba(0,0,0,.7)) brightness(.85); transform: perspective(700px) rotateX(18deg); transition: filter .2s; }
 .book-cover { position: absolute; inset: 0 0 6% 7%; border-radius: 3px 8px 8px 3px; display: grid; place-items: center;
   background: linear-gradient(135deg, color-mix(in srgb, var(--fc) 75%, #000), color-mix(in srgb, var(--fc) 35%, #0a0604)); border: 3px solid #1a0f08;
   box-shadow: inset 0 0 0 6px color-mix(in srgb, var(--fc) 30%, #b9965b), inset 0 0 30px rgba(0,0,0,.6); }

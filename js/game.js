@@ -62,16 +62,19 @@ function bookEl(f) {
 function select() {
   const chars = liveChars();
   const facs = raw.factions.filter((f) => chars.some((c) => c.faction === f.id));
-  const bg = imgUrl(raw.meta?.select?.bg?.img);
+  const bg = imgUrl(raw.meta?.select?.bg?.img), table = imgUrl(raw.meta?.select?.table?.img);
   frame(h('div', { class: 'fsel' + (bg ? ' has-bg' : ''), style: bg ? { backgroundImage: `url("${bg}")` } : {} },
     h('div', { class: 'fsel-beam' }), h('div', { class: 'fsel-dust' }),
     h('div', { class: 'fsel-head' }, h('h1', {}, '選擇陣營'), h('p', { class: 'dim' }, '三本書靜靜躺在光裡。')),
-    h('div', { class: 'books' }, facs.map((f) => h('button', { class: 'book', style: { '--fc': f.color }, onclick: (e) => {
-      e.currentTarget.classList.add('opening');
-      setTimeout(() => character(f.id, 0), 520);
-    } },
-      bookEl(f),
-      h('div', { class: 'book-label' }, h('b', {}, f.name), h('span', {}, f.desc || ''))))),
+    // 老舊破敗的木桌：書立在桌面上，陣營名寫在釘在桌緣的紙條上
+    h('div', { class: 'desk' + (table ? ' has' : '') },
+      table ? h('img', { class: 'desk-img', src: table, alt: '', draggable: false }) : h('div', { class: 'desk-ph' }, h('div', { class: 'desk-top' }), h('div', { class: 'desk-front' }), h('div', { class: 'desk-leg l' }), h('div', { class: 'desk-leg r' })),
+      h('div', { class: 'books' }, facs.map((f) => h('button', { class: 'book', style: { '--fc': f.color }, onclick: (e) => {
+        e.currentTarget.classList.add('opening');
+        setTimeout(() => character(f.id, 0), 520);
+      } },
+        bookEl(f),
+        h('div', { class: 'book-label' }, h('b', {}, f.name), h('span', {}, f.desc || '')))))),
     h('button', { class: 'btn ghost fsel-back', onclick: title }, '返回')));
 }
 function character(fid, i) {
