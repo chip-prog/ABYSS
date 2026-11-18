@@ -226,3 +226,7 @@ body.game .hand { margin-bottom: -58px; }
 .desk.on-top .book:hover .book-img { transform: rotate(var(--lie, 0deg)) translateY(-14px) scale(1.04); filter: brightness(1.08) drop-shadow(0 0 16px color-mix(in srgb, var(--fc) 70%, #f6d77a)) drop-shadow(6px 24px 12px rgba(0,0,0,.7)); }
 .desk.on-top .books { bottom: 22%; }
 .desk.on-top .book-label { top: calc(100% + 3vh); }
+
+/* 正式桌面圖：本身是俯視，用較緩的透視往遠處退 */
+.tabletop { height: 72%; transform: perspective(1000px) rotateX(30deg); background-size: cover; background-position: 50% 40%; filter: brightness(.85) saturate(.95); }
+.fsel-back { z-index: 5; background: rgba(10,6,4,.7); color: var(--ink); }
