@@ -159,6 +159,40 @@
    "desc": "秘密教團。獻祭生贄，驅使高費的不可名狀之力。",
    "back": {
     "img": "assets/backs/abyss.webp"
+   },
+   "frame": {
+    "img": "assets/frames/abyss.webp",
+    "layout": {
+     "art": {
+      "left": 14.2,
+      "top": 13.3,
+      "right": 86.6,
+      "bottom": 56.8
+     },
+     "cost": {
+      "x": 17.6,
+      "y": 7.4,
+      "size": 12
+     },
+     "name": {
+      "left": 21,
+      "right": 89,
+      "center": 54,
+      "top": 4.0,
+      "bottom": 11.6
+     },
+     "text": {
+      "left": 15.5,
+      "right": 87,
+      "top": 61.6,
+      "bottom": 91
+     },
+     "gem": {
+      "x": 51.4,
+      "y": 58.0,
+      "size": 6
+     }
+    }
    }
   },
   {
