@@ -116,6 +116,40 @@
    "desc": "咒法運轉與蝕咒。把整個牌堆當作資源。",
    "back": {
     "img": "assets/backs/arcane.webp"
+   },
+   "frame": {
+    "img": "assets/frames/arcane.webp",
+    "layout": {
+     "art": {
+      "left": 9.5,
+      "top": 12.6,
+      "right": 90.5,
+      "bottom": 54
+     },
+     "cost": {
+      "x": 13.2,
+      "y": 8.4,
+      "size": 13
+     },
+     "name": {
+      "left": 23,
+      "right": 88,
+      "center": 52,
+      "top": 4.6,
+      "bottom": 12.4
+     },
+     "text": {
+      "left": 10.5,
+      "right": 89.5,
+      "top": 58,
+      "bottom": 91
+     },
+     "gem": {
+      "x": 50.2,
+      "y": 54.4,
+      "size": 6
+     }
+    }
    }
   },
   {
