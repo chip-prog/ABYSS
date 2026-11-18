@@ -95,13 +95,13 @@ function publishToggle(o) {
 }
 const pubBadge = (o) => h('span', { class: 'badge ' + (o.publish === 'official' ? 'official' : 'draft') }, o.publish === 'official' ? '正式' : '草稿');
 
-function imageField(o, { max = 600, onChange } = {}) {
+function imageField(o, { max = 600, onChange, key = false, trim = false } = {}) {
   const wrap = h('div', { class: 'row' });
   const draw = () => fill(wrap,
     o.image ? h('img', { src: imgUrl(o.image), class: 'thumb', alt: '' }) : h('span', { class: 'faint small' }, '尚未上傳，會使用預設圖樣'),
     h('label', { class: 'btn sm' }, o.image ? '更換圖片' : '上傳圖片', h('input', { type: 'file', accept: 'image/*', class: 'hidden', onchange: async (e) => {
       const file = e.target.files[0]; if (!file) return;
-      try { o.image = await addImage(await fileToBlob(file, max)); } catch { return toast('這張圖片無法讀取'); }
+      try { const b = await fileToBlob(file, max, { key, trim }); o.image = await addImage(b); if (b.keyed) toast('已自動去除綠色背景'); } catch { return toast('這張圖片無法讀取'); }
       commit(); draw(); onChange?.();
     } })),
     o.image ? h('button', { class: 'btn sm ghost', onclick: () => { o.image = ''; delete o.imagePos; commit(); draw(); onChange?.(); } }, '移除') : null);
@@ -155,13 +155,13 @@ function textIssues() {
 }
 
 // 上傳一張圖到 o[key]（卡框、卡背用；保留透明背景）
-function imgUpload(o, key, { max = 1210, label = '上傳圖片', onChange } = {}) {
+function imgUpload(o, key, { max = 1210, label = '上傳圖片', onChange, green = false, trim = false } = {}) {
   const wrap = h('div', { class: 'row' });
   const draw = () => fill(wrap,
     o[key] ? h('img', { src: imgUrl(o[key]), class: 'thumb tall', alt: '' }) : h('span', { class: 'faint small' }, '尚未上傳'),
     h('label', { class: 'btn sm' }, o[key] ? '更換' : label, h('input', { type: 'file', accept: 'image/*', class: 'hidden', onchange: async (e) => {
       const file = e.target.files[0]; if (!file) return;
-      try { o[key] = await addImage(await fileToBlob(file, max)); } catch { return toast('這張圖片無法讀取'); }
+      try { const b = await fileToBlob(file, max, { key: green, trim }); o[key] = await addImage(b); if (b.keyed) toast('已自動去除綠色背景'); } catch { return toast('這張圖片無法讀取'); }
       commit(); draw(); onChange?.();
     } })),
     o[key] ? h('button', { class: 'btn sm ghost', onclick: () => { delete o[key]; commit(); draw(); onChange?.(); } }, '移除') : null);
@@ -202,12 +202,108 @@ function frameEditor(f) {
     h('p', { class: 'dim small' }, '卡框：去背 PNG，比例 1：1.5（例如 800 × 1200），卡圖窗挖空透明，不要畫任何文字。沒有上傳卡框的陣營，會使用預設的簡易卡面。'),
     h('div', { class: 'frame-wrap' },
       h('div', { class: 'frame-side' },
-        field('卡框', imgUpload(f.frame, 'img', { label: '上傳卡框', onChange: drawPreview })),
+        field('卡框', imgUpload(f.frame, 'img', { label: '上傳卡框', onChange: drawPreview, green: true })),
         field('卡背', imgUpload(f.back, 'img', { label: '上傳卡背', onChange: drawPreview }), '沒上傳時使用「規則」頁的共用卡背'),
         h('div', { class: 'sub-title' }, '位置微調'),
         h('p', { class: 'faint small' }, '卡框和預設位置有落差時再調整。數值是卡片寬度、高度的百分比。名稱會對齊「中線」，太長時才往內讓開，不會超出「最左／最右」。'),
         tune),
       preview));
+}
+
+// ───────── 場景編輯器 ─────────
+function scenePreview(sc) {
+  const box = h('div', { class: 'scene-preview' });
+  let view;
+  const draw = (animate = true) => {
+    view = makeScene(idx, sc);
+    box.classList.toggle('instant', !animate);
+    const pad = view.sidePad;
+    // 暫代紙偶：讓你判斷零件和三聯畫跟角色的前後關係
+    const dummy = (side) => h('div', { class: 'pv-dummy ' + side, style: { [side]: `calc(${pad}% + 4%)`, top: `calc(${({ ...SC.STAGE_LAYOUT, ...(C.rules.stage || {}) }).floorTop}% - 30%)` } });
+    fill(box, view.el, h('div', { class: 'pv-actors' }, dummy('left'), dummy('right')), view.fore);
+    requestAnimationFrame(() => view.open());
+  };
+  draw();
+  return { box, draw, open: () => view.open(), close: () => view.close() };
+}
+function sceneEditor(sc) {
+  for (const k of ['center', 'left', 'right', 'leftBack', 'rightBack']) sc[k] ||= {};
+  sc.parts ||= [];
+  const pv = scenePreview(sc);
+  let redrawTimer;
+  const redraw = () => { clearTimeout(redrawTimer); redrawTimer = setTimeout(() => pv.draw(false), 60); };
+  const prev = previewFn; previewFn = () => { prev?.(); redraw(); };
+
+  // 三聯畫版面
+  const T = () => ({ ...SC.TRI_LAYOUT, ...(sc.layout || {}) });
+  const setT = (k, v) => { (sc.layout ||= {})[k] = v; commit(); };
+  const triTune = h('div', {});
+  const drawTri = () => fill(triTune, h('div', { class: 'pose-sliders' },
+    slider('左右', T().x, 0, 100, (v) => setT('x', v), '%'), slider('上下', T().y, -40, 60, (v) => setT('y', v), '%'),
+    slider('寬度', T().width, 30, 140, (v) => setT('width', v), '%'), slider('高度上限', T().height, 20, 120, (v) => setT('height', v), '%'),
+    slider('兩翼角度', T().wing, 0, 80, (v) => setT('wing', v), '°'), slider('亮度', T().bright, 20, 120, (v) => setT('bright', v), '%')),
+    h('button', { class: 'btn sm ghost', onclick: () => { delete sc.layout; commit(); drawTri(); } }, '恢復預設'));
+  drawTri();
+
+  // 畫板：上傳＋裁切
+  const panel = (k, label, hint) => {
+    const box = h('div', { class: 'panel-slot' });
+    const draw = () => {
+      const o = sc[k];
+      const P = { x: 50, y: 50, zoom: 1, ...(o.pos || {}) };
+      const setP = (kk, v) => { (o.pos ||= { x: 50, y: 50, zoom: 1 })[kk] = v; commit(); };
+      fill(box, h('b', {}, label), hint ? h('div', { class: 'faint small' }, hint) : null,
+        imgUpload(o, 'img', { max: 1100, onChange: () => { draw(); redraw(); } }),
+        o.img ? h('div', { class: 'pose-sliders' },
+          slider('左右', P.x, 0, 100, (v) => setP('x', v), '%'), slider('上下', P.y, 0, 100, (v) => setP('y', v), '%'),
+          slider('放大', Math.round(P.zoom * 100), 100, 250, (v) => setP('zoom', v / 100), '%')) : null);
+    };
+    draw();
+    return box;
+  };
+
+  // 零件
+  const partsBox = h('div', { class: 'parts-list' });
+  const drawParts = () => fill(partsBox,
+    sc.parts.length ? null : h('p', { class: 'faint small' }, '還沒有零件。零件是一片片去背的剪紙（柱子、眼睛、翅膀、燭台…），可以擺在三聯畫後面、前面，或紙偶前面，各自晃動。'),
+    sc.parts.map((p, i) => {
+      const set = (k, v) => { p[k] = v; commit(); };
+      return h('div', { class: 'part-row' },
+        h('div', { class: 'pose-thumb' }, p.img ? h('img', { src: imgUrl(p.img), alt: '' }) : h('span', {}, '無圖')),
+        h('div', { class: 'grow' },
+          h('div', { class: 'row' },
+            h('b', {}, `零件 ${i + 1}`),
+            imgUpload(p, 'img', { max: 1024, green: true, trim: true, label: '上傳', onChange: () => { drawParts(); redraw(); } }),
+            inSel(p, 'layer', dict(SC.PART_LAYERS)),
+            inSel(p, 'motion', dict(SC.PART_MOTIONS)),
+            h('label', { class: 'check small' }, h('input', { type: 'checkbox', checked: !!p.flip, onchange: (e) => set('flip', e.target.checked) }), '左右翻轉'),
+            h('span', { class: 'grow' }),
+            h('button', { class: 'btn sm ghost', title: '複製一份，方便排成一列', onclick: () => { sc.parts.splice(i + 1, 0, { ...clone(p), x: Math.min(100, p.x + 6) }); commit(); drawParts(); } }, '複製'),
+            h('button', { class: 'btn sm ghost', onclick: () => { sc.parts.splice(i, 1); commit(); drawParts(); } }, '刪除')),
+          h('div', { class: 'pose-sliders' },
+            slider('左右', p.x, -10, 110, (v) => set('x', v), '%'), slider('上下', p.y, -10, 110, (v) => set('y', v), '%'),
+            slider('大小', p.size, 2, 80, (v) => set('size', v), '%'), slider('角度', p.rot || 0, -180, 180, (v) => set('rot', v), '°'),
+            slider('不透明', p.opacity ?? 100, 10, 100, (v) => set('opacity', v), '%'),
+            slider('幅度', p.amp ?? 6, 0, 30, (v) => set('amp', v)), slider('速度', p.speed ?? 3, 1, 20, (v) => set('speed', v), '秒'))));
+    }),
+    h('button', { class: 'btn sm', onclick: () => { sc.parts.push(SC.newPart()); commit(); drawParts(); } }, '＋ 新增零件'));
+  drawParts();
+
+  return h('div', {},
+    section('基本資料', field('名稱', inText(sc, 'name'))),
+    h('div', { class: 'scene-sticky' }, section('預覽', pv.box, h('div', { class: 'row', style: { marginTop: '8px' } },
+      h('button', { class: 'btn sm', onclick: () => { pv.draw(); } }, '重播開場'), h('button', { class: 'btn sm', onclick: () => pv.close() }, '闔上兩翼'),
+      h('span', { class: 'faint small' }, '兩個灰色剪影代表角色站的位置。教堂底紋、地板、前景、三聯畫外框和角色站位在「規則」頁調整，所有場景共用。')))),
+    section('三聯畫版面', h('p', { class: 'faint small' }, '位置、寬高是戰鬥畫面的百分比。'), triTune),
+    section('三聯畫畫面',
+      h('p', { class: 'dim small' }, '中央板比例約 8：7，兩翼各是中央板一半寬（約 4：7）。比例不合也沒關係，用滑桿調整裁切位置。'),
+      h('div', { class: 'grid2' },
+        panel('center', '中央板'),
+        panel('left', '左翼（正面）', '位於主角身後'),
+        panel('right', '右翼（正面）', '位於敵人身後'),
+        panel('leftBack', '左翼（背面）', '兩翼闔上時看到的一面'),
+        panel('rightBack', '右翼（背面）'))),
+    section('場景零件', h('p', { class: 'faint small' }, '綠色背景的圖片上傳時會自動去背並裁掉多餘空白。'), partsBox));
 }
 
 // ───────── 紙偶姿勢編輯器 ─────────
@@ -245,7 +341,7 @@ function posesEditor(ent, defs, side, color) {
         h('div', { class: 'row', style: { marginTop: '4px' } },
           h('label', { class: 'btn sm' }, has ? '更換' : '上傳', h('input', { type: 'file', accept: 'image/*', class: 'hidden', onchange: async (e) => {
             const file = e.target.files[0]; if (!file) return;
-            try { const img = await addImage(await fileToBlob(file, 900)); ent.poses[name] = { scale: 1, x: 0, y: 0, ...(ent.poses[name] || {}), img }; } catch { return toast('這張圖片無法讀取'); }
+            try { const b = await fileToBlob(file, 900, { key: true }); if (b.keyed) toast('已自動去除綠色背景'); const img = await addImage(b); ent.poses[name] = { scale: 1, x: 0, y: 0, ...(ent.poses[name] || {}), img }; } catch { return toast('這張圖片無法讀取'); }
             commit(); drawSlots(); build(name);
           } })),
           has ? h('button', { class: 'btn sm ghost', onclick: () => { delete ent.poses[name]; commit(); drawSlots(); build(); } }, '移除') : null,
@@ -513,29 +609,9 @@ const VIEWS = {
   }),
 
   scenes: () => listEditor({
-    kind: 'scene', items: C.scenes, title: '場景', intro: '戰鬥時教堂後牆上的祭壇三聯畫。戰鬥開始時兩翼打開，勝利時闔上。可在「規則」頁設定各階段預設用哪一組，或在「遭遇」頁個別指定。',
+    kind: 'scene', items: C.scenes, title: '場景', intro: '戰鬥時教堂後牆上的祭壇三聯畫，以及漂浮在舞台上的剪紙零件。戰鬥開始時兩翼打開、零件一片片貼上來，勝利時兩翼闔上。',
     newItem: () => ({ id: 'scene_' + uid(), name: '新場景' }),
-    editor(sc) {
-      for (const k of ['center', 'left', 'right', 'leftBack', 'rightBack']) sc[k] ||= {};
-      const stage = h('div', { class: 'scene-preview' });
-      let view;
-      const draw = () => { view = makeScene(idx, sc); fill(stage, view.el); setTimeout(() => view.open(), 60); };
-      draw();
-      const up = (k, label, hint) => field(label, imgUpload(sc[k], 'img', { max: 1100, onChange: draw }), hint);
-      return h('div', {},
-        section('基本資料', field('名稱', inText(sc, 'name'))),
-        section('預覽', stage, h('div', { class: 'row', style: { marginTop: '8px' } },
-          h('button', { class: 'btn sm', onclick: () => view.open() }, '打開兩翼'), h('button', { class: 'btn sm', onclick: () => view.close() }, '闔上兩翼'),
-          h('span', { class: 'faint small' }, '教堂、舞台地板和三聯畫外框在「規則」頁設定，所有場景共用。'))),
-        section('三聯畫',
-          h('p', { class: 'dim small' }, '中央板比例約 8：7（例如 640 × 560），兩翼各是中央板一半寬（例如 320 × 560）。畫面要比紙偶暗、彩度低，不要畫文字。'),
-          h('div', { class: 'grid2' },
-            up('center', '中央板'),
-            up('left', '左翼（正面）', '傳統上畫天堂、聖人；位於主角身後'),
-            up('right', '右翼（正面）', '傳統上畫地獄、受難；位於敵人身後'),
-            up('leftBack', '左翼（背面）', '兩翼闔上時看到的一面，傳統上是灰色調的聖人像'),
-            up('rightBack', '右翼（背面）'))));
-    },
+    editor: sceneEditor,
   }),
 
   relics: () => listEditor({
@@ -546,7 +622,7 @@ const VIEWS = {
       const prev = previewFn; previewFn = () => { prev?.(); txt.textContent = describePowers(idx, r.powers) || '（還沒有效果）'; };
       previewFn();
       return h('div', {},
-        section('基本資料', h('div', { class: 'grid2' }, field('名稱', inText(r, 'name')), field('風味文字', inText(r, 'flavor'))), field('圖示', imageField(r, { max: 512 }), '去背 PNG，正方形，建議 256 × 256'), field('狀態', publishToggle(r))),
+        section('基本資料', h('div', { class: 'grid2' }, field('名稱', inText(r, 'name')), field('風味文字', inText(r, 'flavor'))), field('圖示', imageField(r, { max: 512, key: true, trim: true }), '去背 PNG，正方形，建議 256 × 256'), field('狀態', publishToggle(r))),
         section('效果', powersEditor(r.powers), h('div', { class: 'faint small', style: { marginTop: '10px' } }, '自動產生的說明：'), txt));
     },
   }),
@@ -560,7 +636,7 @@ const VIEWS = {
       return h('div', {},
         section('基本資料', h('div', { class: 'grid2' }, field('名稱', inText(s, 'name')), field('類別', inSel(s, 'kind', dict(SC.STATUS_KINDS))), field('回合結束時', inSel(s, 'decay', dict(SC.STATUS_DECAY)))),
           field('說明（玩家看到的文字）', inArea(s, 'desc')),
-          field('圖示', imageField(s, { max: 256 }), '去背 PNG，正方形，建議 128 × 128。有圖示時，戰鬥中只顯示圖示和層數')),
+          field('圖示', imageField(s, { max: 256, key: true, trim: true }), '去背 PNG，正方形，建議 128 × 128。有圖示時，戰鬥中只顯示圖示和層數')),
         section('作用（不需要的留 0）',
           s.special === 'delay' ? h('p', { class: 'gold' }, '這是內建的「延遲」：推遲敵人的下一個行動。它的規則由引擎處理，下面的數字不適用。') : null,
           h('div', { class: 'grid2' },
@@ -578,7 +654,7 @@ const VIEWS = {
       section('基本資料',
         h('div', { class: 'grid2' }, field('名稱', inText(f, 'name')), field('代表色', h('input', { type: 'color', value: f.color, oninput: (e) => { f.color = e.target.value; commit(); } }), '卡名文字會用這個顏色；建議和卡框的主色一致')),
         field('說明', inArea(f, 'desc')),
-        field('徽記', imageField(f, { max: 512 }), '去背 PNG，正方形，建議 256 × 256；顯示在選角畫面'),
+        field('徽記', imageField(f, { max: 512, key: true, trim: true }), '去背 PNG，正方形，建議 256 × 256；顯示在選角畫面'),
         f.id === 'nameless' ? h('p', { class: 'gold small' }, '「無名」是通用陣營：所有角色的獎勵都會出現它的牌。請不要刪除。') : null),
       frameEditor(f)),
   }),
@@ -616,12 +692,19 @@ const VIEWS = {
         h('p', { class: 'dim small' }, '各階段預設使用的三聯畫（遭遇可以另外指定）。'),
         h('div', { class: 'grid2' }, Object.entries(SC.ENCOUNTER_POOLS).map(([pool, label]) => field(label, inSel(R.sceneByPool ||= {}, pool, ents(C.scenes), { empty: '（第一組場景）' })))),
         h('hr', { class: 'rule' }),
+        h('p', { class: 'dim small' }, '所有場景共用的版面。'),
+        (() => { const L = () => ({ ...SC.STAGE_LAYOUT, ...(R.stage || {}) }); const set = (k, v) => { (R.stage ||= {})[k] = v; commit(); };
+          return h('div', { class: 'pose-sliders' },
+            slider('角色離畫面邊緣', L().sidePad, 2, 35, (v) => set('sidePad', v), '%'),
+            slider('地板高度', L().floorTop, 25, 75, (v) => set('floorTop', v), '%'),
+            slider('教堂亮度', L().churchBright, 10, 120, (v) => set('churchBright', v), '%')); })(),
+        h('hr', { class: 'rule' }),
         h('p', { class: 'dim small' }, '所有場景共用的固定素材。沒有上傳時會顯示暗色的暫代圖樣。'),
         h('div', { class: 'grid2' },
           field('教堂遠景', imgUpload((C.meta.stage ||= {}).church ||= {}, 'img', { max: 2560 }), '2560 × 1080，左右各多留一些給寬螢幕；整體要暗'),
-          field('舞台地板', imgUpload(C.meta.stage.floor ||= {}, 'img', { max: 1920 }), '去背 PNG，1920 × 1080，上半部透明'),
-          field('三聯畫外框', imgUpload(C.meta.stage.frame ||= {}, 'img', { max: 1100 }), '去背 PNG，套在中央板外圍，比例同中央板'),
-          field('前景', imgUpload(C.meta.stage.fore ||= {}, 'img', { max: 2560 }), '去背 PNG，1920 × 1080；畫面兩側的柱子或帷幕，會蓋在紙偶前面，中間要透空'))),
+          field('舞台地板', imgUpload(C.meta.stage.floor ||= {}, 'img', { max: 1920, green: true }), '去背 PNG，1920 × 1080，上半部透明'),
+          field('三聯畫外框', imgUpload(C.meta.stage.frame ||= {}, 'img', { max: 1100, green: true }), '去背 PNG，套在中央板外圍，比例同中央板'),
+          field('前景', imgUpload(C.meta.stage.fore ||= {}, 'img', { max: 2560, green: true }), '去背 PNG，1920 × 1080；畫面兩側的柱子或帷幕，會蓋在紙偶前面，中間要透空'))),
       section('關卡流程（經典模式・第一章）', stages),
       issueBox('rules', 'rules'));
   },

@@ -136,5 +136,18 @@ details.box > summary { cursor: pointer; margin-bottom: 8px; }
 .tune-row .slider input { width: 90px; }
 
 /* 場景預覽 */
-.scene-preview { position: relative; height: 340px; border-radius: 6px; overflow: hidden; border: 1px solid var(--wood-4); isolation: isolate; }
+.scene-preview { position: relative; aspect-ratio: 16 / 8.6; border-radius: 6px; overflow: hidden; border: 1px solid var(--wood-4); isolation: isolate; container-type: size; }
 .scene-preview .scene { z-index: 0; }
+
+.scene-sticky { position: sticky; top: 0; z-index: 4; }
+.scene-sticky .box { margin-top: 0; background: linear-gradient(180deg, #33241a, #2a1d14); }
+.pv-actors { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.pv-dummy { position: absolute; width: 9%; aspect-ratio: 3 / 5; background: rgba(160,150,140,.55); border: 2px solid rgba(255,255,255,.5); border-radius: 45% 45% 6% 6% / 30% 30% 4% 4%; }
+.panel-slot { display: flex; flex-direction: column; gap: 6px; padding: 8px 10px; margin-bottom: 10px; border: 1px dashed var(--wood-4); border-radius: 6px; }
+.parts-list { display: flex; flex-direction: column; gap: 8px; }
+.part-row { display: flex; gap: 12px; padding: 8px 10px; background: rgba(10,6,4,.45); border: 1px solid var(--wood-4); border-radius: 6px; }
+.part-row .row { gap: 8px; }
+.part-row select { padding: 3px 6px; font-size: 13px; }
+
+.scene-preview.instant .part { animation: none !important; opacity: var(--op, 1); }
+.scene-preview.instant .tri-wing { transition: none; }

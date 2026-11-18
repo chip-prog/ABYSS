@@ -195,3 +195,10 @@ export function frameLayout(fac) {
   for (const [k, v] of Object.entries(FRAME_LAYOUT)) out[k] = { ...v, ...(L[k] || {}) };
   return out;
 }
+
+// 戰鬥場景的版面。三聯畫的設定跟著場景走；地板、教堂亮度、角色站位是所有場景共用（規則頁）。
+export const TRI_LAYOUT = { x: 50, y: -5, width: 86, height: 58, wing: 28, bright: 62 };
+export const STAGE_LAYOUT = { floorTop: 46, churchBright: 60, sidePad: 19 };
+export const PART_LAYERS = { back: '最後方（三聯畫後面）', mid: '中間（三聯畫前、紙偶後）', front: '最前方（紙偶前面）' };
+export const PART_MOTIONS = { none: '靜止', sway: '左右搖晃', bob: '上下浮動', spin: '緩慢旋轉', drift: '左右漂移', jitter: '顫抖', flicker: '閃爍' };
+export const newPart = () => ({ img: '', layer: 'mid', x: 50, y: 30, size: 12, rot: 0, flip: false, opacity: 100, motion: 'sway', speed: 3, amp: 6 });

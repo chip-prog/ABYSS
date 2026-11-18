@@ -75,16 +75,58 @@ export async function walkRefs(node, fn) {
   }
 }
 
-// 把使用者選的圖片檔縮到合理大小，保留透明背景
-export async function fileToBlob(file, max = 900) {
+// 把使用者選的圖片檔縮到合理大小，保留透明背景。
+// key：圖片四角是綠幕時自動去背；trim：去背後裁掉四周多餘的透明區域。
+export async function fileToBlob(file, max = 900, { key = false, trim = false } = {}) {
   const img = new Image();
   img.src = URL.createObjectURL(file);
   await img.decode();
   const k = Math.min(1, max / Math.max(img.width, img.height));
-  const cv = document.createElement('canvas');
+  let cv = document.createElement('canvas');
   cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
-  cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+  const ctx = cv.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(img, 0, 0, cv.width, cv.height);
   URL.revokeObjectURL(img.src);
+  let keyed = false;
+  if (key) {
+    const data = ctx.getImageData(0, 0, cv.width, cv.height);
+    if (looksGreen(data)) { chromaKey(data); ctx.putImageData(data, 0, 0); keyed = true; if (trim) cv = trimCanvas(cv, data); }
+  }
   const blob = await new Promise((r) => cv.toBlob(r, 'image/webp', 0.9));
-  return blob && blob.type === 'image/webp' ? blob : new Promise((r) => cv.toBlob(r, 'image/png'));
+  const out = blob && blob.type === 'image/webp' ? blob : await new Promise((r) => cv.toBlob(r, 'image/png'));
+  out.keyed = keyed;
+  return out;
+}
+const greenness = (d, i) => d[i + 1] - Math.max(d[i], d[i + 2]);
+// 四個角落都是明顯的綠色，才當作綠幕
+function looksGreen({ data, width, height }) {
+  const s = Math.max(2, Math.round(Math.min(width, height) * 0.02));
+  const corners = [[0, 0], [width - s, 0], [0, height - s], [width - s, height - s]];
+  return corners.every(([x0, y0]) => {
+    let g = 0, n = 0;
+    for (let y = y0; y < y0 + s; y++) for (let x = x0; x < x0 + s; x++) { g += greenness(data, (y * width + x) * 4); n++; }
+    return g / n > 35;
+  });
+}
+// 去綠：明顯偏綠的像素變透明，邊緣半透明並去掉綠色反光
+function chromaKey({ data }) {
+  for (let i = 0; i < data.length; i += 4) {
+    const g = greenness(data, i);
+    if (g > 40) data[i + 3] = 0;
+    else if (g > 12) {
+      data[i + 3] = Math.round(data[i + 3] * (1 - (g - 12) / 28));
+      data[i + 1] = Math.max(data[i], data[i + 2]);
+    }
+  }
+}
+function trimCanvas(cv, { data, width, height }) {
+  let x0 = width, y0 = height, x1 = -1, y1 = -1;
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) if (data[(y * width + x) * 4 + 3] > 16) {
+    if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+  }
+  if (x1 < 0) return cv;
+  const pad = 2, w = x1 - x0 + 1 + pad * 2, h = y1 - y0 + 1 + pad * 2;
+  const out = document.createElement('canvas'); out.width = w; out.height = h;
+  out.getContext('2d').drawImage(cv, x0 - pad, y0 - pad, w, h, 0, 0, w, h);
+  return out;
 }

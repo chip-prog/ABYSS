@@ -121,7 +121,7 @@
 .scene { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
 .scene img { display: block; width: 100%; height: 100%; }
 .scene-church { position: absolute; inset: 0; }
-.scene-church img { object-fit: cover; object-position: 50% 0; filter: brightness(.6) saturate(.8); }
+.scene-church img { object-fit: cover; object-position: 50% 0; filter: brightness(var(--bright, .6)) saturate(.8); }
 .scene-church:not(.has) {
   background:
     radial-gradient(ellipse 40% 55% at 50% 0%, rgba(150,110,70,.18), transparent 70%),
@@ -142,7 +142,7 @@
 
 /* 三聯畫：中央板寬 = 兩翼寬度總和。闔上時兩翼蓋住中央板，看到的是背面。 */
 .scene { container-type: size; }
-.tri { position: absolute; left: 50%; top: -5%; width: min(86cqw, 58cqh * 2.2857); aspect-ratio: 1280 / 560; translate: -50% 0; perspective: 800px; filter: brightness(.62) saturate(.8); }
+.tri { position: absolute; aspect-ratio: 1280 / 560; translate: -50% 0; perspective: 800px; }
 .tri-center, .tri-frame { position: absolute; left: 25%; width: 50%; top: 0; height: 100%; }
 .tri-center:not(.has) { background: radial-gradient(ellipse at 50% 35%, #4a2a20, #1d100b 75%); }
 .tri-center img { object-fit: cover; }
@@ -151,8 +151,8 @@
 .tri-wing.left { left: 0; transform-origin: 100% 50%; }
 .tri-wing.right { left: 75%; transform-origin: 0% 50%; }
 /* 打開時兩翼斜向觀眾，帶出景深 */
-.tri-wing.left { transform: rotateY(28deg); }
-.tri-wing.right { transform: rotateY(-28deg); }
+.tri-wing.left { transform: rotateY(var(--wing, 28deg)); }
+.tri-wing.right { transform: rotateY(calc(-1 * var(--wing, 28deg))); }
 .tri.closed .tri-wing.left { transform: rotateY(180deg); }
 .tri.closed .tri-wing.right { transform: rotateY(-180deg); }
 .tri-face { position: absolute; inset: 0; backface-visibility: hidden; }
@@ -164,9 +164,9 @@
 .tri-wing.right .tri-face.front:not(.has) { background: radial-gradient(ellipse at 50% 70%, #5a1d14, #170807 80%); }
 
 /* 舞台地板 */
-.scene-floor { position: absolute; left: 0; right: 0; bottom: 0; height: 60%; }
+.scene-floor { position: absolute; left: 0; right: 0; bottom: 0; top: calc(var(--floor, 46%) - 8%); }
 .scene-floor img { object-fit: cover; object-position: 50% 0; }
-.scene-floor:not(.has) { top: 46%; height: auto;
+.scene-floor:not(.has) { top: var(--floor, 46%);
   background: linear-gradient(180deg, #2a1c12 0, #3a2818 2%, #24180f 30%, #0d0806 100%),
     repeating-linear-gradient(90deg, rgba(0,0,0,.25) 0 2px, transparent 2px 12%);
   background-blend-mode: multiply; box-shadow: inset 0 3px 0 #4a3424, 0 -10px 30px rgba(0,0,0,.6); }
@@ -177,7 +177,8 @@
 .chip-img { width: 16px; height: 16px; object-fit: contain; vertical-align: -3px; margin-right: 3px; }
 
 /* 前景：畫面兩側的柱子或帷幕，蓋在紙偶前面，製造前後層次 */
-.scene-fore { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.scene-front { position: absolute; inset: 0; z-index: 3; pointer-events: none; container-type: size; overflow: hidden; }
+.scene-fore { position: absolute; inset: 0; }
 .scene-fore img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
 .scene-fore:not(.has) {
   background:
@@ -187,3 +188,24 @@
 
 .battle-bottom, .battle-log { position: relative; z-index: 5; }
 .battle-log { position: absolute; }
+
+/* 場景零件：每片紙各自晃動，一格一格跳 */
+.parts { position: absolute; inset: 0; }
+.part { position: absolute; translate: -50% -50%; }
+.part img { width: 100%; height: auto; display: block; transform-origin: 50% 20%; filter: drop-shadow(3px 4px 0 rgba(0,0,0,.45)); }
+.mv-sway { animation: pv-sway var(--spd) steps(4, end) infinite alternate; }
+.mv-bob { animation: pv-bob var(--spd) steps(4, end) infinite alternate; }
+.mv-spin { animation: pv-spin var(--spd) steps(12, end) infinite; transform-origin: 50% 50%; }
+.mv-drift { animation: pv-drift var(--spd) steps(6, end) infinite alternate; }
+.mv-jitter { animation: pv-jitter calc(var(--spd) / 6) steps(2, end) infinite; }
+.mv-flicker { animation: pv-flicker var(--spd) steps(3, end) infinite; }
+@keyframes pv-sway { from { rotate: calc(var(--amp) * -1deg); } to { rotate: calc(var(--amp) * 1deg); } }
+@keyframes pv-bob { from { translate: 0 calc(var(--amp) * -1px); } to { translate: 0 calc(var(--amp) * 1px); } }
+@keyframes pv-spin { to { rotate: 360deg; } }
+@keyframes pv-drift { from { translate: calc(var(--amp) * -2px) 0; } to { translate: calc(var(--amp) * 2px) 0; } }
+@keyframes pv-jitter { 0% { translate: 0 0; } 25% { translate: calc(var(--amp) * .4px) calc(var(--amp) * -.3px); } 50% { translate: calc(var(--amp) * -.3px) calc(var(--amp) * .4px); } 75% { translate: calc(var(--amp) * .3px) calc(var(--amp) * .3px); } }
+@keyframes pv-flicker { 0%, 100% { opacity: 1; } 40% { opacity: .35; } 60% { opacity: .85; } }
+/* 戰鬥開始時零件一片片貼上來 */
+.part { opacity: 0; }
+.entered .part { animation: pv-enter .45s steps(3, end) forwards; animation-delay: calc(var(--i) * 70ms); }
+@keyframes pv-enter { from { opacity: 0; scale: .6; } to { opacity: var(--op, 1); scale: 1; } }
