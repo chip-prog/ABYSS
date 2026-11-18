@@ -203,3 +203,19 @@ body.game .hand { margin-bottom: -58px; }
 .desk.on-top { height: 60vh; width: min(92vw, 1100px); --surface: 30%; --edge: 2vh; margin-top: 8vh; }
 .desk.on-top .book-img { width: min(15vw, 190px); transform: perspective(800px) rotateX(20deg); }
 .desk.on-top .book-label { top: calc(100% + 2.5vh); }
+
+/* 書平躺在桌面上：往後倒、各自略歪，像隨手放下；滑過時微微抬起 */
+.desk.on-top { --surface: 6%; }
+.desk.on-top .books { gap: 2vw; perspective: 1100px; }
+.desk.on-top .book { transform-style: preserve-3d; }
+.desk.on-top .book:hover { transform: none; }
+.desk.on-top .book-img { width: min(16vw, 205px); transform-origin: 50% 70%; transform: rotateX(58deg) rotateZ(var(--lie, 0deg)); filter: brightness(.85) drop-shadow(0 6px 3px rgba(0,0,0,.8)); transition: transform .25s steps(4, end), filter .2s; }
+.desk.on-top .book:nth-child(1) { --lie: -9deg; } .desk.on-top .book:nth-child(2) { --lie: 4deg; } .desk.on-top .book:nth-child(3) { --lie: 12deg; }
+.desk.on-top .book:hover .book-img { transform: rotateX(46deg) rotateZ(var(--lie, 0deg)) translateZ(40px); filter: brightness(1.08) drop-shadow(0 0 16px color-mix(in srgb, var(--fc) 70%, #f6d77a)) drop-shadow(0 26px 14px rgba(0,0,0,.7)); }
+.desk.on-top .book::before { display: none; }
+.desk.on-top .book-label { top: calc(100% - 4vh); }
+.desk.on-top .book:hover .book-label { transform: none; }
+.tabletop { height: 68%; }
+.desk.on-top { margin-top: 0; height: 52vh; }
+.desk.on-top .books { bottom: 18%; }
+.desk.on-top .book-label { top: calc(100% + 1vh); }
