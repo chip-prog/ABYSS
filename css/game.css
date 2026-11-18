@@ -219,3 +219,10 @@ body.game .hand { margin-bottom: -58px; }
 .desk.on-top { margin-top: 0; height: 52vh; }
 .desk.on-top .books { bottom: 18%; }
 .desk.on-top .book-label { top: calc(100% + 1vh); }
+
+/* 新的書圖本身就是斜上方視角、平放在桌上，不再用透視壓扁；只各自轉一點角度 */
+.desk.on-top .book-img { width: min(17vw, 230px); transform: rotate(var(--lie, 0deg)); transform-origin: 50% 60%; filter: brightness(.85) drop-shadow(4px 10px 6px rgba(0,0,0,.75)); }
+.desk.on-top .book:nth-child(1) { --lie: -7deg; } .desk.on-top .book:nth-child(2) { --lie: 3deg; } .desk.on-top .book:nth-child(3) { --lie: 9deg; }
+.desk.on-top .book:hover .book-img { transform: rotate(var(--lie, 0deg)) translateY(-14px) scale(1.04); filter: brightness(1.08) drop-shadow(0 0 16px color-mix(in srgb, var(--fc) 70%, #f6d77a)) drop-shadow(6px 24px 12px rgba(0,0,0,.7)); }
+.desk.on-top .books { bottom: 22%; }
+.desk.on-top .book-label { top: calc(100% + 3vh); }
