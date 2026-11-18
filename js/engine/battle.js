@@ -510,7 +510,7 @@ export function intentSummary(state, en) {
       out.push({ kind: 'attack', text: (e.times || 1) > 1 ? `${d}×${e.times}` : `${d}` });
     } else if (e.type === 'block') out.push({ kind: 'block', text: '防禦' });
     else if (e.type === 'applyStatus') out.push({ kind: e.target === 'self' ? 'buff' : 'debuff', text: state.idx.statuses.get(e.status)?.name || '?' });
-    else if (e.type === 'addCard') out.push({ kind: 'debuff', text: '塞牌' });
+    else if (e.type === 'addCard') out.push({ kind: 'card', text: '塞牌' });
     else if (e.type === 'heal') out.push({ kind: 'buff', text: '回復' });
   }
   return out;

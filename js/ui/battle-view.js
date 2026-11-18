@@ -8,7 +8,9 @@ import { makePuppet } from './puppet.js';
 import { makeScene } from './scene.js';
 import { imgUrl } from './store.js';
 
-const INTENT_ICON = { attack: '⚔', block: '⛨', buff: '▲', debuff: '▼', delay: '⏳' };
+// 敵人意圖：圖示＋數字（攻擊顯示傷害、延遲顯示層數；其他只有圖示，滑過看說明）
+const INTENT_IMG = (k) => `assets/ui/intent-${k}.webp`;
+const INTENT_LABEL = { attack: '攻擊', block: '防禦', buff: '增益', debuff: '減益', delay: '延遲', card: '塞牌' };
 // 墨漬狀的爆裂圖形（受擊時顯示）
 const SPLAT = '<svg viewBox="0 0 100 100"><path d="M50 3 L58 30 L82 12 L70 38 L98 42 L72 54 L92 78 L64 68 L60 97 L48 70 L26 92 L34 64 L4 62 L30 48 L10 22 L40 34 Z"/></svg>';
 
@@ -88,9 +90,12 @@ export function runBattle(root, idx, opts) {
       return icon ? h('span', { class: `chip icon ${s.kind}`, title: `${s.name}：${s.desc || ''}` }, h('img', { src: icon, alt: s.name }), h('b', {}, n))
         : h('span', { class: `chip ${s.kind}`, title: s.desc || '' }, `${s.name} ${n}`);
     });
-    const hpBar = (a) => h('div', { class: 'hpbar' },
-      h('div', { class: 'hpfill', style: { width: `${Math.max(0, (a.hp / a.maxHp) * 100)}%` } }),
-      h('span', {}, `${a.hp} / ${a.maxHp}`));
+    // 生命條；有格擋時，左邊掛一面盾牌顯示格擋值
+    const hpBar = (a) => h('div', { class: 'hprow' },
+      a.block ? h('div', { class: 'blockbadge', title: `格擋 ${a.block}` }, h('b', {}, a.block)) : null,
+      h('div', { class: 'hpbar' },
+        h('div', { class: 'hpfill', style: { width: `${Math.max(0, (a.hp / a.maxHp) * 100)}%` } }),
+        h('span', {}, `${a.hp} / ${a.maxHp}`)));
 
     // ───────── 出牌：拖曳 ─────────
     // 不需目標的牌：雙擊，或拖離手牌區後放開。
@@ -194,15 +199,17 @@ export function runBattle(root, idx, opts) {
       const sorted = (pile) => [...pile].sort((a, b) => a.id.localeCompare(b.id));
       fill(actors.get('player').info,
         h('div', { class: 'actor-name' }, p.name), hpBar(p),
-        h('div', { class: 'chips' }, p.block ? h('span', { class: 'chip block' }, `格擋 ${p.block}`) : null, statusChips(p)),
+        h('div', { class: 'chips' }, statusChips(p)),
         h('div', { class: 'chips' }, p.powers.filter((pw) => !pw.relic).map((pw) => h('span', { class: 'chip power', title: describePowers(idx, [pw]) }, '✦ ', pw.name))));
       for (const en of state.enemies) {
         const rec = actors.get(en.uid);
         if (!rec || en.dead) continue;
         rec.intent.title = `下一步：${en.intent.name}\n${effectsText(idx, en.intent.effects, 'enemy')}`;
-        fill(rec.intent, intentSummary(state, en).map((i) => h('span', { class: 'intent-' + i.kind }, `${INTENT_ICON[i.kind]} ${i.text}`)));
+        fill(rec.intent, intentSummary(state, en).map((i) => h('span', { class: 'intent-icon intent-' + i.kind, title: `${INTENT_LABEL[i.kind] || ''}${i.kind === 'buff' || i.kind === 'debuff' ? '：' + i.text : ''}` },
+          h('img', { src: INTENT_IMG(i.kind), alt: INTENT_LABEL[i.kind] || '' }),
+          i.kind === 'attack' ? h('b', {}, i.text) : i.kind === 'delay' ? h('b', {}, i.text.replace('延遲 ', '')) : null)));
         fill(rec.info, h('div', { class: 'actor-name' }, en.name), hpBar(en),
-          h('div', { class: 'chips' }, en.block ? h('span', { class: 'chip block' }, `格擋 ${en.block}`) : null, statusChips(en)));
+          h('div', { class: 'chips' }, statusChips(en)));
       }
       fill(bottomEl,
         h('div', { class: 'side' },

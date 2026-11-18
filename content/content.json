@@ -214,7 +214,8 @@
    "faction": "crimson",
    "desc": "每層使受到的攻擊傷害 +1。回合結束時減 1 層。",
    "takeAdd": 1,
-   "decay": "minus1"
+   "decay": "minus1",
+   "image": "assets/statuses/bleed.webp"
   },
   {
    "publish": "official",
@@ -224,7 +225,8 @@
    "faction": "crimson",
    "desc": "每層使攻擊傷害 +1。回合結束時全部清除。",
    "dealAdd": 1,
-   "decay": "clear"
+   "decay": "clear",
+   "image": "assets/statuses/fury.webp"
   },
   {
    "publish": "official",
@@ -233,7 +235,8 @@
    "kind": "buff",
    "faction": "arcane",
    "desc": "帶有「充能」的牌，傷害隨層數提高。不會消退。",
-   "decay": "none"
+   "decay": "none",
+   "image": "assets/statuses/charge.webp"
   },
   {
    "publish": "official",
@@ -243,7 +246,8 @@
    "faction": "arcane",
    "desc": "回合結束時失去等同層數的生命，然後減 1 層。",
    "tickDamage": 1,
-   "decay": "minus1"
+   "decay": "minus1",
+   "image": "assets/statuses/hex.webp"
   },
   {
    "publish": "official",
@@ -253,7 +257,8 @@
    "faction": "arcane",
    "desc": "造成的攻擊傷害降低 25%。回合結束時減 1 層。",
    "dealPct": -25,
-   "decay": "minus1"
+   "decay": "minus1",
+   "image": "assets/statuses/weak.webp"
   },
   {
    "publish": "official",
@@ -263,7 +268,8 @@
    "faction": "arcane",
    "desc": "下一個行動往後推，每層推遲一回合。延遲結束後，要先行動過一次才能再被延遲。",
    "special": "delay",
-   "decay": "none"
+   "decay": "none",
+   "image": "assets/statuses/delay.webp"
   },
   {
    "publish": "official",
@@ -273,7 +279,8 @@
    "faction": "nameless",
    "desc": "每層使攻擊傷害 +1。不會消退。",
    "dealAdd": 1,
-   "decay": "none"
+   "decay": "none",
+   "image": "assets/statuses/strength.webp"
   }
  ],
  "cards": [

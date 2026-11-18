@@ -265,3 +265,27 @@
 .enemies { flex-wrap: nowrap; gap: 0; }
 .enemies .actor { width: 210px; margin: 0 -14px; }
 .enemies .actor.boss { width: 300px; }
+
+/* ───────── 介面圖示素材 ───────── */
+/* 敵人意圖 */
+.intent { gap: 4px; min-height: 46px; }
+.intent span.intent-icon { position: relative; padding: 0; border: 0; background: none; display: inline-grid; place-items: center; }
+.intent-icon img { width: 44px; height: 44px; filter: drop-shadow(0 2px 3px rgba(0,0,0,.7)); }
+.intent-icon b { position: absolute; right: -6px; bottom: -4px; font-size: 19px; font-weight: 900; color: #fbe9c4; -webkit-text-stroke: 4px #1a0a06; paint-order: stroke fill; line-height: 1; }
+/* 狀態圖示 */
+.chip.icon { padding: 0; border: 0; background: none; position: relative; gap: 0; }
+.chip.icon img { width: 32px; height: 32px; filter: drop-shadow(0 1px 2px rgba(0,0,0,.7)); }
+.chip.icon b { position: absolute; right: -3px; bottom: -3px; font-size: 13px; font-weight: 900; color: #fbe9c4; -webkit-text-stroke: 3px #1a0a06; paint-order: stroke fill; line-height: 1; }
+/* 生命條：撕紙外框＋紅布填色 */
+.hprow { display: flex; align-items: center; gap: 4px; }
+.hprow .hpbar { flex: 1; }
+.hpbar { height: 22px; border: 0; border-radius: 0; background: rgba(10,5,3,.75); box-shadow: none; container-type: inline-size; overflow: visible; }
+.hpfill { position: absolute; left: 0; top: 0; bottom: 0; background: url('../assets/ui/hp-fill.webp') left center / 100cqw 100% no-repeat; transition: width .3s steps(4, end); }
+.hpbar::after { content: ''; position: absolute; inset: -3px -4px; background: url('../assets/ui/hp-frame.webp') center / 100% 100% no-repeat; pointer-events: none; }
+.hpbar span { z-index: 1; line-height: 21px; color: #fbe9c4; -webkit-text-stroke: 3px #1a0a06; paint-order: stroke fill; }
+/* 格擋：鐵盾＋數字 */
+.blockbadge { position: relative; width: 30px; height: 38px; flex: none; display: grid; place-items: center; background: url('../assets/ui/block.webp') center / contain no-repeat; filter: drop-shadow(0 2px 3px rgba(0,0,0,.7)); }
+.blockbadge b { font-size: 15px; font-weight: 900; color: #e6eef5; -webkit-text-stroke: 3px #10161c; paint-order: stroke fill; margin-top: -2px; }
+/* 能量：金箔圓盤 */
+.energy { background: url('../assets/ui/energy.webp') center / contain no-repeat; border: 0; box-shadow: none; filter: drop-shadow(0 0 14px rgba(224,184,74,.35)) drop-shadow(0 6px 8px rgba(0,0,0,.6)); color: #fff6dc; -webkit-text-stroke: 5px #3a2208; paint-order: stroke fill; }
+.energy small { -webkit-text-stroke: 3px #3a2208; }
