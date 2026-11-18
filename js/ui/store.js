@@ -130,3 +130,33 @@ function trimCanvas(cv, { data, width, height }) {
   out.getContext('2d').drawImage(cv, x0 - pad, y0 - pad, w, h, 0, 0, w, h);
   return out;
 }
+
+// 三聯畫外框：找出中間透明的開口，產生開口形狀的遮罩（白色＝開口），並回傳比例與開口範圍（%）
+export async function frameInfo(blob) {
+  const img = new Image(); img.src = URL.createObjectURL(blob); await img.decode();
+  const k = Math.min(1, 500 / Math.max(img.width, img.height));
+  const w = Math.round(img.width * k), hh = Math.round(img.height * k);
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = hh;
+  const ctx = cv.getContext('2d', { willReadFrequently: true }); ctx.drawImage(img, 0, 0, w, hh);
+  URL.revokeObjectURL(img.src);
+  const d = ctx.getImageData(0, 0, w, hh).data;
+  const clear = (i) => d[i * 4 + 3] < 40;
+  const seen = new Uint8Array(w * hh), stack = [Math.floor(hh * 2 / 3) * w + Math.floor(w / 2)];
+  if (!clear(stack[0])) return null;
+  let x0 = w, y0 = hh, x1 = 0, y1 = 0;
+  while (stack.length) {
+    const i = stack.pop(); if (seen[i] || !clear(i)) continue; seen[i] = 1;
+    const x = i % w, y = (i / w) | 0;
+    if (x === 0 || y === 0 || x === w - 1 || y === hh - 1) return null; // 開口沒有封閉
+    if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+    stack.push(i - 1, i + 1, i - w, i + w);
+  }
+  const m = ctx.createImageData(w, hh);
+  for (let i = 0; i < seen.length; i++) if (seen[i]) m.data.set([255, 255, 255, 255], i * 4);
+  const mc = document.createElement('canvas'); mc.width = w; mc.height = hh;
+  const mx = mc.getContext('2d'); mx.putImageData(m, 0, 0);
+  mx.filter = 'blur(1px)'; mx.drawImage(mc, 0, 0); // 邊緣稍微外擴，避免和外框之間露縫
+  const mask = await new Promise((r) => mc.toBlob(r, 'image/png'));
+  const p = (v, n) => Math.round((v / n) * 10000) / 100;
+  return { mask, ratio: Math.round((img.height / img.width) * 10000) / 10000, open: { left: p(x0, w), right: p(x1 + 1, w), top: p(y0, hh), bottom: p(y1 + 1, hh) } };
+}

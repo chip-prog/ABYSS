@@ -7,7 +7,40 @@
   "cardBack": {
    "img": "assets/backs/default.webp"
   },
-  "stage": {}
+  "stage": {
+   "church": {
+    "img": "assets/stage/wallpaper.webp"
+   },
+   "floor": {
+    "img": "assets/stage/floor.webp",
+    "horizon": 49.9
+   },
+   "fore": {
+    "img": "assets/stage/fore.webp"
+   },
+   "frame": {
+    "img": "assets/stage/frame-center.webp",
+    "mask": "assets/stage/frame-center-mask.png",
+    "ratio": 1.2041,
+    "open": {
+     "left": 12.27,
+     "right": 86.85,
+     "top": 30.64,
+     "bottom": 93.56
+    }
+   },
+   "wingFrame": {
+    "img": "assets/stage/frame-wing.webp",
+    "mask": "assets/stage/frame-wing-mask.png",
+    "ratio": 1.8428,
+    "open": {
+     "left": 10.89,
+     "right": 93.44,
+     "top": 19.68,
+     "bottom": 95.63
+    }
+   }
+  }
  },
  "rules": {
   "energy": 3,
@@ -60,7 +93,7 @@
   "sceneByPool": {
    "easy": "scene_judgment",
    "hard": "scene_judgment_b",
-   "boss": "scene_judgment_b"
+   "boss": "scene_bell"
   }
  },
  "factions": [
@@ -3675,7 +3708,119 @@
    },
    "right": {
     "img": "assets/scenes/judgment-right-a.webp"
-   }
+   },
+   "leftBack": {
+    "img": "assets/scenes/back-left.webp"
+   },
+   "rightBack": {
+    "img": "assets/scenes/back-right.webp"
+   },
+   "parts": [
+    {
+     "img": "assets/parts/rose-window.webp",
+     "layer": "back",
+     "x": 13,
+     "y": 12,
+     "size": 10,
+     "rot": 0,
+     "flip": false,
+     "opacity": 70,
+     "motion": "spin",
+     "speed": 40,
+     "amp": 6
+    },
+    {
+     "img": "assets/parts/rose-window.webp",
+     "layer": "back",
+     "x": 87,
+     "y": 12,
+     "size": 10,
+     "rot": 0,
+     "flip": true,
+     "opacity": 70,
+     "motion": "spin",
+     "speed": 46,
+     "amp": 6
+    },
+    {
+     "img": "assets/parts/pillar.webp",
+     "layer": "back",
+     "x": 5,
+     "y": 26,
+     "size": 6,
+     "rot": 0,
+     "flip": false,
+     "opacity": 80,
+     "motion": "none",
+     "speed": 3,
+     "amp": 6
+    },
+    {
+     "img": "assets/parts/pillar.webp",
+     "layer": "back",
+     "x": 95,
+     "y": 26,
+     "size": 6,
+     "rot": 0,
+     "flip": false,
+     "opacity": 80,
+     "motion": "none",
+     "speed": 3,
+     "amp": 6
+    },
+    {
+     "img": "assets/parts/halos.webp",
+     "layer": "mid",
+     "x": 76,
+     "y": 6,
+     "size": 6,
+     "rot": 0,
+     "flip": false,
+     "opacity": 85,
+     "motion": "spin",
+     "speed": 18,
+     "amp": 6
+    },
+    {
+     "img": "assets/parts/eye-row.webp",
+     "layer": "mid",
+     "x": 50,
+     "y": 47,
+     "size": 13,
+     "rot": 0,
+     "flip": false,
+     "opacity": 100,
+     "motion": "bob",
+     "speed": 4,
+     "amp": 4
+    },
+    {
+     "img": "assets/parts/wings.webp",
+     "layer": "mid",
+     "x": 24,
+     "y": 12,
+     "size": 11,
+     "rot": 0,
+     "flip": false,
+     "opacity": 85,
+     "motion": "sway",
+     "speed": 5,
+     "amp": 4
+    },
+    {
+     "img": "assets/parts/stitched-doll.webp",
+     "layer": "front",
+     "x": 4,
+     "y": 58,
+     "size": 6,
+     "rot": -8,
+     "flip": false,
+     "opacity": 100,
+     "motion": "sway",
+     "speed": 3,
+     "amp": 8
+    }
+   ]
   },
   {
    "id": "scene_judgment_b",
@@ -3688,7 +3833,244 @@
    },
    "right": {
     "img": "assets/scenes/judgment-right-b.webp"
-   }
+   },
+   "leftBack": {
+    "img": "assets/scenes/back-left.webp"
+   },
+   "rightBack": {
+    "img": "assets/scenes/back-right.webp"
+   },
+   "parts": [
+    {
+     "img": "assets/parts/rose-window.webp",
+     "layer": "back",
+     "x": 13,
+     "y": 12,
+     "size": 10,
+     "rot": 0,
+     "flip": false,
+     "opacity": 70,
+     "motion": "spin",
+     "speed": 40,
+     "amp": 6
+    },
+    {
+     "img": "assets/parts/rose-window.webp",
+     "layer": "back",
+     "x": 87,
+     "y": 12,
+     "size": 10,
+     "rot": 0,
+     "flip": true,
+     "opacity": 70,
+     "motion": "spin",
+     "speed": 46,
+     "amp": 6
+    },
+    {
+     "img": "assets/parts/pillar.webp",
+     "layer": "back",
+     "x": 5,
+     "y": 26,
+     "size": 6,
+     "rot": 0,
+     "flip": false,
+     "opacity": 80,
+     "motion": "none",
+     "speed": 3,
+     "amp": 6
+    },
+    {
+     "img": "assets/parts/pillar.webp",
+     "layer": "back",
+     "x": 95,
+     "y": 26,
+     "size": 6,
+     "rot": 0,
+     "flip": false,
+     "opacity": 80,
+     "motion": "none",
+     "speed": 3,
+     "amp": 6
+    },
+    {
+     "img": "assets/parts/halos.webp",
+     "layer": "mid",
+     "x": 76,
+     "y": 6,
+     "size": 6,
+     "rot": 0,
+     "flip": false,
+     "opacity": 85,
+     "motion": "spin",
+     "speed": 18,
+     "amp": 6
+    },
+    {
+     "img": "assets/parts/eye-row.webp",
+     "layer": "mid",
+     "x": 50,
+     "y": 47,
+     "size": 13,
+     "rot": 0,
+     "flip": false,
+     "opacity": 100,
+     "motion": "bob",
+     "speed": 4,
+     "amp": 4
+    },
+    {
+     "img": "assets/parts/wings.webp",
+     "layer": "mid",
+     "x": 24,
+     "y": 12,
+     "size": 11,
+     "rot": 0,
+     "flip": false,
+     "opacity": 85,
+     "motion": "sway",
+     "speed": 5,
+     "amp": 4
+    },
+    {
+     "img": "assets/parts/stitched-doll.webp",
+     "layer": "front",
+     "x": 4,
+     "y": 58,
+     "size": 6,
+     "rot": -8,
+     "flip": false,
+     "opacity": 100,
+     "motion": "sway",
+     "speed": 3,
+     "amp": 8
+    }
+   ]
+  },
+  {
+   "id": "scene_bell",
+   "name": "鐘樓（頭目）",
+   "center": {
+    "img": "assets/scenes/boss-center.webp"
+   },
+   "left": {
+    "img": "assets/scenes/boss-left.webp"
+   },
+   "right": {
+    "img": "assets/scenes/boss-right.webp"
+   },
+   "leftBack": {
+    "img": "assets/scenes/back-left.webp"
+   },
+   "rightBack": {
+    "img": "assets/scenes/back-right.webp"
+   },
+   "parts": [
+    {
+     "img": "assets/parts/bell.webp",
+     "layer": "back",
+     "x": 12,
+     "y": 8,
+     "size": 8,
+     "rot": 0,
+     "flip": false,
+     "opacity": 80,
+     "motion": "sway",
+     "speed": 4,
+     "amp": 7
+    },
+    {
+     "img": "assets/parts/bell.webp",
+     "layer": "back",
+     "x": 88,
+     "y": 4,
+     "size": 6,
+     "rot": 0,
+     "flip": false,
+     "opacity": 80,
+     "motion": "sway",
+     "speed": 5,
+     "amp": 9
+    },
+    {
+     "img": "assets/parts/bell.webp",
+     "layer": "back",
+     "x": 21,
+     "y": 30,
+     "size": 5,
+     "rot": 0,
+     "flip": false,
+     "opacity": 70,
+     "motion": "sway",
+     "speed": 3,
+     "amp": 10
+    },
+    {
+     "img": "assets/parts/bell.webp",
+     "layer": "back",
+     "x": 80,
+     "y": 28,
+     "size": 5,
+     "rot": 0,
+     "flip": false,
+     "opacity": 70,
+     "motion": "sway",
+     "speed": 3.5,
+     "amp": 10
+    },
+    {
+     "img": "assets/parts/arch.webp",
+     "layer": "back",
+     "x": 5,
+     "y": 30,
+     "size": 9,
+     "rot": 0,
+     "flip": false,
+     "opacity": 75,
+     "motion": "none",
+     "speed": 3,
+     "amp": 6
+    },
+    {
+     "img": "assets/parts/arch.webp",
+     "layer": "back",
+     "x": 95,
+     "y": 30,
+     "size": 9,
+     "rot": 0,
+     "flip": true,
+     "opacity": 75,
+     "motion": "none",
+     "speed": 3,
+     "amp": 6
+    },
+    {
+     "img": "assets/parts/eye-hand.webp",
+     "layer": "mid",
+     "x": 50,
+     "y": 46,
+     "size": 7,
+     "rot": 0,
+     "flip": false,
+     "opacity": 100,
+     "motion": "jitter",
+     "speed": 3,
+     "amp": 3
+    },
+    {
+     "img": "assets/parts/halos.webp",
+     "layer": "mid",
+     "x": 50,
+     "y": 2,
+     "size": 8,
+     "rot": 0,
+     "flip": false,
+     "opacity": 100,
+     "motion": "spin",
+     "speed": 24,
+     "amp": 6
+    }
+   ]
   }
  ]
 }

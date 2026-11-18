@@ -121,7 +121,7 @@
 .scene { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
 .scene img { display: block; width: 100%; height: 100%; }
 .scene-church { position: absolute; inset: 0; }
-.scene-church img { object-fit: cover; object-position: 50% 0; filter: brightness(var(--bright, .6)) saturate(.8); }
+.scene-church.has { background-repeat: repeat-x; background-size: auto 100%; background-position: 50% 0; filter: brightness(var(--bright, .6)) saturate(.8); }
 .scene-church:not(.has) {
   background:
     radial-gradient(ellipse 40% 55% at 50% 0%, rgba(150,110,70,.18), transparent 70%),
@@ -142,31 +142,32 @@
 
 /* 三聯畫：中央板寬 = 兩翼寬度總和。闔上時兩翼蓋住中央板，看到的是背面。 */
 .scene { container-type: size; }
-.tri { position: absolute; aspect-ratio: 1280 / 560; translate: -50% 0; perspective: 800px; }
-.tri-center, .tri-frame { position: absolute; left: 25%; width: 50%; top: 0; height: 100%; }
-.tri-center:not(.has) { background: radial-gradient(ellipse at 50% 35%, #4a2a20, #1d100b 75%); }
-.tri-center img { object-fit: cover; }
-.tri-frame.ph { border: 6px solid #6d5630; outline: 2px solid #1a0f08; outline-offset: -8px; box-shadow: 0 0 0 2px #1a0f08, 0 12px 30px rgba(0,0,0,.6); }
-.tri-wing { position: absolute; top: 0; width: 25%; height: 100%; transform-style: preserve-3d; transition: transform 1.1s steps(9, end); z-index: 2; }
-.tri-wing.left { left: 0; transform-origin: 100% 50%; }
-.tri-wing.right { left: 75%; transform-origin: 0% 50%; }
-/* 打開時兩翼斜向觀眾，帶出景深 */
-.tri-wing.left { transform: rotateY(var(--wing, 28deg)); }
-.tri-wing.right { transform: rotateY(calc(-1 * var(--wing, 28deg))); }
-.tri.closed .tri-wing.left { transform: rotateY(180deg); }
-.tri.closed .tri-wing.right { transform: rotateY(-180deg); }
-.tri-face { position: absolute; inset: 0; backface-visibility: hidden; }
-.tri-face img { object-fit: cover; }
-.tri-face.back { transform: rotateY(180deg); }
-.tri-face.front:not(.has) { background: radial-gradient(ellipse at 50% 40%, #3a2a1d, #160d08 80%); border: 5px solid #6d5630; outline: 2px solid #1a0f08; }
-.tri-face.back:not(.has) { background: linear-gradient(180deg, #5a554c, #34302a); border: 5px solid #4a4339; outline: 2px solid #1a0f08; }
-.tri-wing.left .tri-face.front:not(.has) { background: radial-gradient(ellipse at 50% 30%, #4d4130, #18100a 80%); }
-.tri-wing.right .tri-face.front:not(.has) { background: radial-gradient(ellipse at 50% 70%, #5a1d14, #170807 80%); }
+.tri { position: absolute; translate: -50% 0; perspective: 900px; }
+.tri-center, .tri-wing { position: absolute; }
+.tri-wing { transform-style: preserve-3d; transition: transform 1.1s steps(9, end); z-index: 2; }
+/* 鉸鏈在靠中央的那一側 */
+.tri-wing.left { transform-origin: 100% 50%; transform: rotateY(var(--wing, 28deg)); }
+.tri-wing.right { transform-origin: 0% 50%; transform: rotateY(calc(-1 * var(--wing, 28deg))); }
+.tri.closed .tri-wing.left { transform: rotateY(178deg); }
+.tri.closed .tri-wing.right { transform: rotateY(-178deg); }
+/* 一片畫板：畫面依外框開口裁切，外框疊在上面 */
+.pf { position: absolute; inset: 0; backface-visibility: hidden; }
+.pf.back { transform: rotateY(180deg); }
+.pf.flip > * { scale: -1 1; }
+.pf.flip .pf-pic img { scale: -1 1; }
+.pf-clip { position: absolute; inset: 0; mask-size: 100% 100%; -webkit-mask-size: 100% 100%; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; }
+.pf-pic { position: absolute; overflow: hidden; }
+.pf-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pf-pic.ph { background: radial-gradient(ellipse at 50% 40%, #3a2a1d, #160d08 80%); }
+.pf.back .pf-pic.ph { background: linear-gradient(180deg, #5a554c, #34302a); }
+.tri-center .pf-pic.ph { background: radial-gradient(ellipse at 50% 35%, #4a2a20, #1d100b 75%); }
+.pf-frame { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; filter: drop-shadow(0 8px 14px rgba(0,0,0,.6)); }
+.pf-frame.ph { border: 6px solid #6d5630; outline: 2px solid #1a0f08; outline-offset: -8px; box-shadow: 0 0 0 2px #1a0f08, 0 12px 30px rgba(0,0,0,.6); }
 
 /* 舞台地板 */
-.scene-floor { position: absolute; left: 0; right: 0; bottom: 0; top: calc(var(--floor, 46%) - 8%); }
-.scene-floor img { object-fit: cover; object-position: 50% 0; }
-.scene-floor:not(.has) { top: var(--floor, 46%);
+.scene-floor { position: absolute; left: 0; right: 0; bottom: 0; top: var(--floor, 46%); }
+.scene-floor img { position: absolute; left: 0; top: 0; width: 100%; height: auto; translate: 0 calc(-100% * var(--horizon, .5)); }
+.scene-floor:not(.has) {
   background: linear-gradient(180deg, #2a1c12 0, #3a2818 2%, #24180f 30%, #0d0806 100%),
     repeating-linear-gradient(90deg, rgba(0,0,0,.25) 0 2px, transparent 2px 12%);
   background-blend-mode: multiply; box-shadow: inset 0 3px 0 #4a3424, 0 -10px 30px rgba(0,0,0,.6); }
@@ -223,3 +224,6 @@
 .card:not(.framed) .card-art, .card:not(.framed) .card-text { filter: brightness(var(--cardb, 1)); }
 .card-back img { filter: brightness(var(--cardb, 1)); }
 .battle-bottom { background: linear-gradient(180deg, transparent, rgba(4,2,1,.85) 40%); }
+
+/* 前景的帷幕會蓋住畫面上緣，紙偶與意圖往下讓出空間 */
+.battle-stage { padding-top: 76px !important; }

@@ -1,7 +1,7 @@
 // Studio：不用寫程式就能編輯遊戲內容的工作台。
 // 所有修改只存在這台電腦的瀏覽器裡（測試環境），匯出後才會交給別人或套用到遊戲。
 import { h, fill, applyMood, cardEl, cardBackEl, modal, toast, confirmBox, clone, sleep, loadOfficial, KEY_WORK } from './ui/common.js';
-import { kvGet, kvSet, initImages, imgUrl, isLocal, localKey, hasImage, imageSize, imageKeys, getBlob, addImage, delImage, walkRefs, fileToBlob } from './ui/store.js';
+import { kvGet, kvSet, initImages, imgUrl, isLocal, localKey, hasImage, imageSize, imageKeys, getBlob, addImage, delImage, walkRefs, fileToBlob, frameInfo } from './ui/store.js';
 import { zipFiles, unzip } from './ui/zip.js';
 import { makePuppet, poseTransform } from './ui/puppet.js';
 import { makeScene } from './ui/scene.js';
@@ -210,6 +210,27 @@ function frameEditor(f) {
       preview));
 }
 
+// 三聯畫外框上傳：自動去綠幕、裁邊，並找出開口形狀
+function triFrameUpload(o, label) {
+  const wrap = h('div', { class: 'row' });
+  const draw = () => fill(wrap,
+    o.img ? h('img', { src: imgUrl(o.img), class: 'thumb tall', alt: '' }) : h('span', { class: 'faint small' }, '尚未上傳'),
+    h('label', { class: 'btn sm' }, o.img ? '更換' : label, h('input', { type: 'file', accept: 'image/*', class: 'hidden', onchange: async (e) => {
+      const file = e.target.files[0]; if (!file) return;
+      try {
+        const b = await fileToBlob(file, 1300, { key: true, trim: true });
+        const info = await frameInfo(b);
+        if (!info) return toast('找不到外框中間的開口：開口要是透明或純綠色，而且四周要被外框圍住');
+        Object.assign(o, { img: await addImage(b), mask: await addImage(info.mask), ratio: info.ratio, open: info.open });
+        toast('已找到外框開口，畫板會依開口形狀裁切');
+      } catch { return toast('這張圖片無法讀取'); }
+      commit(); draw();
+    } })),
+    o.img ? h('button', { class: 'btn sm ghost', onclick: () => { for (const k of Object.keys(o)) delete o[k]; commit(); draw(); } }, '移除') : null);
+  draw();
+  return wrap;
+}
+
 // ───────── 場景編輯器 ─────────
 function scenePreview(sc) {
   const box = h('div', { class: 'scene-preview' });
@@ -241,7 +262,7 @@ function sceneEditor(sc) {
   const drawTri = () => fill(triTune, h('div', { class: 'pose-sliders' },
     slider('左右', T().x, 0, 100, (v) => setT('x', v), '%'), slider('上下', T().y, -40, 60, (v) => setT('y', v), '%'),
     slider('寬度', T().width, 30, 140, (v) => setT('width', v), '%'), slider('高度上限', T().height, 20, 120, (v) => setT('height', v), '%'),
-    slider('兩翼角度', T().wing, 0, 80, (v) => setT('wing', v), '°'), slider('亮度', T().bright, 20, 120, (v) => setT('bright', v), '%')),
+    slider('兩翼角度', T().wing, 0, 80, (v) => setT('wing', v), '°'), slider('間隔', T().gap ?? 2, 0, 10, (v) => setT('gap', v), '%'), slider('亮度', T().bright, 20, 120, (v) => setT('bright', v), '%')),
     h('button', { class: 'btn sm ghost', onclick: () => { delete sc.layout; commit(); drawTri(); } }, '恢復預設'));
   drawTri();
 
@@ -711,9 +732,10 @@ const VIEWS = {
         h('hr', { class: 'rule' }),
         h('p', { class: 'dim small' }, '所有場景共用的固定素材。沒有上傳時會顯示暗色的暫代圖樣。'),
         h('div', { class: 'grid2' },
-          field('教堂遠景', imgUpload((C.meta.stage ||= {}).church ||= {}, 'img', { max: 2560 }), '2560 × 1080，左右各多留一些給寬螢幕；整體要暗'),
+          field('教堂底紋', imgUpload((C.meta.stage ||= {}).church ||= {}, 'img', { max: 2560 }), '會左右重複排列鋪滿背景，所以左右邊緣要能接起來；整體要暗'),
           field('舞台地板', imgUpload(C.meta.stage.floor ||= {}, 'img', { max: 1920, green: true }), '去背 PNG，1920 × 1080，上半部透明'),
-          field('三聯畫外框', imgUpload(C.meta.stage.frame ||= {}, 'img', { max: 1100, green: true }), '去背 PNG，套在中央板外圍，比例同中央板'),
+          field('中央板外框', triFrameUpload(C.meta.stage.frame ||= {}, '上傳外框'), '去背 PNG，中間的開口要透明（或純綠色），四周被外框圍住；畫板會自動依開口形狀裁切'),
+          field('翼板外框', triFrameUpload(C.meta.stage.wingFrame ||= {}, '上傳外框'), '同上。畫成左翼的樣子（右側接中央板），右翼會自動水平翻轉'),
           field('前景', imgUpload(C.meta.stage.fore ||= {}, 'img', { max: 2560, green: true }), '去背 PNG，1920 × 1080；畫面兩側的柱子或帷幕，會蓋在紙偶前面，中間要透空'))),
       section('關卡流程（經典模式・第一章）', stages),
       issueBox('rules', 'rules'));
@@ -961,12 +983,15 @@ async function importFile(file) {
       for (const k of ['frame', 'back']) if (o[k]?.img && !f[k]?.img) f[k] = clone(o[k]);
     }
     if (official.meta?.cardBack?.img && !C.meta?.cardBack?.img) (C.meta ||= {}).cardBack = clone(official.meta.cardBack);
+    // 正式內容的舞台素材：工作內容裡空著的就補上
+    for (const [k, v] of Object.entries(official.meta?.stage || {})) if (v?.img && !C.meta.stage?.[k]?.img) (C.meta.stage ||= {})[k] = clone(v);
     // 正式內容的場景：工作內容沒有的整組補上；已有的只補上空著的畫板（不覆蓋自己上傳的）
     C.scenes ||= [];
     for (const o of official.scenes || []) {
       const mine = C.scenes.find((x) => x.id === o.id);
       if (!mine) { C.scenes.push(clone(o)); continue; }
       for (const k of ['center', 'left', 'right', 'leftBack', 'rightBack']) if (o[k]?.img && !mine[k]?.img) mine[k] = clone(o[k]);
+      if (o.parts?.length && !mine.parts?.length) mine.parts = clone(o.parts);
     }
     if (official.rules?.sceneByPool) { C.rules.sceneByPool ||= {}; for (const [k, v] of Object.entries(official.rules.sceneByPool)) if (!C.rules.sceneByPool[k] || !C.scenes.some((x) => x.id === C.rules.sceneByPool[k])) C.rules.sceneByPool[k] = v; }
     C.meta ||= {}; for (const k of LISTS) C[k] ||= [];
