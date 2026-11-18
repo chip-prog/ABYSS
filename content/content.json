@@ -48,6 +48,17 @@
    "bg": {
     "img": "assets/title/bg.webp"
    }
+  },
+  "screens": {
+   "campfire": {
+    "img": "assets/screens/campfire.webp"
+   },
+   "victory": {
+    "img": "assets/screens/victory.webp"
+   },
+   "defeat": {
+    "img": "assets/screens/defeat.webp"
+   }
   }
  },
  "rules": {

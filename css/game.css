@@ -169,3 +169,17 @@ body.game .hand { margin-bottom: -58px; }
 .pip[data-kind=boss] { width: 28px; height: 28px; background-image: url('../assets/ui/pip-boss.webp'); }
 .pip[data-kind].done { opacity: .8; filter: grayscale(.2) brightness(.8); box-shadow: none; }
 .pip[data-kind].now { opacity: 1; filter: drop-shadow(0 0 6px var(--gold)); box-shadow: none; scale: 1.25; }
+
+/* 篝火插圖：火光一格一格閃 */
+.fire-img { width: min(340px, 40vh); filter: drop-shadow(0 0 30px rgba(224,132,61,.45)) drop-shadow(0 12px 16px rgba(0,0,0,.7)); animation: firelick 1.4s steps(1, end) infinite; }
+@keyframes firelick { 0%, 100% { filter: drop-shadow(0 0 30px rgba(224,132,61,.45)) drop-shadow(0 12px 16px rgba(0,0,0,.7)); } 33% { filter: drop-shadow(0 0 40px rgba(240,150,70,.6)) drop-shadow(0 12px 16px rgba(0,0,0,.7)); } 66% { filter: drop-shadow(0 0 24px rgba(210,120,50,.4)) drop-shadow(0 12px 16px rgba(0,0,0,.7)); } }
+/* 勝利、戰敗：整張插圖當背景，文字在下方的暗帶上 */
+.end-screen.has-bg { background-size: cover; background-position: center; justify-content: flex-end; padding-bottom: 7vh; position: relative; }
+.end-screen.has-bg::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, transparent 45%, rgba(6,3,2,.88) 82%); }
+/* 戰敗：倒下的紙偶在畫面下方中央，文字移到右側，不蓋住它 */
+.end-screen.lose.has-bg { justify-content: center; align-items: flex-end; padding: 0 7vw 0 0; }
+.end-screen.lose.has-bg::before { background: linear-gradient(90deg, transparent 45%, rgba(6,3,2,.85) 78%); }
+.end-screen.lose.has-bg .title-mark, .end-screen.lose.has-bg p, .end-screen.lose.has-bg .menu { align-self: flex-end; width: 360px; text-align: center; }
+.end-screen > * { position: relative; }
+.end-screen .title-mark { -webkit-text-stroke: 0; filter: drop-shadow(0 4px 10px #000); }
+.end-screen p.dim { color: var(--ink); text-shadow: 0 2px 6px #000; }

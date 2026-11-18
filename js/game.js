@@ -155,7 +155,7 @@ function rest() {
   const heal = Math.ceil(run.maxHp * (idx.rules.restHealPct || 30) / 100);
   const ups = upgradable(idx, run);
   frame(hud(), center(
-    h('div', { class: 'fire' }, '🜂'),
+    imgUrl(raw.meta?.screens?.campfire?.img) ? h('img', { class: 'fire-img', src: imgUrl(raw.meta.screens.campfire.img), alt: '' }) : h('div', { class: 'fire' }, '🜂'),
     h('h1', {}, '篝火'),
     h('p', { class: 'dim' }, '火光之外，鐘聲仍在迴盪。'),
     h('div', { class: 'menu' },
@@ -172,7 +172,8 @@ function rest() {
 function ending(win) {
   const stage = run.stage, total = run.stages.length, name = run.name;
   run = null; save();
-  frame(center(
+  const art = imgUrl(raw.meta?.screens?.[win ? 'victory' : 'defeat']?.img);
+  frame(h('div', { class: 'screen end-screen ' + (win ? 'win' : 'lose') + (art ? ' has-bg' : ''), style: art ? { backgroundImage: `url("${art}")` } : {} },
     h('div', { class: 'title-mark', style: { fontSize: '64px', color: win ? 'var(--gold)' : 'var(--blood)' } }, win ? '第一章　完' : '你倒下了'),
     h('p', { class: 'dim' }, win ? `${name} 登上了鐘樓之頂。鐘聲停了。` : `${name} 倒在第 ${stage + 1} / ${total} 關。`),
     h('div', { class: 'menu' }, h('button', { class: 'btn primary', onclick: select }, '再來一輪'), h('button', { class: 'btn ghost', onclick: title }, '回到標題'))));
