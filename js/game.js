@@ -26,7 +26,7 @@ function hud() {
   return h('div', { class: 'hud' },
     h('b', {}, run.name),
     h('span', { class: 'hud-hp' }, `♥ ${run.hp} / ${run.maxHp}`),
-    h('div', { class: 'pips' }, run.stages.map((s, i) => h('span', { class: `pip s-${s.type}${s.pool === 'boss' ? ' boss' : ''}${i < run.stage ? ' done' : i === run.stage ? ' now' : ''}`, title: s.type === 'rest' ? '篝火' : s.pool === 'boss' ? '頭目' : '戰鬥' }))),
+    h('div', { class: 'pips' }, run.stages.map((s, i) => h('span', { 'data-kind': s.type === 'rest' ? 'rest' : s.pool === 'boss' ? 'boss' : 'battle', class: `pip s-${s.type}${s.pool === 'boss' ? ' boss' : ''}${i < run.stage ? ' done' : i === run.stage ? ' now' : ''}`, title: s.type === 'rest' ? '篝火' : s.pool === 'boss' ? '頭目' : '戰鬥' }))),
     h('span', { class: 'dim small' }, `第 ${Math.min(run.stage + 1, total)} / ${total} 關`),
     h('span', { class: 'grow' }),
     // 遺物只顯示圖示，名稱和效果放在滑鼠提示裡（之後會移到專屬的狀態列）
@@ -37,8 +37,9 @@ function hud() {
 
 function title() {
   const saved = loadRun();
-  frame(center(
-    h('div', { class: 'title-mark' }, raw.meta?.title || 'ABYSS'),
+  const logo = imgUrl(raw.meta?.titleArt?.logo?.img), bg = imgUrl(raw.meta?.titleArt?.bg?.img);
+  frame(h('div', { class: 'screen title-screen' + (bg ? ' has-bg' : ''), style: bg ? { backgroundImage: `url("${bg}")` } : {} },
+    logo ? h('img', { class: 'title-logo', src: logo, alt: raw.meta?.title || 'ABYSS' }) : h('div', { class: 'title-mark' }, raw.meta?.title || 'ABYSS'),
     h('div', { class: 'title-sub' }, raw.meta?.subtitle || ''),
     h('hr', { class: 'rule', style: { width: '320px' } }),
     h('div', { class: 'menu' },

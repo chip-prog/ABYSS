@@ -40,6 +40,14 @@
      "bottom": 95.63
     }
    }
+  },
+  "titleArt": {
+   "logo": {
+    "img": "assets/title/logo.webp"
+   },
+   "bg": {
+    "img": "assets/title/bg.webp"
+   }
   }
  },
  "rules": {
@@ -107,7 +115,8 @@
    },
    "frame": {
     "img": "assets/frames/crimson.webp"
-   }
+   },
+   "image": "assets/emblems/crimson.webp"
   },
   {
    "id": "arcane",
@@ -150,7 +159,8 @@
       "size": 6
      }
     }
-   }
+   },
+   "image": "assets/emblems/arcane.webp"
   },
   {
    "id": "abyss",
@@ -193,7 +203,8 @@
       "size": 6
      }
     }
-   }
+   },
+   "image": "assets/emblems/abyss.webp"
   },
   {
    "id": "nameless",
@@ -202,7 +213,8 @@
    "desc": "通用牌，所有角色都能取得。",
    "back": {
     "img": "assets/backs/nameless.webp"
-   }
+   },
+   "image": "assets/emblems/nameless.webp"
   }
  ],
  "statuses": [
@@ -3721,7 +3733,7 @@
      ]
     }
    ],
-   "image": "",
+   "image": "assets/relics/chalice.webp",
    "publish": "official"
   },
   {
@@ -3746,7 +3758,7 @@
      ]
     }
    ],
-   "image": "",
+   "image": "assets/relics/wheel.webp",
    "publish": "official"
   },
   {
@@ -3767,7 +3779,7 @@
      ]
     }
    ],
-   "image": "",
+   "image": "assets/relics/shackle.webp",
    "publish": "official"
   }
  ],

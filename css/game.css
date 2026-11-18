@@ -154,3 +154,18 @@ body.game .hand { margin-bottom: -58px; }
 .csel-actions .btn.ghost { color: #4a3420; border-color: rgba(107,90,60,.5); }
 .btn.seal-btn { padding: 12px 34px; font-size: 18px; letter-spacing: .4em; border-radius: 50px; background: radial-gradient(circle at 35% 30%, #c4453a, #7a1a14 70%); color: #fbe9c4; border: 2px solid #3a0a06; box-shadow: 0 4px 10px rgba(0,0,0,.5); }
 @media (max-width: 900px) { .csel { flex-direction: column; } .csel-portrait { height: 46vh; } .csel-page { width: 100%; } }
+
+/* 標題畫面：紙劇場背景＋剪報標誌 */
+.title-screen.has-bg { background-size: cover; background-position: center; position: relative; }
+.title-screen.has-bg::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 70% at 50% 45%, rgba(0,0,0,.15), rgba(0,0,0,.65)); pointer-events: none; }
+.title-screen > * { position: relative; }
+.title-logo { width: min(640px, 80vw); filter: drop-shadow(0 10px 18px rgba(0,0,0,.85)); }
+.title-screen .title-sub { text-shadow: 0 2px 6px #000; color: var(--ink); }
+.title-screen .menu { background: rgba(10,6,4,.55); padding: 16px; border-radius: 8px; }
+/* 關卡進度標記：剪紙圖示 */
+.pips { gap: 3px; }
+.pip[data-kind] { width: 22px; height: 22px; border: 0; border-radius: 0; rotate: none; transform: none; background: url('../assets/ui/pip-battle.webp') center / contain no-repeat; opacity: .45; filter: grayscale(.6) brightness(.7); }
+.pip[data-kind=rest] { background-image: url('../assets/ui/pip-rest.webp'); }
+.pip[data-kind=boss] { width: 28px; height: 28px; background-image: url('../assets/ui/pip-boss.webp'); }
+.pip[data-kind].done { opacity: .8; filter: grayscale(.2) brightness(.8); box-shadow: none; }
+.pip[data-kind].now { opacity: 1; filter: drop-shadow(0 0 6px var(--gold)); box-shadow: none; scale: 1.25; }
