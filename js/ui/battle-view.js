@@ -60,6 +60,8 @@ export function runBattle(root, idx, opts) {
     const logEl = h('div', { class: 'battle-log panel' });
     const scene = makeScene(idx, opts.scene);
     stage.style.paddingInline = `clamp(20px, ${scene.sidePad}%, 420px)`;
+    // 紙偶腳底貼齊站位線；畫面太矮時往上讓，不被手牌蓋住
+    stage.style.height = `min(${scene.stand}%, calc(100% - 300px))`;
     const battleEl = h('div', { class: 'battle' }, scene.el, stage, scene.fore, h('div', { class: 'vignette' }), hintEl, bottomEl, logEl, floatLayer);
     const actors = new Map();
 
@@ -70,7 +72,7 @@ export function runBattle(root, idx, opts) {
       });
       const intent = h('div', { class: 'intent' }), info = h('div', { class: 'actor-info' });
       const el = h('div', { class: `actor ${isPlayer ? 'player' : 'enemy'}${a.boss ? ' boss' : ''}`, 'data-uid': a.uid, onclick: isPlayer ? null : () => onEnemy(a) },
-        isPlayer ? null : intent, puppet.el, info);
+        isPlayer ? null : intent, info, puppet.el);
       const rec = { el, puppet, intent, info, actor: a };
       actors.set(a.uid, rec);
       return rec;

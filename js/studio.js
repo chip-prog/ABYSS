@@ -240,7 +240,7 @@ function scenePreview(sc) {
     box.classList.toggle('instant', !animate);
     const pad = view.sidePad;
     // 暫代紙偶：讓你判斷零件和三聯畫跟角色的前後關係
-    const dummy = (side) => h('div', { class: 'pv-dummy ' + side, style: { [side]: `calc(${pad}% + 4%)`, top: `calc(${({ ...SC.STAGE_LAYOUT, ...(C.rules.stage || {}) }).floorTop}% - 30%)` } });
+    const dummy = (side) => h('div', { class: 'pv-dummy ' + side, style: { [side]: `calc(${pad}% + 4%)`, bottom: `${100 - view.stand}%` } });
     fill(box, view.el, h('div', { class: 'pv-actors' }, dummy('left'), dummy('right')), view.fore);
     requestAnimationFrame(() => view.open());
   };
@@ -342,7 +342,11 @@ function posesEditor(ent, defs, side, color) {
   };
   const build = (pose = 'idle') => {
     puppet = makePuppet({ name: ent.name, poses: ent.poses, defs, side, color, paperEdge: C.rules.fx?.paperEdge !== false });
-    fill(stageBox, h('div', { class: 'pose-box' }, ghost, puppet.el), h('div', { class: 'pose-ground' }, '地面'));
+    const st = C.meta.stage || {};
+    fill(stageBox,
+      h('div', { class: 'pose-info' }, h('div', { class: 'actor-name' }, ent.name || ''), h('div', { class: 'hpbar' }, h('div', { class: 'hpfill', style: { width: '100%' } }), h('span', {}, '名稱與血條'))),
+      h('div', { class: 'pose-box' }, ghost, puppet.el),
+      h('div', { class: 'pose-ground', style: st.floor?.img ? { backgroundImage: `url("${imgUrl(st.floor.img)}")` } : {} }, h('span', {}, '站位線：腳底貼齊這裡')));
     puppet.setPose(pose, true); syncGhost();
   };
   const preview = async (name) => {
@@ -374,7 +378,7 @@ function posesEditor(ent, defs, side, color) {
   }));
   drawSlots(); build();
   return section('紙偶姿勢',
-    h('p', { class: 'dim small' }, `上傳去背的圖片（${side === 'left' ? '面向右' : '面向左'}）。缺少的姿勢會自動改用待機圖；全部沒有時，會顯示暫代的紙牌。`),
+    h('p', { class: 'dim small' }, `上傳去背的圖片（${side === 'left' ? '面向右' : '面向左'}）。角色的腳底要貼齊下方的站位線，名稱與血條會顯示在頭上。缺少的姿勢會自動改用待機圖；全部沒有時，會顯示暫代的紙牌。`),
     h('div', { class: 'pose-wrap' },
       h('div', { class: 'pose-preview' }, stageBox,
         h('label', { class: 'check small' }, h('input', { type: 'checkbox', onchange: (e) => { opt.ghost = e.target.checked; syncGhost(); } }), '疊上半透明的待機圖來比對位置')),
@@ -728,6 +732,7 @@ const VIEWS = {
           return h('div', { class: 'pose-sliders' },
             slider('角色離畫面邊緣', L().sidePad, 2, 35, (v) => set('sidePad', v), '%'),
             slider('地板高度', L().floorTop, 25, 75, (v) => set('floorTop', v), '%'),
+            slider('角色站位線', L().standLine, 40, 85, (v) => set('standLine', v), '%'),
             slider('地板縮放', Math.max(100, L().floorDepth), 100, 180, (v) => set('floorDepth', v), '%'),
             slider('前景上移', L().foreLift, 0, 30, (v) => set('foreLift', v), '%'),
             slider('教堂亮度', L().churchBright, 10, 120, (v) => set('churchBright', v), '%')); })(),

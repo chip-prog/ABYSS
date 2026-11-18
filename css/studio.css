@@ -105,7 +105,7 @@ details.box > summary { cursor: pointer; margin-bottom: 8px; }
 .deck-rows { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; }
 .deck-row { display: flex; align-items: center; gap: 8px; padding: 4px 10px; background: rgba(10,6,4,.4); border-radius: 5px; flex-wrap: wrap; }
 
-.sandbox-stage { min-height: 660px; position: relative; overflow: hidden; }
+.sandbox-stage { height: 780px; min-height: 780px; position: relative; overflow: hidden; }
 
 /* 紙偶姿勢編輯 */
 .pose-wrap { display: flex; gap: 22px; align-items: flex-start; flex-wrap: wrap; }
@@ -114,7 +114,7 @@ details.box > summary { cursor: pointer; margin-bottom: 8px; }
   background: radial-gradient(ellipse at 50% 30%, #3a2a1c, #140d09 80%); }
 .pose-box { position: relative; width: 220px; height: 270px; }
 .pose-ghost { position: absolute; left: 50%; bottom: 0; height: 100%; transform-origin: 50% 100%; opacity: .35; pointer-events: none; filter: sepia(1) hue-rotate(160deg) saturate(3); }
-.pose-ground { width: 100%; height: 44px; border-top: 2px dashed var(--gold); color: var(--gold); font-size: 11px; letter-spacing: .3em; text-align: right; padding: 2px 10px; background: rgba(0,0,0,.35); }
+.pose-ground { width: 100%; height: 44px; flex: none; background-size: 160% auto; background-position: 50% 62%; border-top: 2px dashed var(--gold); color: var(--gold); font-size: 11px; letter-spacing: .3em; text-align: right; padding: 2px 10px; background: rgba(0,0,0,.35); }
 .pose-slots { flex: 1; min-width: 320px; display: flex; flex-direction: column; gap: 8px; }
 .pose-slot { display: flex; gap: 12px; padding: 8px 10px; background: rgba(10,6,4,.45); border: 1px dashed var(--wood-4); border-radius: 6px; }
 .pose-slot.has { border-style: solid; border-color: var(--brass-lo); }
@@ -151,3 +151,9 @@ details.box > summary { cursor: pointer; margin-bottom: 8px; }
 
 .scene-preview.instant .part { animation: none !important; opacity: var(--op, 1); }
 .scene-preview.instant .tri-wing { transition: none; }
+
+.pose-stage { justify-content: flex-end; }
+.pose-info { width: 200px; margin-bottom: 6px; text-align: center; opacity: .8; }
+.pose-ground span { background: rgba(0,0,0,.6); padding: 0 6px; border-radius: 3px; }
+.pv-dummy { top: auto; }
+.sandbox-stage > .battle { height: 100%; }

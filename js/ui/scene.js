@@ -90,7 +90,7 @@ export function makeScene(idx, scene) {
   // 最前方的零件和前景要蓋在紙偶前面，由戰鬥畫面另外放
   const fore = h('div', { class: 'scene-front' }, h('div', { class: 'parts front' }, partsOf(sc, 'front')), layer('scene-fore', st.fore, { '--lift': `${S.foreLift}%` }));
   return {
-    el, fore, sidePad: S.sidePad,
+    el, fore, sidePad: S.sidePad, stand: S.standLine,
     open: () => { tri.classList.remove('closed'); [el, fore].forEach((x) => x.classList.add('entered')); },
     close: () => tri.classList.add('closed'),
   };

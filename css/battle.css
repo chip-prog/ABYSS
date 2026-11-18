@@ -229,4 +229,13 @@
 .battle-bottom { background: linear-gradient(180deg, transparent, rgba(4,2,1,.85) 40%); }
 
 /* 前景的帷幕會蓋住畫面上緣，紙偶與意圖往下讓出空間 */
-.battle-stage { padding-top: 76px !important; }
+
+/* ───────── 站位：紙偶腳底貼齊站位線，名稱與血條在頭上 ───────── */
+.battle { justify-content: flex-end; }
+.battle-stage { position: absolute; top: 0; left: 0; right: 0; flex: none; align-items: flex-end; padding-top: 0; padding-bottom: 0; }
+.stage-dim { inset: -40px 0 -200% 0; }
+.actor { display: flex; flex-direction: column; align-items: center; }
+.actor-info { margin-bottom: 6px; width: 200px; }
+.actor-name { margin: 0 0 3px; }
+.actor-info .chips { min-height: 0; margin-top: 3px; }
+.actor .puppet-shadow { bottom: -6px; }
