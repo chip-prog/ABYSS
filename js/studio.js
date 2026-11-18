@@ -582,7 +582,7 @@ const VIEWS = {
         section('基本資料',
           h('div', { class: 'grid2' }, field('名字', inText(ch, 'name')), field('稱號', inText(ch, 'title')), field('陣營', inSel(ch, 'faction', ents(C.factions))), field('初始生命', inNum(ch, 'hp', { min: 1 })),
             field('初始遺物', inSel(ch, 'relic', ents(C.relics), { empty: '（無）' }))),
-          field('介紹', inArea(ch, 'desc')), field('肖像（選角畫面用，可留空）', imageField(ch)), field('狀態', publishToggle(ch))),
+          field('介紹', inArea(ch, 'desc')), field('形象大圖（角色介面用）', imageField(ch, { max: 1536, key: true }), '直式 1024 × 1536，去背或帶背景都可以；沒上傳時改用待機紙偶圖'), field('狀態', publishToggle(ch))),
         posesEditor(ch, SC.HERO_POSES, 'left', idx.factions.get(ch.faction)?.color),
         section('初始牌組', deckBox));
     },
@@ -681,6 +681,7 @@ const VIEWS = {
         h('div', { class: 'grid2' }, field('名稱', inText(f, 'name')), field('代表色', h('input', { type: 'color', value: f.color, oninput: (e) => { f.color = e.target.value; commit(); } }), '卡名文字會用這個顏色；建議和卡框的主色一致')),
         field('說明', inArea(f, 'desc')),
         field('徽記', imageField(f, { max: 512, key: true, trim: true }), '去背 PNG，正方形，建議 256 × 256；顯示在選角畫面'),
+        field('書（選陣營畫面）', imgUpload(f.book ||= {}, 'img', { max: 900, green: true, trim: true, label: '上傳書本' }), '一本代表這個陣營的書，去背 PNG，建議直式 768 × 1024；沒上傳時會用陣營色畫一本暫代的書'),
         f.id === 'nameless' ? h('p', { class: 'gold small' }, '「無名」是通用陣營：所有角色的獎勵都會出現它的牌。請不要刪除。') : null),
       frameEditor(f)),
   }),
@@ -701,6 +702,7 @@ const VIEWS = {
     return h('div', { class: 'page narrow' },
       h('h1', {}, '規則'),
       section('遊戲名稱', h('div', { class: 'grid2' }, field('標題', inText(C.meta, 'title')), field('副標題', inText(C.meta, 'subtitle')))),
+      section('選陣營畫面', h('p', { class: 'dim small' }, '選陣營時的背景：昏暗的房間、一道昏黃的光照在桌上。可留空，會用程式畫的暗色房間。'), imgUpload((C.meta.select ||= {}).bg ||= {}, 'img', { max: 2400, label: '上傳背景' })),
       section('共用卡背', h('p', { class: 'dim small' }, '沒有上傳自己卡背的陣營會使用這張。比例 1：1.5。'), imgUpload(C.meta.cardBack ||= {}, 'img', { label: '上傳卡背' })),
       section('戰鬥基本規則', h('div', { class: 'grid2' },
         field('每回合能量', inNum(R, 'energy', { min: 0 })), field('每回合抽牌數', inNum(R, 'draw', { min: 0 })),
@@ -992,6 +994,8 @@ async function importFile(file) {
     }
     if (official.meta?.cardBack?.img && !C.meta?.cardBack?.img) (C.meta ||= {}).cardBack = clone(official.meta.cardBack);
     // 正式內容的舞台素材：工作內容裡空著的就補上
+    if (official.meta?.select?.bg?.img && !C.meta.select?.bg?.img) (C.meta.select ||= {}).bg = clone(official.meta.select.bg);
+    for (const f of C.factions || []) { const o = (official.factions || []).find((x) => x.id === f.id); if (o?.book?.img && !f.book?.img) f.book = clone(o.book); }
     // 舞台素材：空著的補上；原本就是儲存庫素材（不是自己上傳的）的，跟著正式內容更新
     for (const [k, v] of Object.entries(official.meta?.stage || {})) {
       const mine = C.meta.stage?.[k];

@@ -50,3 +50,74 @@ body.game .screen { filter: brightness(calc(var(--mood-bright, 1) + .12)); }
 .relic-icon img { width: 26px; height: 26px; object-fit: contain; }
 /* 正式遊戲（全螢幕）：手牌少收一點，至少露出約七成 */
 body.game .hand { margin-bottom: -58px; }
+
+/* ───────── 選陣營：昏暗的房間、一道昏黃的光、三本書 ───────── */
+.fsel { position: relative; flex: 1; min-height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse 45% 55% at 50% 62%, rgba(110,78,40,.35), transparent 70%), radial-gradient(ellipse at 50% 100%, #1c120b, #0a0604 70%); }
+.fsel.has-bg { background-size: cover; background-position: center; }
+.fsel-beam { position: absolute; left: 50%; top: -10%; width: 70vw; height: 92%; translate: -50% 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,214,140,.22), rgba(255,200,120,.10) 60%, transparent);
+  clip-path: polygon(42% 0, 58% 0, 100% 100%, 0 100%); filter: blur(10px); animation: beamflick 4s steps(1, end) infinite; }
+@keyframes beamflick { 0%, 100% { opacity: 1; } 31% { opacity: .9; } 37% { opacity: 1; } 72% { opacity: .94; } }
+.fsel-dust { position: absolute; inset: 0; pointer-events: none; opacity: .45;
+  background-image: radial-gradient(1.5px 1.5px at 44% 30%, #f3e2b8, transparent), radial-gradient(1px 1px at 52% 45%, #f3e2b8, transparent), radial-gradient(1px 1px at 58% 22%, #f3e2b8, transparent), radial-gradient(1.5px 1.5px at 48% 60%, #f3e2b8, transparent);
+  animation: motes 18s linear infinite; }
+.fsel-head { position: relative; text-align: center; margin-bottom: 4vh; }
+.fsel-head h1 { font-size: 32px; letter-spacing: .4em; margin-right: -.4em; }
+.books { position: relative; display: flex; gap: 5vw; align-items: flex-end; justify-content: center; padding: 0 20px; }
+.books::after { content: ''; position: absolute; left: -6%; right: -6%; bottom: 58px; height: 34px; border-radius: 50%; background: radial-gradient(ellipse, rgba(0,0,0,.6), transparent 70%); z-index: -1; }
+.book { font: inherit; color: var(--ink); background: none; border: 0; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 0; transition: transform .2s steps(3, end); }
+.book-img { width: min(22vw, 260px); filter: drop-shadow(0 18px 18px rgba(0,0,0,.7)) brightness(.85); transition: filter .2s; }
+.book:hover { transform: translateY(-16px) rotate(-2deg); }
+.book:hover .book-img, .book:hover .book-ph { filter: drop-shadow(0 0 18px color-mix(in srgb, var(--fc) 70%, #f6d77a)) drop-shadow(0 24px 20px rgba(0,0,0,.7)) brightness(1.08); }
+.book.opening { animation: bookopen .5s steps(5, end) forwards; }
+@keyframes bookopen { to { transform: translateY(-40px) scale(1.25); opacity: 0; } }
+.book-label { text-align: center; max-width: 240px; }
+.book-label b { display: block; font-size: 22px; letter-spacing: .4em; margin-right: -.4em; color: color-mix(in srgb, var(--fc) 45%, #f1dca3); }
+.book-label span { font-size: 13px; color: var(--ink-dim); }
+.fsel-back { position: absolute; left: 24px; bottom: 24px; }
+/* 暫代的書 */
+.book-ph { position: relative; width: min(18vw, 210px); aspect-ratio: 3 / 4; filter: drop-shadow(0 18px 18px rgba(0,0,0,.7)) brightness(.85); transform: perspective(700px) rotateX(18deg); transition: filter .2s; }
+.book-cover { position: absolute; inset: 0 0 6% 7%; border-radius: 3px 8px 8px 3px; display: grid; place-items: center;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--fc) 75%, #000), color-mix(in srgb, var(--fc) 35%, #0a0604)); border: 3px solid #1a0f08;
+  box-shadow: inset 0 0 0 6px color-mix(in srgb, var(--fc) 30%, #b9965b), inset 0 0 30px rgba(0,0,0,.6); }
+.book-cover span { font-size: 64px; font-weight: 900; color: #f1dca3; text-shadow: 0 2px 6px #000; opacity: .85; }
+.book-cover img { width: 46%; }
+.book-spine { position: absolute; left: 0; top: 0; bottom: 6%; width: 9%; background: linear-gradient(90deg, #120a06, color-mix(in srgb, var(--fc) 50%, #120a06)); border-radius: 3px 0 0 3px; }
+.book-pages { position: absolute; left: 9%; right: 3%; bottom: 0; height: 7%; background: repeating-linear-gradient(0deg, #e2d3ad 0 2px, #b9a77d 2px 3px); border-radius: 0 0 6px 2px; }
+
+/* ───────── 角色介面：形象大圖＋手抄本簡介 ───────── */
+.csel { position: relative; flex: 1; min-height: 100vh; display: flex; gap: 3vw; align-items: center; justify-content: center; padding: 30px 4vw; overflow: hidden;
+  background: radial-gradient(ellipse 40% 70% at 30% 45%, color-mix(in srgb, var(--fc) 18%, transparent), transparent 70%), radial-gradient(ellipse at 50% 100%, #1c120b, #0a0604 70%); }
+.csel-beam { position: absolute; left: 30%; top: -10%; width: 50vw; height: 110%; translate: -50% 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,214,140,.18), transparent 85%); clip-path: polygon(40% 0, 60% 0, 100% 100%, 0 100%); filter: blur(12px); }
+.csel-portrait { position: relative; height: min(84vh, 760px); aspect-ratio: 2 / 3; flex: none; display: grid; place-items: center; }
+.csel-portrait img { width: 100%; height: 100%; object-fit: contain; object-position: bottom; filter: drop-shadow(0 20px 30px rgba(0,0,0,.8)); }
+.csel-portrait.ph { background: radial-gradient(ellipse at 50% 40%, color-mix(in srgb, var(--fc) 40%, #1a1009), #0b0705 75%); border: 2px solid var(--brass-lo); border-radius: 46% 46% 6px 6px / 30% 30% 6px 6px; }
+.csel-portrait.ph span { font-size: 180px; font-weight: 900; color: rgba(241,220,163,.75); text-shadow: 0 6px 20px #000; }
+.csel-arrow { position: absolute; top: 50%; translate: 0 -50%; font: inherit; font-size: 48px; width: 56px; height: 72px; color: var(--brass-hi); background: rgba(10,6,4,.5); border: 1px solid var(--brass-lo); border-radius: 6px; cursor: pointer; }
+.csel-arrow.l { left: -20px; } .csel-arrow.r { right: -20px; }
+/* 手抄本書頁 */
+.csel-page { position: relative; width: min(560px, 46vw); padding: 34px 40px 26px; color: var(--parch-ink);
+  background: linear-gradient(180deg, #e6d8b4, #cdbb8f); border-radius: 4px; box-shadow: 0 20px 40px rgba(0,0,0,.7), inset 0 0 50px rgba(110,80,30,.45);
+  clip-path: polygon(0 1%, 3% 0, 30% 1%, 55% 0, 80% 1%, 100% 0, 99% 30%, 100% 60%, 99% 100%, 70% 99%, 40% 100%, 10% 99%, 0 100%, 1% 60%); }
+.csel-page h1 { color: #2a120c; font-size: 40px; letter-spacing: .25em; }
+.csel-faction { display: flex; align-items: center; gap: 8px; font-size: 14px; letter-spacing: .4em; color: color-mix(in srgb, var(--fc) 80%, #000); font-weight: 900; }
+.csel-faction img { width: 26px; }
+.csel-title { color: color-mix(in srgb, var(--fc) 70%, #000); letter-spacing: .3em; font-weight: 600; margin-top: 2px; }
+.csel-desc { margin: 14px 0; line-height: 1.8; border-left: 3px solid color-mix(in srgb, var(--fc) 60%, #6b5a3c); padding-left: 12px; }
+.csel-stats { display: flex; gap: 26px; align-items: flex-start; padding: 12px 0; border-top: 1px solid rgba(107,90,60,.4); border-bottom: 1px solid rgba(107,90,60,.4); }
+.csel-stats .faint, .csel-deck .faint { color: #7a6748; font-size: 12px; letter-spacing: .2em; display: block; margin-bottom: 4px; }
+.csel-stats .hp { font-size: 26px; color: #8a1f1f; }
+.csel-relic { flex: 1; } .csel-relic b { color: #3a2412; } .csel-relic .dim { color: #5a4a32; }
+.relic-icon.big { width: 44px; height: 44px; flex: none; } .relic-icon.big img { width: 38px; height: 38px; }
+.csel-deck { margin-top: 12px; }
+.csel-deck .btn.ghost { color: #4a3420; border-color: rgba(107,90,60,.5); }
+.csel-cards { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+.csel-card { position: relative; cursor: pointer; transition: transform .12s; }
+.csel-card:hover { transform: translateY(-4px); }
+.csel-n { position: absolute; right: -6px; bottom: -6px; font-size: 18px; font-weight: 900; color: #fbe9c4; -webkit-text-stroke: 4px #1a0a06; paint-order: stroke fill; }
+.csel-actions { margin-top: 18px; }
+.csel-actions .btn.ghost { color: #4a3420; border-color: rgba(107,90,60,.5); }
+.btn.seal-btn { padding: 12px 34px; font-size: 18px; letter-spacing: .4em; border-radius: 50px; background: radial-gradient(circle at 35% 30%, #c4453a, #7a1a14 70%); color: #fbe9c4; border: 2px solid #3a0a06; box-shadow: 0 4px 10px rgba(0,0,0,.5); }
+@media (max-width: 900px) { .csel { flex-direction: column; } .csel-portrait { height: 46vh; } .csel-page { width: 100%; } }

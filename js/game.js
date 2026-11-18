@@ -48,24 +48,65 @@ function title() {
     contentVersion ? h('div', { class: 'ver' }, `版本：${contentVersion}`) : null));
 }
 
+// ───────── 選角：先選陣營（三本書），再看角色 ─────────
+const liveChars = () => raw.characters.filter((c) => isLive(c, preview));
+function bookEl(f) {
+  const img = imgUrl(f.book?.img);
+  if (img) return h('img', { class: 'book-img', src: img, alt: f.name, draggable: false });
+  // 暫代的書：陣營色封面＋書脊＋徽記
+  const emb = imgUrl(f.image);
+  return h('div', { class: 'book-ph', style: { '--fc': f.color } },
+    h('div', { class: 'book-spine' }), h('div', { class: 'book-pages' }),
+    h('div', { class: 'book-cover' }, emb ? h('img', { src: emb, alt: '' }) : h('span', {}, [...f.name][0])));
+}
 function select() {
-  const chars = raw.characters.filter((c) => isLive(c, preview));
-  frame(center(
-    h('h1', {}, '選擇你的角色'),
-    h('div', { class: 'char-row' }, chars.map((c) => {
-      const fac = idx.factions.get(c.faction), relic = idx.relics.get(c.relic);
-      return h('div', { class: 'char panel', style: { '--fc': fac?.color } },
-        (() => { const idle = imgUrl(c.poses?.idle?.img), port = imgUrl(c.image); return h('div', { class: 'medal' + (!port && idle ? ' cutout' : '') }, port || idle ? h('img', { src: port || idle, alt: '' }) : h('span', {}, [...c.name][0])); })(),
-        h('h2', {}, c.name, c.publish === 'draft' ? h('span', { class: 'badge draft', style: { marginLeft: '8px' } }, '草稿') : null),
-        h('div', { class: 'char-title' }, imgUrl(fac?.image) ? h('img', { class: 'emblem', src: imgUrl(fac.image), alt: '' }) : null, `${c.title || ''}・${fac?.name || ''}`),
-        h('p', { class: 'dim' }, c.desc || ''),
-        h('div', { class: 'small' }, `生命 ${c.hp}`),
-        relic ? h('div', { class: 'small relic-line' }, imgUrl(relic.image) ? h('img', { class: 'relic-img', src: imgUrl(relic.image), alt: '' }) : null, h('b', {}, (imgUrl(relic.image) ? '' : '◈ ') + relic.name), '　', describePowers(idx, relic.powers)) : null,
-        h('div', { class: 'row', style: { justifyContent: 'center', marginTop: '12px' } },
-          h('button', { class: 'btn sm ghost', onclick: () => showCards(idx, `${c.name} 的初始牌組`, c.deck.map((id) => ({ id })).filter((x) => idx.cards.has(x.id))) }, '查看牌組'),
-          h('button', { class: 'btn primary', onclick: () => { run = newRun(idx, c.id, { includeDraft: preview }); save(); advance(); } }, '選擇')));
-    })),
-    h('button', { class: 'btn ghost', onclick: title }, '返回')));
+  const chars = liveChars();
+  const facs = raw.factions.filter((f) => chars.some((c) => c.faction === f.id));
+  const bg = imgUrl(raw.meta?.select?.bg?.img);
+  frame(h('div', { class: 'fsel' + (bg ? ' has-bg' : ''), style: bg ? { backgroundImage: `url("${bg}")` } : {} },
+    h('div', { class: 'fsel-beam' }), h('div', { class: 'fsel-dust' }),
+    h('div', { class: 'fsel-head' }, h('h1', {}, '選擇陣營'), h('p', { class: 'dim' }, '三本書靜靜躺在光裡。')),
+    h('div', { class: 'books' }, facs.map((f) => h('button', { class: 'book', style: { '--fc': f.color }, onclick: (e) => {
+      e.currentTarget.classList.add('opening');
+      setTimeout(() => character(f.id, 0), 520);
+    } },
+      bookEl(f),
+      h('div', { class: 'book-label' }, h('b', {}, f.name), h('span', {}, f.desc || ''))))),
+    h('button', { class: 'btn ghost fsel-back', onclick: title }, '返回')));
+}
+function character(fid, i) {
+  const list = liveChars().filter((c) => c.faction === fid);
+  if (!list.length) return select();
+  i = (i + list.length) % list.length;
+  const c = list[i], fac = idx.factions.get(c.faction), relic = idx.relics.get(c.relic);
+  const portrait = imgUrl(c.image) || imgUrl(c.poses?.idle?.img);
+  const deck = c.deck.filter((id) => idx.cards.has(id)).map((id, k) => ({ uid: 'd' + k, id }));
+  const counts = new Map(); for (const d of deck) counts.set(d.id, (counts.get(d.id) || 0) + 1);
+  frame(h('div', { class: 'csel', style: { '--fc': fac?.color } },
+    h('div', { class: 'csel-beam' }),
+    h('div', { class: 'csel-portrait' + (portrait ? '' : ' ph') },
+      portrait ? h('img', { src: portrait, alt: c.name }) : h('span', {}, [...c.name][0]),
+      list.length > 1 ? [h('button', { class: 'csel-arrow l', onclick: () => character(fid, i - 1) }, '‹'), h('button', { class: 'csel-arrow r', onclick: () => character(fid, i + 1) }, '›')] : null),
+    h('div', { class: 'csel-page' },
+      h('div', { class: 'csel-faction' }, imgUrl(fac?.image) ? h('img', { src: imgUrl(fac.image), alt: '' }) : null, fac?.name || ''),
+      h('h1', {}, c.name, c.publish === 'draft' ? h('span', { class: 'badge draft', style: { marginLeft: '10px', fontSize: '13px' } }, '草稿') : null),
+      h('div', { class: 'csel-title' }, c.title || ''),
+      h('p', { class: 'csel-desc' }, c.desc || ''),
+      h('div', { class: 'csel-stats' },
+        h('div', {}, h('span', { class: 'faint' }, '生命'), h('b', { class: 'hp' }, `♥ ${c.hp}`)),
+        relic ? h('div', { class: 'csel-relic' }, h('span', { class: 'faint' }, '初始遺物'),
+          h('div', { class: 'row' }, h('span', { class: 'relic-icon big' }, imgUrl(relic.image) ? h('img', { src: imgUrl(relic.image), alt: '' }) : '◈'),
+            h('div', {}, h('b', {}, relic.name), h('div', { class: 'small dim' }, describePowers(idx, relic.powers))))) : null),
+      h('div', { class: 'csel-deck' },
+        h('div', { class: 'row' }, h('span', { class: 'faint' }, `初始牌組（${deck.length} 張）`), h('span', { class: 'grow' }),
+          h('button', { class: 'btn sm ghost', onclick: () => showCards(idx, `${c.name} 的初始牌組`, deck) }, '展開檢視')),
+        h('div', { class: 'csel-cards' }, [...counts].map(([id, n]) => h('div', { class: 'csel-card', onclick: () => showCards(idx, `${c.name} 的初始牌組`, deck) },
+          cardEl(idx, { id }, { width: 96, tips: false, flavor: false }), n > 1 ? h('b', { class: 'csel-n' }, `×${n}`) : null)))),
+      h('div', { class: 'row csel-actions' },
+        h('button', { class: 'btn ghost', onclick: select }, '‹ 換個陣營'),
+        h('span', { class: 'grow' }),
+        list.length > 1 ? h('span', { class: 'faint small' }, `${i + 1} / ${list.length}`) : null,
+        h('button', { class: 'btn primary seal-btn', onclick: () => { run = newRun(idx, c.id, { includeDraft: preview }); save(); advance(); } }, '上場')))));
 }
 
 async function advance() {
