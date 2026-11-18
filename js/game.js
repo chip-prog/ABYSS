@@ -29,7 +29,8 @@ function hud() {
     h('div', { class: 'pips' }, run.stages.map((s, i) => h('span', { class: `pip s-${s.type}${s.pool === 'boss' ? ' boss' : ''}${i < run.stage ? ' done' : i === run.stage ? ' now' : ''}`, title: s.type === 'rest' ? '篝火' : s.pool === 'boss' ? '頭目' : '戰鬥' }))),
     h('span', { class: 'dim small' }, `第 ${Math.min(run.stage + 1, total)} / ${total} 關`),
     h('span', { class: 'grow' }),
-    run.relics.map((id) => { const r = idx.relics.get(id); return r ? h('span', { class: 'chip relic', title: describePowers(idx, r.powers) }, imgUrl(r.image) ? h('img', { class: 'chip-img', src: imgUrl(r.image), alt: '' }) : '◈ ', r.name) : null; }),
+    // 遺物只顯示圖示，名稱和效果放在滑鼠提示裡（之後會移到專屬的狀態列）
+    h('div', { class: 'relic-row' }, run.relics.map((id) => { const r = idx.relics.get(id); return r ? h('span', { class: 'relic-icon', title: `${r.name}\n${describePowers(idx, r.powers)}` }, imgUrl(r.image) ? h('img', { src: imgUrl(r.image), alt: r.name }) : '◈') : null; })),
     h('button', { class: 'btn sm', onclick: () => showCards(idx, `牌組（${run.deck.length} 張）`, [...run.deck].sort((a, b) => a.id.localeCompare(b.id))) }, `牌組 ${run.deck.length}`),
     h('button', { class: 'btn sm ghost', onclick: async () => { if (await confirmBox('要放棄這一輪冒險嗎？', '放棄', true)) { run = null; save(); title(); } } }, '放棄'));
 }

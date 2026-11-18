@@ -195,7 +195,7 @@ export function runBattle(root, idx, opts) {
       fill(actors.get('player').info,
         h('div', { class: 'actor-name' }, p.name), hpBar(p),
         h('div', { class: 'chips' }, p.block ? h('span', { class: 'chip block' }, `格擋 ${p.block}`) : null, statusChips(p)),
-        h('div', { class: 'chips' }, p.powers.map((pw) => h('span', { class: 'chip power' + (pw.relic ? ' relic' : ''), title: describePowers(idx, [pw]) }, pw.image && imgUrl(pw.image) ? h('img', { class: 'chip-img', src: imgUrl(pw.image), alt: '' }) : (pw.relic ? '◈ ' : '✦ '), pw.name))));
+        h('div', { class: 'chips' }, p.powers.filter((pw) => !pw.relic).map((pw) => h('span', { class: 'chip power', title: describePowers(idx, [pw]) }, '✦ ', pw.name))));
       for (const en of state.enemies) {
         const rec = actors.get(en.uid);
         if (!rec || en.dead) continue;

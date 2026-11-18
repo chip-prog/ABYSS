@@ -43,3 +43,8 @@ body.game::after { content: ''; position: fixed; inset: 0; z-index: 150; pointer
   background: radial-gradient(ellipse 80% 75% at 50% 45%, transparent 40%, rgba(3,2,1, calc(var(--vignette, .6) * .8)) 100%); }
 body.game .screen { filter: brightness(calc(var(--mood-bright, 1) + .12)); }
 .hud { background: linear-gradient(180deg, #1d140e, #120c08); border-bottom-color: #4a3a22; }
+
+.relic-row { display: flex; gap: 6px; }
+.relic-icon { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; cursor: help; font-size: 16px; color: #d7b8f0;
+  background: radial-gradient(circle at 40% 35%, #3a2a40, #160f18); border: 1px solid #7d5aa0; }
+.relic-icon img { width: 26px; height: 26px; object-fit: contain; }
