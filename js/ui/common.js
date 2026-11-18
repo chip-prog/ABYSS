@@ -30,11 +30,15 @@ export const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&am
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 export const clone = (x) => JSON.parse(JSON.stringify(x));
 
+export let contentVersion = '';
 export async function loadOfficial() {
   const r = await fetch('content/content.json', { cache: 'no-store' });
   if (!r.ok) throw new Error('讀不到正式內容檔 content/content.json');
   const text = await r.text();
   setAssetVersion(text);
+  // 版本標示：正式內容最後部署的時間，用來確認看到的是不是最新版
+  const lm = r.headers.get('last-modified');
+  if (lm) { const d = new Date(lm), p = (n) => String(n).padStart(2, '0'); contentVersion = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
   return JSON.parse(text);
 }
 // Studio 的工作內容（測試環境）。同時把上傳的圖片準備好。

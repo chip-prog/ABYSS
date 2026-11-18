@@ -1,6 +1,6 @@
 // Studio：不用寫程式就能編輯遊戲內容的工作台。
 // 所有修改只存在這台電腦的瀏覽器裡（測試環境），匯出後才會交給別人或套用到遊戲。
-import { h, fill, applyMood, cardEl, cardBackEl, modal, toast, confirmBox, clone, sleep, loadOfficial, KEY_WORK } from './ui/common.js';
+import { contentVersion, h, fill, applyMood, cardEl, cardBackEl, modal, toast, confirmBox, clone, sleep, loadOfficial, KEY_WORK } from './ui/common.js';
 import { kvGet, kvSet, initImages, imgUrl, isLocal, localKey, hasImage, imageSize, imageKeys, getBlob, addImage, delImage, walkRefs, fileToBlob, frameInfo } from './ui/store.js';
 import { zipFiles, unzip } from './ui/zip.js';
 import { makePuppet, poseTransform } from './ui/puppet.js';
@@ -1013,6 +1013,7 @@ async function importFile(file) {
     // 清掉已經沒有任何內容在用的圖片
     if (!fresh) { const used = new Set(); await walkRefs(C, (v) => { if (isLocal(v)) used.add(localKey(v)); }); for (const k of imageKeys()) if (!used.has(k)) await delImage(k); }
     commit(true);
+    if (contentVersion) document.querySelector('.sidebar .save-state')?.after(h('div', { class: 'ver' }, `正式版本：${contentVersion}`));
     document.fonts?.ready.then(() => { fitCache.clear(); commit(true); });
   } catch (e) {
     fill($main, h('div', { class: 'empty' }, '載入失敗：' + (e.message || e)));

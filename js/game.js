@@ -1,5 +1,5 @@
 // 遊戲本體（經典模式）。加上 ?preview=1 時改讀 Studio 的工作內容，含草稿。
-import { h, applyMood, cardEl, modal, showCards, loadOfficial, loadWorking, confirmBox, KEY_RUN } from './ui/common.js';
+import { contentVersion, h, applyMood, cardEl, modal, showCards, loadOfficial, loadWorking, confirmBox, KEY_RUN } from './ui/common.js';
 import { indexContent, cardDef } from './engine/battle.js';
 import { describePowers } from './engine/describe.js';
 import { sceneFor, newRun, pickEncounter, rewardCards, applyBattleResult, addCardToRun, restHeal, upgradable, isLive } from './engine/run.js';
@@ -44,7 +44,8 @@ function title() {
     h('div', { class: 'menu' },
       saved ? h('button', { class: 'btn primary', onclick: () => { run = saved; advance(); } }, `繼續冒險（${saved.name}）`) : null,
       h('button', { class: 'btn' + (saved ? '' : ' primary'), onclick: select }, '開始新冒險'),
-      h('a', { class: 'btn ghost', href: 'studio.html' }, '進入 Studio'))));
+      h('a', { class: 'btn ghost', href: 'studio.html' }, '進入 Studio')),
+    contentVersion ? h('div', { class: 'ver' }, `版本：${contentVersion}`) : null));
 }
 
 function select() {
