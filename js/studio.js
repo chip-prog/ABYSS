@@ -620,7 +620,8 @@ const VIEWS = {
         h('div', { class: 'grid2' },
           field('教堂遠景', imgUpload((C.meta.stage ||= {}).church ||= {}, 'img', { max: 2560 }), '2560 × 1080，左右各多留一些給寬螢幕；整體要暗'),
           field('舞台地板', imgUpload(C.meta.stage.floor ||= {}, 'img', { max: 1920 }), '去背 PNG，1920 × 1080，上半部透明'),
-          field('三聯畫外框', imgUpload(C.meta.stage.frame ||= {}, 'img', { max: 1100 }), '去背 PNG，套在中央板外圍，比例同中央板'))),
+          field('三聯畫外框', imgUpload(C.meta.stage.frame ||= {}, 'img', { max: 1100 }), '去背 PNG，套在中央板外圍，比例同中央板'),
+          field('前景', imgUpload(C.meta.stage.fore ||= {}, 'img', { max: 2560 }), '去背 PNG，1920 × 1080；畫面兩側的柱子或帷幕，會蓋在紙偶前面，中間要透空'))),
       section('關卡流程（經典模式・第一章）', stages),
       issueBox('rules', 'rules'));
   },

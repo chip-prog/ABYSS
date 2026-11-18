@@ -23,8 +23,10 @@ export function makeScene(idx, scene) {
     tri,
     layer('scene-floor', url(st.floor)),
     h('div', { class: 'scene-motes' }));
+  // 前景層要蓋在紙偶前面，由戰鬥畫面另外放
+  const fore = layer('scene-fore', url(st.fore));
   return {
-    el,
+    el, fore,
     open: () => tri.classList.remove('closed'),
     close: () => tri.classList.add('closed'),
   };

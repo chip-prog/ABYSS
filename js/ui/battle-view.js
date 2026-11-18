@@ -59,7 +59,7 @@ export function runBattle(root, idx, opts) {
     const bottomEl = h('div', { class: 'battle-bottom' });
     const logEl = h('div', { class: 'battle-log panel' });
     const scene = makeScene(idx, opts.scene);
-    const battleEl = h('div', { class: 'battle' }, scene.el, stage, hintEl, bottomEl, logEl, floatLayer);
+    const battleEl = h('div', { class: 'battle' }, scene.el, stage, scene.fore, hintEl, bottomEl, logEl, floatLayer);
     const actors = new Map();
 
     function makeActor(a, def, isPlayer) {

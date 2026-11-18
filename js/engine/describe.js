@@ -124,7 +124,7 @@ export function keywordsOf(idx, def) {
     const ids = [e.status, e.if?.status, e.scale?.by?.split(':')[1]].filter(Boolean);
     for (const id of ids) {
       const s = idx.statuses.get(id);
-      if (s && !seen.has(id)) { seen.add(id); out.push({ label: s.name, desc: s.desc || '' }); }
+      if (s && !seen.has(id) && !out.some((k) => k.label === s.name)) { seen.add(id); out.push({ label: s.name, desc: s.desc || '' }); }
     }
   }
   return out;
