@@ -59,6 +59,11 @@
    "defeat": {
     "img": "assets/screens/defeat.webp"
    }
+  },
+  "select": {
+   "table": {
+    "img": "assets/select/table.webp"
+   }
   }
  },
  "rules": {
@@ -127,7 +132,10 @@
    "frame": {
     "img": "assets/frames/crimson.webp"
    },
-   "image": "assets/emblems/crimson.webp"
+   "image": "assets/emblems/crimson.webp",
+   "book": {
+    "img": "assets/select/book-crimson.webp"
+   }
   },
   {
    "id": "arcane",
@@ -171,7 +179,10 @@
      }
     }
    },
-   "image": "assets/emblems/arcane.webp"
+   "image": "assets/emblems/arcane.webp",
+   "book": {
+    "img": "assets/select/book-arcane.webp"
+   }
   },
   {
    "id": "abyss",
@@ -215,7 +226,10 @@
      }
     }
    },
-   "image": "assets/emblems/abyss.webp"
+   "image": "assets/emblems/abyss.webp",
+   "book": {
+    "img": "assets/select/book-abyss.webp"
+   }
   },
   {
    "id": "nameless",
