@@ -961,8 +961,14 @@ async function importFile(file) {
       for (const k of ['frame', 'back']) if (o[k]?.img && !f[k]?.img) f[k] = clone(o[k]);
     }
     if (official.meta?.cardBack?.img && !C.meta?.cardBack?.img) (C.meta ||= {}).cardBack = clone(official.meta.cardBack);
-    if (!C.scenes?.length && official.scenes?.length) C.scenes = clone(official.scenes);
-    if (!C.rules.sceneByPool && official.rules?.sceneByPool) C.rules.sceneByPool = clone(official.rules.sceneByPool);
+    // 正式內容的場景：工作內容沒有的整組補上；已有的只補上空著的畫板（不覆蓋自己上傳的）
+    C.scenes ||= [];
+    for (const o of official.scenes || []) {
+      const mine = C.scenes.find((x) => x.id === o.id);
+      if (!mine) { C.scenes.push(clone(o)); continue; }
+      for (const k of ['center', 'left', 'right', 'leftBack', 'rightBack']) if (o[k]?.img && !mine[k]?.img) mine[k] = clone(o[k]);
+    }
+    if (official.rules?.sceneByPool) { C.rules.sceneByPool ||= {}; for (const [k, v] of Object.entries(official.rules.sceneByPool)) if (!C.rules.sceneByPool[k] || !C.scenes.some((x) => x.id === C.rules.sceneByPool[k])) C.rules.sceneByPool[k] = v; }
     C.meta ||= {}; for (const k of LISTS) C[k] ||= [];
     await convertDataUrls(C);
     // 已經放進儲存庫的圖片，改用儲存庫裡的檔案

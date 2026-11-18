@@ -59,8 +59,8 @@
   },
   "sceneByPool": {
    "easy": "scene_judgment",
-   "hard": "scene_judgment",
-   "boss": "scene_judgment"
+   "hard": "scene_judgment_b",
+   "boss": "scene_judgment_b"
   }
  },
  "factions": [
@@ -3666,7 +3666,29 @@
  "scenes": [
   {
    "id": "scene_judgment",
-   "name": "褪色的審判"
+   "name": "褪色的審判（聖人與怪物）",
+   "center": {
+    "img": "assets/scenes/judgment-center.webp"
+   },
+   "left": {
+    "img": "assets/scenes/judgment-left-a.webp"
+   },
+   "right": {
+    "img": "assets/scenes/judgment-right-a.webp"
+   }
+  },
+  {
+   "id": "scene_judgment_b",
+   "name": "褪色的審判（反轉：怪物天使與受苦的人）",
+   "center": {
+    "img": "assets/scenes/judgment-center.webp"
+   },
+   "left": {
+    "img": "assets/scenes/judgment-left-b.webp"
+   },
+   "right": {
+    "img": "assets/scenes/judgment-right-b.webp"
+   }
   }
  ]
 }
