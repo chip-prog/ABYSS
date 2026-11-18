@@ -703,7 +703,8 @@ const VIEWS = {
       h('h1', {}, '規則'),
       section('遊戲名稱', h('div', { class: 'grid2' }, field('標題', inText(C.meta, 'title')), field('副標題', inText(C.meta, 'subtitle')))),
       section('選陣營畫面', h('p', { class: 'dim small' }, '選陣營時的背景：昏暗的房間、一道昏黃的光照在桌上。可留空，會用程式畫的暗色房間。'), imgUpload((C.meta.select ||= {}).bg ||= {}, 'img', { max: 2400, label: '上傳背景' }),
-        h('p', { class: 'dim small', style: { marginTop: '10px' } }, '放書的木桌：去背 PNG，橫式 1536 × 1024，桌面約在圖的一半高度。可留空，會用程式畫的破舊木桌。'), imgUpload(C.meta.select.table ||= {}, 'img', { max: 2000, green: true, label: '上傳桌子' })),
+        h('p', { class: 'dim small', style: { marginTop: '10px' } }, '放書的木桌：去背 PNG，橫式 1536 × 1024，桌面約在圖的一半高度。可留空，會用程式畫的破舊木桌。'), imgUpload(C.meta.select.table ||= {}, 'img', { max: 2000, green: true, label: '上傳桌子' }),
+        h('p', { class: 'dim small', style: { marginTop: '10px' } }, '桌面背景（優先使用）：一張木桌桌面的近景，橫式 1536 × 1024，會鋪滿畫面下半部、往遠處漸暗。有上傳時就不顯示整張桌子。'), imgUpload(C.meta.select.top ||= {}, 'img', { max: 2400, label: '上傳桌面' })),
       section('共用卡背', h('p', { class: 'dim small' }, '沒有上傳自己卡背的陣營會使用這張。比例 1：1.5。'), imgUpload(C.meta.cardBack ||= {}, 'img', { label: '上傳卡背' })),
       section('戰鬥基本規則', h('div', { class: 'grid2' },
         field('每回合能量', inNum(R, 'energy', { min: 0 })), field('每回合抽牌數', inNum(R, 'draw', { min: 0 })),
@@ -995,7 +996,7 @@ async function importFile(file) {
     }
     if (official.meta?.cardBack?.img && !C.meta?.cardBack?.img) (C.meta ||= {}).cardBack = clone(official.meta.cardBack);
     // 正式內容的舞台素材：工作內容裡空著的就補上
-    for (const k of ['bg', 'table']) if (official.meta?.select?.[k]?.img && !C.meta.select?.[k]?.img) (C.meta.select ||= {})[k] = clone(official.meta.select[k]);
+    for (const k of ['bg', 'table', 'top']) if (official.meta?.select?.[k]?.img && !C.meta.select?.[k]?.img) (C.meta.select ||= {})[k] = clone(official.meta.select[k]);
     for (const f of C.factions || []) { const o = (official.factions || []).find((x) => x.id === f.id); if (o?.book?.img && !f.book?.img) f.book = clone(o.book); }
     // 舞台素材：空著的補上；原本就是儲存庫素材（不是自己上傳的）的，跟著正式內容更新
     for (const [k, v] of Object.entries(official.meta?.stage || {})) {

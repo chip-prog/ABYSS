@@ -63,6 +63,9 @@
   "select": {
    "table": {
     "img": "assets/select/table.webp"
+   },
+   "top": {
+    "img": "assets/select/tabletop.webp"
    }
   }
  },

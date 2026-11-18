@@ -193,3 +193,13 @@ body.game .hand { margin-bottom: -58px; }
 
 .fsel-head { z-index: 3; margin-bottom: 2vh; }
 .fsel-head h1 { text-shadow: 0 3px 10px #000, 0 0 2px #000; }
+
+/* 桌面背景：從畫面中段鋪到底，往遠處漸暗、略帶透視 */
+.tabletop { position: absolute; left: -8%; right: -8%; bottom: 0; height: 58%; background-size: 100% 100%; pointer-events: none;
+  transform: perspective(900px) rotateX(38deg); transform-origin: 50% 100%;
+  filter: brightness(.78) saturate(.9);
+  -webkit-mask: linear-gradient(180deg, transparent 0, #000 22%, #000 100%), radial-gradient(ellipse 70% 120% at 50% 100%, #000 55%, transparent 100%);
+  -webkit-mask-composite: source-in; mask: linear-gradient(180deg, transparent 0, #000 22%), radial-gradient(ellipse 70% 120% at 50% 100%, #000 55%, transparent 100%); mask-composite: intersect; }
+.desk.on-top { height: 60vh; width: min(92vw, 1100px); --surface: 30%; --edge: 2vh; margin-top: 8vh; }
+.desk.on-top .book-img { width: min(15vw, 190px); transform: perspective(800px) rotateX(20deg); }
+.desk.on-top .book-label { top: calc(100% + 2.5vh); }
