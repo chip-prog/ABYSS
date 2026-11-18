@@ -1,6 +1,6 @@
 // Studio：不用寫程式就能編輯遊戲內容的工作台。
 // 所有修改只存在這台電腦的瀏覽器裡（測試環境），匯出後才會交給別人或套用到遊戲。
-import { h, fill, cardEl, cardBackEl, modal, toast, confirmBox, clone, sleep, loadOfficial, KEY_WORK } from './ui/common.js';
+import { h, fill, applyMood, cardEl, cardBackEl, modal, toast, confirmBox, clone, sleep, loadOfficial, KEY_WORK } from './ui/common.js';
 import { kvGet, kvSet, initImages, imgUrl, isLocal, localKey, hasImage, imageSize, imageKeys, getBlob, addImage, delImage, walkRefs, fileToBlob } from './ui/store.js';
 import { zipFiles, unzip } from './ui/zip.js';
 import { makePuppet, poseTransform } from './ui/puppet.js';
@@ -688,6 +688,16 @@ const VIEWS = {
       section('視覺效果',
         inBool(R.fx ||= {}, 'closeup', '出手特寫：出招時背景壓暗、角色放大、背後放射光'), h('br'),
         inBool(R.fx, 'paperEdge', '紙片白邊：自動替紙偶加上剪紙的白邊與陰影')),
+      section('畫面明暗',
+        h('p', { class: 'dim small' }, '遊戲整體的明暗。暗一點、四周再壓暗，比較有詭異不安的感覺。Studio 的試玩沙盒也會套用。'),
+        (() => { const M = () => ({ ...SC.MOOD, ...(R.mood || {}) }); const set = (k, v) => { (R.mood ||= {})[k] = v; commit(); };
+          return h('div', {},
+            h('div', { class: 'pose-sliders' },
+              slider('整體亮度', M().bright, 30, 110, (v) => set('bright', v), '%'),
+              slider('四周暗角', M().vignette, 0, 100, (v) => set('vignette', v), '%'),
+              slider('卡片亮度', M().cards, 50, 110, (v) => set('cards', v), '%')),
+            h('label', { class: 'check', style: { marginTop: '8px' } }, h('input', { type: 'checkbox', checked: M().flicker !== false, onchange: (e) => set('flicker', e.target.checked) }), '燭光閃爍：暗角隨燭火微微明滅'),
+            h('div', { style: { marginTop: '6px' } }, h('button', { class: 'btn sm ghost', onclick: () => { delete R.mood; commit(true); } }, '恢復預設'))); })()),
       section('戰鬥場景',
         h('p', { class: 'dim small' }, '各階段預設使用的三聯畫（遭遇可以另外指定）。'),
         h('div', { class: 'grid2' }, Object.entries(SC.ENCOUNTER_POOLS).map(([pool, label]) => field(label, inSel(R.sceneByPool ||= {}, pool, ents(C.scenes), { empty: '（第一組場景）' })))),
@@ -714,6 +724,7 @@ const VIEWS = {
     if (!idx.characters.has(S.char)) S.char = C.characters[0]?.id || '';
     if (!idx.encounters.has(S.enc)) S.enc = C.encounters[0]?.id || '';
     const stage = h('div', { class: 'sandbox-stage panel' }, h('div', { class: 'empty' }, '設定好後按「開始試玩」。'));
+    applyMood(stage, C.rules);
     const extra = h('div', {});
     const drawExtra = () => { const pick = { id: '' }; fill(extra, 
       h('div', { class: 'row' }, S.extra.map((id, i) => h('button', { class: 'fchip on', title: '點一下移除', onclick: () => { S.extra.splice(i, 1); drawExtra(); } }, (idx.cards.get(id)?.name || '？') + ' ✕')),

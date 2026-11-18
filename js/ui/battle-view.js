@@ -60,7 +60,7 @@ export function runBattle(root, idx, opts) {
     const logEl = h('div', { class: 'battle-log panel' });
     const scene = makeScene(idx, opts.scene);
     stage.style.paddingInline = `clamp(20px, ${scene.sidePad}%, 420px)`;
-    const battleEl = h('div', { class: 'battle' }, scene.el, stage, scene.fore, hintEl, bottomEl, logEl, floatLayer);
+    const battleEl = h('div', { class: 'battle' }, scene.el, stage, scene.fore, h('div', { class: 'vignette' }), hintEl, bottomEl, logEl, floatLayer);
     const actors = new Map();
 
     function makeActor(a, def, isPlayer) {

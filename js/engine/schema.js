@@ -202,3 +202,6 @@ export const STAGE_LAYOUT = { floorTop: 46, churchBright: 60, sidePad: 19 };
 export const PART_LAYERS = { back: '最後方（三聯畫後面）', mid: '中間（三聯畫前、紙偶後）', front: '最前方（紙偶前面）' };
 export const PART_MOTIONS = { none: '靜止', sway: '左右搖晃', bob: '上下浮動', spin: '緩慢旋轉', drift: '左右漂移', jitter: '顫抖', flicker: '閃爍' };
 export const newPart = () => ({ img: '', layer: 'mid', x: 50, y: 30, size: 12, rot: 0, flip: false, opacity: 100, motion: 'sway', speed: 3, amp: 6 });
+
+// 畫面明暗（規則頁可調）：整體亮度、暗角、卡片亮度、燭光閃爍
+export const MOOD = { bright: 70, vignette: 78, cards: 84, flicker: true };

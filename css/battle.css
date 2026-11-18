@@ -209,3 +209,17 @@
 .part { opacity: 0; }
 .entered .part { animation: pv-enter .45s steps(3, end) forwards; animation-delay: calc(var(--i) * 70ms); }
 @keyframes pv-enter { from { opacity: 0; scale: .6; } to { opacity: var(--op, 1); scale: 1; } }
+
+/* ───────── 畫面明暗 ───────── */
+.scene { filter: brightness(var(--mood-bright, 1)); }
+.battle-stage .puppet { filter: brightness(calc(var(--mood-bright, 1) + .12)); }
+.vignette { position: absolute; inset: 0; z-index: 4; pointer-events: none;
+  background: radial-gradient(ellipse 75% 70% at 50% 42%, transparent 35%, rgba(4,2,1, calc(var(--vignette, .6) * .75)) 75%, rgba(2,1,0, var(--vignette, .6)) 100%); }
+.mood-flicker .vignette, .mood-flicker.game::after { animation: candle 3.2s steps(1, end) infinite; }
+@keyframes candle { 0%, 100% { opacity: 1; } 17% { opacity: .9; } 23% { opacity: 1; } 51% { opacity: .94; } 58% { opacity: .86; } 64% { opacity: 1; } 83% { opacity: .93; } }
+/* 卡片：只壓暗卡框、卡圖與文字層，不影響外框發光 */
+.card.framed .fc-art, .card.framed .fc-text, .card.framed .fc-cost, .card.framed .fc-name, .card.framed .fc-gem { filter: brightness(var(--cardb, 1)); }
+.card.framed .fc-frame { filter: brightness(var(--cardb, 1)) drop-shadow(0 .25em .5em rgba(0,0,0,.55)); }
+.card:not(.framed) .card-art, .card:not(.framed) .card-text { filter: brightness(var(--cardb, 1)); }
+.card-back img { filter: brightness(var(--cardb, 1)); }
+.battle-bottom { background: linear-gradient(180deg, transparent, rgba(4,2,1,.85) 40%); }

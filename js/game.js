@@ -1,5 +1,5 @@
 // 遊戲本體（經典模式）。加上 ?preview=1 時改讀 Studio 的工作內容，含草稿。
-import { h, cardEl, modal, showCards, loadOfficial, loadWorking, confirmBox, KEY_RUN } from './ui/common.js';
+import { h, applyMood, cardEl, modal, showCards, loadOfficial, loadWorking, confirmBox, KEY_RUN } from './ui/common.js';
 import { indexContent, cardDef } from './engine/battle.js';
 import { describePowers } from './engine/describe.js';
 import { sceneFor, newRun, pickEncounter, rewardCards, applyBattleResult, addCardToRun, restHeal, upgradable, isLive } from './engine/run.js';
@@ -135,6 +135,7 @@ function ending(win) {
   try {
     raw = (preview && await loadWorking()) || await loadOfficial();
     idx = indexContent(raw);
+    applyMood(document.body, raw.rules);
     document.title = raw.meta?.title || 'ABYSS';
     title();
   } catch (e) {

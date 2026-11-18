@@ -1,5 +1,5 @@
 // 遊戲與 Studio 共用的畫面工具：建立元素、卡片外觀、彈出視窗、內容讀取。
-import { CARD_TYPES, CARD_RATIO, frameLayout } from '../engine/schema.js';
+import { CARD_TYPES, CARD_RATIO, frameLayout, MOOD } from '../engine/schema.js';
 import { cardDef, isUnplayable } from '../engine/battle.js';
 import { describeCard, keywordsOf } from '../engine/describe.js';
 import { imgUrl, kvGet, initImages } from './store.js';
@@ -140,6 +140,15 @@ export function cardBackEl(idx, factionId, width = 60) {
   const ref = idx.factions.get(factionId)?.back?.img || idx.raw.meta?.cardBack?.img;
   const url = imgUrl(ref);
   return h('div', { class: 'card-back', style: { '--cw': width + 'px' } }, url ? h('img', { src: url, alt: '', draggable: false }) : null);
+}
+
+// 把規則裡的畫面明暗套到某個元素（遊戲是 body，Studio 沙盒是戰鬥區）
+export function applyMood(el, rules) {
+  const m = { ...MOOD, ...(rules?.mood || {}) };
+  el.style.setProperty('--mood-bright', String(m.bright / 100));
+  el.style.setProperty('--vignette', String(m.vignette / 100));
+  el.style.setProperty('--cardb', String(m.cards / 100));
+  el.classList.toggle('mood-flicker', m.flicker !== false);
 }
 
 export function modal(title, body, { closable = true, wide = false } = {}) {

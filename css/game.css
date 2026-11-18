@@ -37,3 +37,9 @@ body.game #app { min-height: 100vh; display: flex; flex-direction: column; }
 
 .relic-img { width: 34px; height: 34px; object-fit: contain; float: left; margin: 0 8px 0 0; }
 .emblem { width: 20px; height: 20px; object-fit: contain; vertical-align: -4px; margin-right: 5px; }
+
+/* 遊戲中的非戰鬥畫面也壓暗四周 */
+body.game::after { content: ''; position: fixed; inset: 0; z-index: 150; pointer-events: none;
+  background: radial-gradient(ellipse 80% 75% at 50% 45%, transparent 40%, rgba(3,2,1, calc(var(--vignette, .6) * .8)) 100%); }
+body.game .screen { filter: brightness(calc(var(--mood-bright, 1) + .12)); }
+.hud { background: linear-gradient(180deg, #1d140e, #120c08); border-bottom-color: #4a3a22; }
