@@ -241,7 +241,8 @@ function scenePreview(sc) {
     const pad = view.sidePad;
     // 暫代紙偶：讓你判斷零件和三聯畫跟角色的前後關係
     const dummy = (side) => h('div', { class: 'pv-dummy ' + side, style: { [side]: `calc(${pad}% + 4%)`, bottom: `${100 - view.stand}%` } });
-    fill(box, view.el, h('div', { class: 'pv-actors' }, dummy('left'), dummy('right')), view.fore);
+    fill(box, view.el, h('div', { class: 'pv-actors' }, dummy('left'), dummy('right')), view.fore,
+      h('div', { class: 'pv-hand' }, h('span', {}, '手牌區：戰鬥中這一塊會被手牌蓋住')));
     requestAnimationFrame(() => view.open());
   };
   draw();
@@ -314,7 +315,7 @@ function sceneEditor(sc) {
     section('基本資料', field('名稱', inText(sc, 'name'))),
     h('div', { class: 'scene-sticky' }, section('預覽', pv.box, h('div', { class: 'row', style: { marginTop: '8px' } },
       h('button', { class: 'btn sm', onclick: () => { pv.draw(); } }, '重播開場'), h('button', { class: 'btn sm', onclick: () => pv.close() }, '闔上兩翼'),
-      h('span', { class: 'faint small' }, '兩個灰色剪影代表角色站的位置。教堂底紋、地板、前景、三聯畫外框和角色站位在「規則」頁調整，所有場景共用。')))),
+      h('span', { class: 'faint small' }, '兩個灰色剪影代表角色站的位置，下方的暗色區塊是手牌會蓋住的範圍。教堂底紋、地板、前景、三聯畫外框和角色站位在「規則」頁調整，所有場景共用。')))),
     section('三聯畫版面', h('p', { class: 'faint small' }, '位置、寬高是戰鬥畫面的百分比。'), triTune),
     section('三聯畫畫面',
       h('p', { class: 'dim small' }, '中央板比例約 8：7，兩翼各是中央板一半寬（約 4：7）。比例不合也沒關係，用滑桿調整裁切位置。'),

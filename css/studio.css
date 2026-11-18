@@ -157,3 +157,8 @@ details.box > summary { cursor: pointer; margin-bottom: 8px; }
 .pose-ground span { background: rgba(0,0,0,.6); padding: 0 6px; border-radius: 3px; }
 .pv-dummy { top: auto; }
 .sandbox-stage > .battle { height: 100%; }
+
+/* 場景預覽：標出戰鬥中會被手牌蓋住的範圍（約畫面下方三分之一） */
+.pv-hand { position: absolute; left: 0; right: 0; bottom: 0; height: 32%; z-index: 5; pointer-events: none;
+  background: linear-gradient(180deg, rgba(8,5,3,.55), rgba(8,5,3,.82)); border-top: 2px dashed rgba(224,184,74,.7); display: flex; justify-content: center; padding-top: 6px; }
+.pv-hand span { font-size: 12px; color: var(--gold); letter-spacing: .1em; }
