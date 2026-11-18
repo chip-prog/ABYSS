@@ -79,7 +79,7 @@ export function cardEl(idx, source, opts = {}) {
   if (fac?.frame?.img && imgUrl(fac.frame.img)) return framedCard(idx, def, fac, na, source.upgraded || opts.upgraded, opts);
   const el = h('div', {
     class: `card r-${def.rarity} t-${def.type}${source.upgraded || opts.upgraded ? ' upgraded' : ''}${opts.class ? ' ' + opts.class : ''}`,
-    style: { '--fc': fac?.color || '#8c7a5e', ...(opts.width ? { '--cw': opts.width + 'px' } : {}) },
+    style: { '--fc': fac?.color || '#8c7a5e', ...(opts.width ? { '--cw': opts.width + 'px' } : {}), ...(opts.style || {}) },
   },
     h('div', { class: 'card-cost' + (na ? ' na' : '') }, na ? '✕' : String(def.cost)),
     h('div', { class: 'card-name' }, def.name),
@@ -121,7 +121,7 @@ function framedCard(idx, def, fac, na, upgraded, opts) {
   const center = Math.min(Math.max(nb.center ?? 50, nb.left + textW / 2), nb.right - textW / 2);
   const el = h('div', {
     class: `card framed r-${def.rarity} t-${def.type}${upgraded ? ' upgraded' : ''}${opts.class ? ' ' + opts.class : ''}`,
-    style: { '--fc': fac.color || '#8c7a5e', ...(opts.width ? { '--cw': opts.width + 'px' } : {}) },
+    style: { '--fc': fac.color || '#8c7a5e', ...(opts.width ? { '--cw': opts.width + 'px' } : {}), ...(opts.style || {}) },
   },
     h('div', { class: 'fc-art', style: box(L.art) }, artEl(def)),
     h('img', { class: 'fc-frame', src: imgUrl(fac.frame.img), alt: '', draggable: false }),

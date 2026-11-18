@@ -2,7 +2,7 @@
 // 紙偶是常駐的元素（不會每次重畫），其餘資訊在每次狀態改變後重畫。
 import { h, fill, cardEl, cardBackEl, modal, sleep, showCards } from './common.js';
 import { createBattle, startBattle, playCard, endTurn, canPlay, cardDef, needsTarget, intentSummary } from '../engine/battle.js';
-import { effectsText, describePowers } from '../engine/describe.js';
+import { effectsText, describePowers, keywordsOf } from '../engine/describe.js';
 import { HERO_POSES, ENEMY_POSES } from '../engine/schema.js';
 import { makePuppet } from './puppet.js';
 import { makeScene } from './scene.js';
@@ -14,7 +14,7 @@ const SPLAT = '<svg viewBox="0 0 100 100"><path d="M50 3 L58 30 L82 12 L70 38 L9
 
 export function runBattle(root, idx, opts) {
   return new Promise((resolve) => {
-    let selected = null, done = false, showLog = false, animating = false;
+    let done = false, showLog = false, animating = false;
     const fx = idx.rules.fx || {};
     const closeup = fx.closeup !== false, paperEdge = fx.paperEdge !== false;
 
@@ -71,7 +71,7 @@ export function runBattle(root, idx, opts) {
         side: isPlayer ? 'left' : 'right', color: isPlayer ? (opts.player.color || '#8c7a5e') : '#7a3a34', paperEdge, boss: !!a.boss,
       });
       const intent = h('div', { class: 'intent' }), info = h('div', { class: 'actor-info' });
-      const el = h('div', { class: `actor ${isPlayer ? 'player' : 'enemy'}${a.boss ? ' boss' : ''}`, 'data-uid': a.uid, onclick: isPlayer ? null : () => onEnemy(a) },
+      const el = h('div', { class: `actor ${isPlayer ? 'player' : 'enemy'}${a.boss ? ' boss' : ''}`, 'data-uid': a.uid },
         isPlayer ? null : intent, info, puppet.el);
       const rec = { el, puppet, intent, info, actor: a };
       actors.set(a.uid, rec);
@@ -92,25 +92,106 @@ export function runBattle(root, idx, opts) {
       h('div', { class: 'hpfill', style: { width: `${Math.max(0, (a.hp / a.maxHp) * 100)}%` } }),
       h('span', {}, `${a.hp} / ${a.maxHp}`));
 
-    async function onCard(inst) {
-      if (animating || state.busy || state.phase !== 'player' || !canPlay(state, inst)) return;
-      const al = state.enemies.filter((e) => !e.dead);
-      if (needsTarget(cardDef(idx, inst)) && al.length > 1) { selected = selected === inst.uid ? null : inst.uid; render(); return; }
-      selected = null;
-      await playCard(state, inst.uid, al[0]?.uid);
+    // ───────── 出牌：拖曳 ─────────
+    // 不需目標的牌：雙擊，或拖離手牌區後放開。
+    // 需要目標的牌：按住拖曳，從牌拉出一條虛線，放在敵人身上才出牌；拖回手牌區或放在空處就取消。
+    const aim = h('div', { class: 'aim' }, h('div', { html: '<svg><path class="aim-line"/><path class="aim-head"/></svg>', style: { display: 'contents' } }));
+    battleEl.append(aim);
+    const ready = () => state.phase === 'player' && !state.busy && !animating;
+    const alive = () => state.enemies.filter((e) => !e.dead);
+    const enemyAt = (x, y) => {
+      for (const el of document.elementsFromPoint(x, y)) {
+        const a = el.closest?.('.actor.enemy');
+        if (a) return state.enemies.find((e) => e.uid === a.dataset.uid && !e.dead) || null;
+      }
+      return null;
+    };
+    async function play(inst, target) {
+      if (!ready() || !canPlay(state, inst)) return;
+      await playCard(state, inst.uid, target?.uid ?? alive()[0]?.uid);
       render();
     }
-    async function onEnemy(en) {
-      if (!selected || animating || state.busy || en.dead) return;
-      const u = selected; selected = null;
-      await playCard(state, u, en.uid);
-      render();
+    function nope(el) { el.classList.remove('nope'); void el.offsetWidth; el.classList.add('nope'); }
+    function drawAim(from, x, y) {
+      const b = battleEl.getBoundingClientRect();
+      const x0 = from.x - b.left, y0 = from.y - b.top, x1 = x - b.left, y1 = y - b.top;
+      const cx = (x0 + x1) / 2, cy = Math.min(y0, y1) - Math.abs(x1 - x0) * 0.35 - 40;
+      aim.querySelector('.aim-line').setAttribute('d', `M${x0},${y0} Q${cx},${cy} ${x1},${y1}`);
+      const ang = Math.atan2(y1 - cy, x1 - cx), s = 16;
+      const pt = (a) => `${x1 - s * Math.cos(ang + a)},${y1 - s * Math.sin(ang + a)}`;
+      aim.querySelector('.aim-head').setAttribute('d', `M${pt(0.5)} L${x1},${y1} L${pt(-0.5)}`);
+    }
+    function bindCard(el, inst) {
+      el.addEventListener('contextmenu', (e) => { e.preventDefault(); bigCard(inst); });
+      el.addEventListener('dblclick', () => {
+        if (!ready()) return;
+        if (!canPlay(state, inst)) return nope(el);
+        if (needsTarget(cardDef(idx, inst)) && alive().length > 1) { nope(el); hintEl.textContent = '這張牌需要指定目標：按住拖到敵人身上'; return; }
+        play(inst);
+      });
+      el.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0 || !ready()) return;
+        const sx = e.clientX, sy = e.clientY;
+        const targeted = needsTarget(cardDef(idx, inst));
+        const handTop = el.parentElement.getBoundingClientRect().top;
+        let dragging = false, hover = null;
+        const move = (ev) => {
+          if (!dragging) {
+            if (Math.hypot(ev.clientX - sx, ev.clientY - sy) < 8) return;
+            if (!canPlay(state, inst)) { nope(el); return cleanup(); }
+            dragging = true;
+            el.classList.add(targeted ? 'aiming' : 'dragging');
+            battleEl.classList.add(targeted ? 'targeting' : 'carrying');
+            hintEl.textContent = targeted ? '拖到敵人身上放開；放在其他地方會取消' : '拖離手牌區後放開，即可打出';
+          }
+          if (targeted) {
+            const r = el.getBoundingClientRect();
+            aim.classList.add('on');
+            drawAim({ x: r.left + r.width / 2, y: r.top + r.height * 0.15 }, ev.clientX, ev.clientY);
+            const en = enemyAt(ev.clientX, ev.clientY);
+            if (en !== hover) {
+              battleEl.querySelectorAll('.actor.aimed').forEach((x) => x.classList.remove('aimed'));
+              hover = en; if (en) battleEl.querySelector(`.actor[data-uid="${en.uid}"]`)?.classList.add('aimed');
+              aim.classList.toggle('hit', !!en);
+            }
+          } else {
+            el.style.translate = `${ev.clientX - sx}px ${ev.clientY - sy}px`;
+            el.classList.toggle('release', ev.clientY < handTop - 30);
+          }
+        };
+        const up = (ev) => {
+          const wasDragging = dragging;
+          cleanup();
+          if (!wasDragging) return;
+          if (targeted) { const en = enemyAt(ev.clientX, ev.clientY); if (en) play(inst, en); }
+          else if (ev.clientY < handTop - 30) play(inst);
+        };
+        const cleanup = () => {
+          window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', cleanup);
+          el.classList.remove('dragging', 'aiming', 'release'); el.style.translate = '';
+          battleEl.classList.remove('targeting', 'carrying'); aim.classList.remove('on', 'hit');
+          battleEl.querySelectorAll('.actor.aimed').forEach((x) => x.classList.remove('aimed'));
+          hintEl.textContent = '';
+        };
+        window.addEventListener('pointermove', move); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', cleanup);
+      });
+    }
+    // 右鍵：放大檢視
+    function bigCard(inst) {
+      const def = cardDef(idx, inst);
+      const kws = keywordsOf(idx, def);
+      const m = modal('', h('div', { class: 'big-card' },
+        cardEl(idx, inst, { width: 330, tips: false }),
+        h('div', { class: 'big-side' },
+          kws.length ? kws.map((k) => h('div', { class: 'tip' }, h('b', {}, k.label), k.desc)) : h('p', { class: 'dim' }, '沒有特殊關鍵字。'),
+          h('p', { class: 'faint small' }, needsTarget(def) ? '使用方式：按住拖到敵人身上。' : '使用方式：雙擊，或拖離手牌區後放開。'),
+          h('button', { class: 'btn', onclick: () => m.close() }, '關閉'))));
+      m.back.addEventListener('contextmenu', (e) => { e.preventDefault(); m.close(); });
     }
 
     function render() {
       const p = state.player, my = state.phase === 'player' && !state.busy && !animating;
       const sorted = (pile) => [...pile].sort((a, b) => a.id.localeCompare(b.id));
-      battleEl.classList.toggle('targeting', !!selected);
       fill(actors.get('player').info,
         h('div', { class: 'actor-name' }, p.name), hpBar(p),
         h('div', { class: 'chips' }, p.block ? h('span', { class: 'chip block' }, `格擋 ${p.block}`) : null, statusChips(p)),
@@ -123,18 +204,20 @@ export function runBattle(root, idx, opts) {
         fill(rec.info, h('div', { class: 'actor-name' }, en.name), hpBar(en),
           h('div', { class: 'chips' }, en.block ? h('span', { class: 'chip block' }, `格擋 ${en.block}`) : null, statusChips(en)));
       }
-      hintEl.textContent = selected ? '請點選一個敵人作為目標（再點一次卡片可取消）' : '';
       fill(bottomEl,
         h('div', { class: 'side' },
           h('div', { class: 'energy', title: '能量' }, `${p.energy}`, h('small', {}, `/${state.rules.energy}`)),
           h('div', { class: 'pile' }, cardBackEl(idx, opts.player.faction), h('button', { class: 'btn sm ghost grow', onclick: () => showCards(idx, '抽牌堆', sorted(state.draw), '順序已打亂顯示') }, `抽牌堆 ${state.draw.length}`))),
-        h('div', { class: 'hand' }, state.hand.map((inst) => {
-          const el = cardEl(idx, inst, { width: 180, class: (my && canPlay(state, inst) ? 'playable' : 'dimmed') + (selected === inst.uid ? ' selected' : '') });
-          el.onclick = () => onCard(inst);
+        h('div', { class: 'hand' }, state.hand.map((inst, i, all) => {
+          // 扇形：越外側轉得越多、也越低
+          const c = i - (all.length - 1) / 2, spread = Math.min(5, 26 / Math.max(1, all.length - 1));
+          const el = cardEl(idx, inst, { width: 180, tips: false, class: my && canPlay(state, inst) ? 'playable' : 'dimmed',
+            style: { '--rot': `${c * spread}deg`, '--arc': `${Math.abs(c) * Math.abs(c) * 3.2}px`, zIndex: String(10 + i) } });
+          bindCard(el, inst);
           return el;
         })),
         h('div', { class: 'side' },
-          h('button', { class: 'btn primary', disabled: !my, onclick: async () => { selected = null; await endTurn(state); render(); } }, state.phase === 'enemy' ? '敵方回合…' : '結束回合'),
+          h('button', { class: 'btn primary', disabled: !my, onclick: async () => { await endTurn(state); render(); } }, state.phase === 'enemy' ? '敵方回合…' : '結束回合'),
           h('button', { class: 'btn sm ghost', onclick: () => showCards(idx, '棄牌堆', state.discard) }, `棄牌堆 ${state.discard.length}`),
           h('button', { class: 'btn sm ghost', onclick: () => showCards(idx, '消耗區', state.exhaust) }, `消耗區 ${state.exhaust.length}`),
           h('button', { class: 'btn sm ghost', onclick: () => { showLog = !showLog; render(); } }, showLog ? '收起紀錄' : '戰鬥紀錄')));

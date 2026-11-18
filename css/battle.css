@@ -90,14 +90,34 @@
   background: radial-gradient(circle at 35% 30%, #f0c96a, #9a6a1e 60%, #3c2a0e); border: 3px solid #2a1c0a; box-shadow: 0 0 22px rgba(224,184,74,.35), 0 6px 14px rgba(0,0,0,.6);
 }
 .energy small { font-size: 15px; opacity: .8; align-self: end; margin-bottom: 22px; }
-.hand { flex: 1; display: flex; justify-content: center; align-items: flex-end; min-height: 280px; padding: 0 10px; }
-.hand .card { margin: 0 -20px; cursor: pointer; transition: transform .14s, margin .14s; }
-.hand .card:hover { transform: translateY(-40px) scale(1.12); z-index: 20; margin: 0 8px; }
-.hand .card.selected { transform: translateY(-44px) scale(1.12); z-index: 21; outline: 3px solid var(--ember); outline-offset: 2px; }
+/* 手牌：往下收、微幅扇形，像拿在手上；滑過時抬起來 */
+.hand { flex: 1; display: flex; justify-content: center; align-items: flex-end; min-height: 200px; padding: 0 10px; margin-bottom: -96px; }
+.hand .card { margin: 0 -22px; cursor: grab; transform-origin: 50% 120%; rotate: var(--rot, 0deg); translate: 0 var(--arc, 0px); transition: rotate .14s, translate .14s, scale .14s, margin .14s; touch-action: none; }
+.hand .card:hover { rotate: 0deg; translate: 0 -104px; scale: 1.12; z-index: 40 !important; margin: 0 8px; }
 .hand .card.playable { box-shadow: 0 0 0 2px rgba(224,184,74,.55), 0 0 18px rgba(224,184,74,.35), 0 6px 14px rgba(0,0,0,.6); }
 .hand .card.dimmed { filter: brightness(.62) saturate(.7); cursor: default; }
 .hand .card.framed.playable { box-shadow: none; filter: drop-shadow(0 0 3px rgba(240,200,110,.95)) drop-shadow(0 0 10px rgba(224,184,74,.5)); }
-.hand .card.framed.selected { outline: none; filter: drop-shadow(0 0 4px var(--ember)) drop-shadow(0 0 12px var(--ember)); }
+/* 拖曳中 */
+.hand .card.dragging { transition: none; rotate: 0deg; scale: 1.05; z-index: 60 !important; cursor: grabbing; pointer-events: none; }
+.hand .card.dragging.release { scale: 1.12; filter: drop-shadow(0 0 6px #f6d77a) drop-shadow(0 0 18px rgba(246,215,122,.8)); }
+.hand .card.aiming { rotate: 0deg; translate: 0 -104px; scale: 1.12; z-index: 60 !important; margin: 0 8px; transition: none; }
+.hand .card.nope { animation: nope .3s steps(4, end); }
+@keyframes nope { 25% { margin-left: -30px; } 75% { margin-left: -14px; } }
+.battle.targeting, .battle.targeting * { cursor: crosshair !important; }
+.battle.carrying, .battle.carrying * { cursor: grabbing !important; }
+.actor.aimed .puppet-body { filter: drop-shadow(0 0 10px #ff5a3c) drop-shadow(0 0 22px rgba(255,90,60,.7)); }
+.actor.aimed .actor-name { color: #ff8a6a; }
+/* 瞄準虛線 */
+.aim { position: absolute; inset: 0; z-index: 30; pointer-events: none; display: none; }
+.aim.on { display: block; }
+.aim svg { width: 100%; height: 100%; overflow: visible; }
+.aim-line, .aim-head { fill: none; stroke: #e9d6a8; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 2px 2px rgba(0,0,0,.8)); }
+.aim-line { stroke-dasharray: 10 9; animation: march .5s steps(4, end) infinite; }
+.aim.hit .aim-line, .aim.hit .aim-head { stroke: #ff6a4a; }
+@keyframes march { to { stroke-dashoffset: -19; } }
+/* 右鍵放大 */
+.big-card { display: flex; gap: 26px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.big-side { width: 280px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
 .pile { display: flex; align-items: center; gap: 8px; }
 .pile .card-back { --cw: 34px; }
 
@@ -191,6 +211,7 @@
 }
 
 .battle-bottom, .battle-log { position: relative; z-index: 5; }
+.battle-bottom { align-items: flex-end; }
 .battle-log { position: absolute; }
 
 /* 場景零件：每片紙各自晃動，一格一格跳 */
@@ -239,3 +260,8 @@
 .actor-name { margin: 0 0 3px; }
 .actor-info .chips { min-height: 0; margin-top: 3px; }
 .actor .puppet-shadow { bottom: -6px; }
+
+/* 多隻敵人時排成一列、彼此略微重疊，不換行 */
+.enemies { flex-wrap: nowrap; gap: 0; }
+.enemies .actor { width: 210px; margin: 0 -14px; }
+.enemies .actor.boss { width: 300px; }
