@@ -154,11 +154,13 @@ input[type=checkbox] { accent-color: var(--brass); width: 16px; height: 16px; }
 .card.framed .cn { font-weight: 900; }
 .card.framed .ribbon { top: 13%; right: 4%; }
 /* 稀有度寶石：鑲在卡圖下緣的尖刺上 */
-.fc-gem { rotate: 45deg; border: .08em solid #160a06; box-shadow: inset .12em .12em .2em rgba(255,255,255,.55), inset -.12em -.12em .25em rgba(0,0,0,.6); }
-.g-starter, .g-special { background: #5b5048; }
-.g-common { background: #d9cfbb; }
-.g-rare { background: #3f78c9; box-shadow: 0 0 .5em #3f78c9, inset .12em .12em .2em rgba(255,255,255,.55), inset -.12em -.12em .25em rgba(0,0,0,.6); }
-.g-epic { background: #e2b23c; box-shadow: 0 0 .7em #f0c050, inset .12em .12em .2em rgba(255,255,255,.7), inset -.12em -.12em .25em rgba(0,0,0,.5); }
+/* 寶石外框本身不旋轉（中心固定在指定位置），菱形畫在內層，避免旋轉後偏離卡框上的底座 */
+.fc-gem { background: none !important; box-shadow: none !important; }
+.fc-gem::before { content: ''; position: absolute; inset: 15%; rotate: 45deg; border: .08em solid #160a06; background: var(--gem); box-shadow: var(--gem-glow, 0 0 0 transparent), inset .12em .12em .2em rgba(255,255,255,.55), inset -.12em -.12em .25em rgba(0,0,0,.6); }
+.g-starter, .g-special { --gem: #5b5048; }
+.g-common { --gem: #d9cfbb; }
+.g-rare { --gem: #3f78c9; --gem-glow: 0 0 .5em #3f78c9; }
+.g-epic { --gem: #e2b23c; --gem-glow: 0 0 .7em #f0c050; }
 
 /* 卡背 */
 .card-back { --cw: 60px; width: var(--cw); height: calc(var(--cw) * 1.5); flex: none; border-radius: calc(var(--cw) / 18); overflow: hidden;
