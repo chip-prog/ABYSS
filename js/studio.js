@@ -728,7 +728,7 @@ const VIEWS = {
           return h('div', { class: 'pose-sliders' },
             slider('角色離畫面邊緣', L().sidePad, 2, 35, (v) => set('sidePad', v), '%'),
             slider('地板高度', L().floorTop, 25, 75, (v) => set('floorTop', v), '%'),
-            slider('地板深度', L().floorDepth, 30, 120, (v) => set('floorDepth', v), '%'),
+            slider('地板縮放', Math.max(100, L().floorDepth), 100, 180, (v) => set('floorDepth', v), '%'),
             slider('前景上移', L().foreLift, 0, 30, (v) => set('foreLift', v), '%'),
             slider('教堂亮度', L().churchBright, 10, 120, (v) => set('churchBright', v), '%')); })(),
         h('hr', { class: 'rule' }),

@@ -166,8 +166,9 @@
 
 /* 舞台地板 */
 .scene-floor { position: absolute; left: 0; right: 0; bottom: 0; top: var(--floor, 46%); }
-/* 地板深度：把地板圖上下壓扁，讓三聯畫露出更多 */
-.scene-floor img { position: absolute; left: 0; top: 0; width: 100%; height: auto; transform-origin: 50% 0; translate: 0 calc(-100% * var(--horizon, .5) * var(--depth, 1)); scale: 1 var(--depth, 1); }
+/* 地板圖維持原比例、貼齊畫面底部；比「地板高度」更遠的部分直接藏起來，不壓扁 */
+.scene-floor { overflow: hidden; }
+.scene-floor img { position: absolute; left: 0; bottom: 0; width: 100%; height: auto; transform-origin: 50% 100%; scale: var(--depth, 1); }
 .scene-floor:not(.has) {
   background: linear-gradient(180deg, #2a1c12 0, #3a2818 2%, #24180f 30%, #0d0806 100%),
     repeating-linear-gradient(90deg, rgba(0,0,0,.25) 0 2px, transparent 2px 12%);
