@@ -83,7 +83,7 @@ export function makeScene(idx, scene) {
     h('div', { class: 'scene-light' }, h('i'), h('i'), h('i')),
     h('div', { class: 'parts back' }, partsOf(sc, 'back')),
     tri,
-    h('div', { class: 'scene-floor' + (floor ? ' has' : ''), style: { '--floor': `${S.floorTop}%`, '--depth': String(Math.max(100, S.floorDepth) / 100), '--horizon': String((st.floor?.horizon ?? 50) / 100) } },
+    h('div', { class: 'scene-floor' + (floor ? ' has' : ''), style: { '--floor': `${S.floorTop}%`, '--floorv': String(S.floorTop), '--rest': String(1 - (st.floor?.horizon ?? 50) / 100), '--depth': String(Math.max(100, S.floorDepth) / 100), '--horizon': String((st.floor?.horizon ?? 50) / 100) } },
       floor ? h('img', { src: floor, alt: '', draggable: false }) : null),
     h('div', { class: 'parts mid' }, partsOf(sc, 'mid')),
     h('div', { class: 'scene-motes' }));

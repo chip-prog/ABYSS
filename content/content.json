@@ -13,7 +13,7 @@
    },
    "floor": {
     "img": "assets/stage/floor.webp",
-    "horizon": 49.9
+    "horizon": 60.6
    },
    "fore": {
     "img": "assets/stage/fore.webp"
