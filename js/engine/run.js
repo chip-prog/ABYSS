@@ -55,3 +55,8 @@ export function applyBattleResult(idx, run, state) {
 export const addCardToRun = (run, cardId) => run.deck.push({ uid: uid(), id: cardId });
 export const restHeal = (idx, run) => { run.hp = Math.min(run.maxHp, run.hp + Math.ceil(run.maxHp * (idx.rules.restHealPct || 30) / 100)); };
 export const upgradable = (idx, run) => run.deck.filter((c) => !c.upgraded && idx.cards.get(c.id)?.upgrade);
+
+// 這場遭遇使用哪一組三聯畫：遭遇自己指定 → 規則裡該階段的預設 → 第一組
+export function sceneFor(idx, enc) {
+  return idx.scenes.get(enc?.scene) || idx.scenes.get(idx.rules.sceneByPool?.[enc?.pool]) || idx.raw.scenes?.[0] || null;
+}

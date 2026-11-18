@@ -9,7 +9,7 @@ export function indexContent(raw) {
     rules: raw.rules,
     cards: byId(raw.cards), statuses: byId(raw.statuses), enemies: byId(raw.enemies),
     relics: byId(raw.relics), characters: byId(raw.characters), factions: byId(raw.factions),
-    encounters: byId(raw.encounters),
+    encounters: byId(raw.encounters), scenes: byId(raw.scenes),
   };
 }
 
@@ -54,7 +54,7 @@ export function createBattle(idx, opts) {
   };
   for (const id of opts.relics || []) {
     const r = idx.relics.get(id);
-    if (r) for (const p of r.powers || []) state.player.powers.push({ ...p, name: r.name, relic: true });
+    if (r) for (const p of r.powers || []) state.player.powers.push({ ...p, name: r.name, relic: true, image: r.image });
   }
   for (const id of opts.enemies) {
     const def = idx.enemies.get(id);

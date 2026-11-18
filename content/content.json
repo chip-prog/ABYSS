@@ -6,7 +6,8 @@
   "lang": "zh-Hant",
   "cardBack": {
    "img": "assets/backs/default.webp"
-  }
+  },
+  "stage": {}
  },
  "rules": {
   "energy": 3,
@@ -55,6 +56,11 @@
   "fx": {
    "closeup": true,
    "paperEdge": true
+  },
+  "sceneByPool": {
+   "easy": "scene_judgment",
+   "hard": "scene_judgment",
+   "boss": "scene_judgment"
   }
  },
  "factions": [
@@ -3655,6 +3661,12 @@
    ],
    "image": "",
    "publish": "official"
+  }
+ ],
+ "scenes": [
+  {
+   "id": "scene_judgment",
+   "name": "褪色的審判"
   }
  ]
 }

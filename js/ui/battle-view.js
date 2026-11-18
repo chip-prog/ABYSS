@@ -5,6 +5,8 @@ import { createBattle, startBattle, playCard, endTurn, canPlay, cardDef, needsTa
 import { effectsText, describePowers } from '../engine/describe.js';
 import { HERO_POSES, ENEMY_POSES } from '../engine/schema.js';
 import { makePuppet } from './puppet.js';
+import { makeScene } from './scene.js';
+import { imgUrl } from './store.js';
 
 const INTENT_ICON = { attack: '⚔', block: '⛨', buff: '▲', debuff: '▼', delay: '⏳' };
 // 墨漬狀的爆裂圖形（受擊時顯示）
@@ -56,7 +58,8 @@ export function runBattle(root, idx, opts) {
     const hintEl = h('div', { class: 'hint' });
     const bottomEl = h('div', { class: 'battle-bottom' });
     const logEl = h('div', { class: 'battle-log panel' });
-    const battleEl = h('div', { class: 'battle' }, stage, hintEl, bottomEl, logEl, floatLayer);
+    const scene = makeScene(idx, opts.scene);
+    const battleEl = h('div', { class: 'battle' }, scene.el, stage, hintEl, bottomEl, logEl, floatLayer);
     const actors = new Map();
 
     function makeActor(a, def, isPlayer) {
@@ -77,7 +80,10 @@ export function runBattle(root, idx, opts) {
 
     const statusChips = (actor) => Object.entries(actor.statuses).map(([id, n]) => {
       const s = idx.statuses.get(id);
-      return s ? h('span', { class: `chip ${s.kind}`, title: s.desc || '' }, `${s.name} ${n}`) : null;
+      if (!s) return null;
+      const icon = imgUrl(s.image);
+      return icon ? h('span', { class: `chip icon ${s.kind}`, title: `${s.name}：${s.desc || ''}` }, h('img', { src: icon, alt: s.name }), h('b', {}, n))
+        : h('span', { class: `chip ${s.kind}`, title: s.desc || '' }, `${s.name} ${n}`);
     });
     const hpBar = (a) => h('div', { class: 'hpbar' },
       h('div', { class: 'hpfill', style: { width: `${Math.max(0, (a.hp / a.maxHp) * 100)}%` } }),
@@ -105,7 +111,7 @@ export function runBattle(root, idx, opts) {
       fill(actors.get('player').info,
         h('div', { class: 'actor-name' }, p.name), hpBar(p),
         h('div', { class: 'chips' }, p.block ? h('span', { class: 'chip block' }, `格擋 ${p.block}`) : null, statusChips(p)),
-        h('div', { class: 'chips' }, p.powers.map((pw) => h('span', { class: 'chip power' + (pw.relic ? ' relic' : ''), title: describePowers(idx, [pw]) }, (pw.relic ? '◈ ' : '✦ ') + pw.name))));
+        h('div', { class: 'chips' }, p.powers.map((pw) => h('span', { class: 'chip power' + (pw.relic ? ' relic' : ''), title: describePowers(idx, [pw]) }, pw.image && imgUrl(pw.image) ? h('img', { class: 'chip-img', src: imgUrl(pw.image), alt: '' }) : (pw.relic ? '◈ ' : '✦ '), pw.name))));
       for (const en of state.enemies) {
         const rec = actors.get(en.uid);
         if (!rec || en.dead) continue;
@@ -131,7 +137,7 @@ export function runBattle(root, idx, opts) {
           h('button', { class: 'btn sm ghost', onclick: () => { showLog = !showLog; render(); } }, showLog ? '收起紀錄' : '戰鬥紀錄')));
       logEl.hidden = !showLog;
       if (showLog) { fill(logEl, state.log.slice(-40).map((l) => h('div', {}, l))); logEl.scrollTop = logEl.scrollHeight; }
-      if (!done && !animating && (state.phase === 'won' || state.phase === 'lost')) { done = true; setTimeout(() => resolve(state), 900); }
+      if (!done && !animating && (state.phase === 'won' || state.phase === 'lost')) { done = true; setTimeout(() => { if (state.phase === 'won') scene.close(); setTimeout(() => resolve(state), state.phase === 'won' ? 1300 : 0); }, 700); }
     }
 
     // ── 浮動文字與爆裂圖形 ──
@@ -200,6 +206,7 @@ export function runBattle(root, idx, opts) {
     }
 
     render();
+    setTimeout(() => scene.open(), 250);
     startBattle(state).then(render);
   });
 }

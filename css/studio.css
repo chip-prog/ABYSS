@@ -134,3 +134,7 @@ details.box > summary { cursor: pointer; margin-bottom: 8px; }
 .tune-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; padding: 6px 0; border-bottom: 1px dashed rgba(109,86,48,.35); }
 .tune-row > b { width: 76px; color: var(--brass-hi); }
 .tune-row .slider input { width: 90px; }
+
+/* 場景預覽 */
+.scene-preview { position: relative; height: 340px; border-radius: 6px; overflow: hidden; border: 1px solid var(--wood-4); isolation: isolate; }
+.scene-preview .scene { z-index: 0; }

@@ -90,6 +90,9 @@ export function validate(raw) {
       else if (enc.publish === 'official' && !offEnemies.has(id)) add('warn', 'encounter', enc.id, enc.name, '正式遭遇裡有草稿敵人，遊戲中不會出現這場遭遇');
     }
   }
+  const scenes = ids(raw.scenes);
+  for (const enc of raw.encounters || []) if (enc.scene && !scenes.has(enc.scene)) add('error', 'encounter', enc.id, enc.name, '指定的場景不存在');
+  for (const [pool, id] of Object.entries(raw.rules?.sceneByPool || {})) if (id && !scenes.has(id)) add('error', 'rules', 'rules', '規則', '戰鬥場景的階段預設指向不存在的場景');
   for (const s of raw.rules?.stages || []) {
     if (s.type !== 'battle') continue;
     if (!(raw.encounters || []).some((e) => e.pool === s.pool && e.publish === 'official')) add('error', 'rules', 'rules', '規則', `關卡流程需要「${s.pool}」的遭遇，但沒有任何正式遭遇`);

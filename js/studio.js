@@ -4,6 +4,8 @@ import { h, fill, cardEl, cardBackEl, modal, toast, confirmBox, clone, sleep, lo
 import { kvGet, kvSet, initImages, imgUrl, isLocal, localKey, hasImage, imageSize, imageKeys, getBlob, addImage, delImage, walkRefs, fileToBlob } from './ui/store.js';
 import { zipFiles, unzip } from './ui/zip.js';
 import { makePuppet, poseTransform } from './ui/puppet.js';
+import { makeScene } from './ui/scene.js';
+import { sceneFor } from './engine/run.js';
 import { indexContent } from './engine/battle.js';
 import { uid } from './engine/rng.js';
 import * as SC from './engine/schema.js';
@@ -18,12 +20,12 @@ const $nav = document.getElementById('nav'), $main = document.getElementById('ma
 let previewFn = null, saveTimer = null;
 
 const SECTIONS = [
-  ['home', '總覽', '◈'], ['cards', '卡片', '🂠'], ['characters', '角色', '♛'], ['enemies', '敵人', '☠'], ['encounters', '遭遇', '⚔'],
+  ['home', '總覽', '◈'], ['cards', '卡片', '🂠'], ['characters', '角色', '♛'], ['enemies', '敵人', '☠'], ['encounters', '遭遇', '⚔'], ['scenes', '場景', '⛪'],
   ['relics', '遺物', '✧'], ['statuses', '狀態', '❖'], ['factions', '陣營', '⚑'], ['rules', '規則', '⚙'],
   null, ['sandbox', '試玩沙盒', '▶'], ['check', '檢查', '✓'], ['io', '匯入／匯出', '⇄'],
 ];
-const KIND_SECTION = { faction: 'factions', card: 'cards', character: 'characters', enemy: 'enemies', encounter: 'encounters', relic: 'relics', status: 'statuses', rules: 'rules' };
-const KIND_LABEL = { faction: '陣營', card: '卡片', character: '角色', enemy: '敵人', encounter: '遭遇', relic: '遺物', status: '狀態', rules: '規則' };
+const KIND_SECTION = { scene: 'scenes', faction: 'factions', card: 'cards', character: 'characters', enemy: 'enemies', encounter: 'encounters', relic: 'relics', status: 'statuses', rules: 'rules' };
+const KIND_LABEL = { scene: '場景', faction: '陣營', card: '卡片', character: '角色', enemy: '敵人', encounter: '遭遇', relic: '遺物', status: '狀態', rules: '規則' };
 
 // ───────── 儲存 ─────────
 function commit(structural = false) {
@@ -52,7 +54,7 @@ function drawNav() {
   fill($nav, ...SECTIONS.map((s) => {
     if (!s) return h('hr', { class: 'rule' });
     const [id, label, icon] = s;
-    const count = { cards: C.cards, characters: C.characters, enemies: C.enemies, encounters: C.encounters, relics: C.relics, statuses: C.statuses, factions: C.factions }[id]?.length;
+    const count = { scenes: C.scenes, cards: C.cards, characters: C.characters, enemies: C.enemies, encounters: C.encounters, relics: C.relics, statuses: C.statuses, factions: C.factions }[id]?.length;
     return h('button', { class: 'nav-item' + (ui.section === id ? ' on' : ''), onclick: () => go(id) },
       h('span', { class: 'nav-icon' }, icon), h('span', { class: 'grow' }, label),
       count != null ? h('span', { class: 'nav-count' }, count) : null,
@@ -123,7 +125,7 @@ function imageIssues() {
       else if (imageSize(localKey(r)) > 1500000) out.push({ level: 'warn', kind, id: x.id, name: x.name, msg: `有一張圖片檔案偏大（${(imageSize(localKey(r)) / 1e6).toFixed(1)} MB），會拖慢載入` });
     }
   };
-  for (const [kind, list] of [['faction', C.factions], ['card', C.cards], ['character', C.characters], ['enemy', C.enemies], ['relic', C.relics]]) for (const x of list || []) scan(kind, x);
+  for (const [kind, list] of [['scene', C.scenes], ['status', C.statuses], ['faction', C.factions], ['card', C.cards], ['character', C.characters], ['enemy', C.enemies], ['relic', C.relics]]) for (const x of list || []) scan(kind, x);
   scan('rules', { id: 'rules', name: '共用卡背', ...C.meta });
   return out;
 }
@@ -504,8 +506,35 @@ const VIEWS = {
         inSel(pick, 'id', ents(C.enemies), { empty: '＋ 加入敵人…', after: () => { if (pick.id) { enc.enemies.push(pick.id); commit(); draw(); } } })); };
       draw();
       return h('div', {},
-        section('基本資料', h('div', { class: 'grid2' }, field('名稱', inText(enc, 'name')), field('出現階段', inSel(enc, 'pool', dict(SC.ENCOUNTER_POOLS)))), field('狀態', publishToggle(enc))),
+        section('基本資料', h('div', { class: 'grid2' }, field('名稱', inText(enc, 'name')), field('出現階段', inSel(enc, 'pool', dict(SC.ENCOUNTER_POOLS))),
+          field('場景（三聯畫）', inSel(enc, 'scene', ents(C.scenes), { empty: '依階段預設' }), '留「依階段預設」就用規則頁設定的場景')), field('狀態', publishToggle(enc))),
         section('敵人（由左到右）', box));
+    },
+  }),
+
+  scenes: () => listEditor({
+    kind: 'scene', items: C.scenes, title: '場景', intro: '戰鬥時教堂後牆上的祭壇三聯畫。戰鬥開始時兩翼打開，勝利時闔上。可在「規則」頁設定各階段預設用哪一組，或在「遭遇」頁個別指定。',
+    newItem: () => ({ id: 'scene_' + uid(), name: '新場景' }),
+    editor(sc) {
+      for (const k of ['center', 'left', 'right', 'leftBack', 'rightBack']) sc[k] ||= {};
+      const stage = h('div', { class: 'scene-preview' });
+      let view;
+      const draw = () => { view = makeScene(idx, sc); fill(stage, view.el); setTimeout(() => view.open(), 60); };
+      draw();
+      const up = (k, label, hint) => field(label, imgUpload(sc[k], 'img', { max: 1100, onChange: draw }), hint);
+      return h('div', {},
+        section('基本資料', field('名稱', inText(sc, 'name'))),
+        section('預覽', stage, h('div', { class: 'row', style: { marginTop: '8px' } },
+          h('button', { class: 'btn sm', onclick: () => view.open() }, '打開兩翼'), h('button', { class: 'btn sm', onclick: () => view.close() }, '闔上兩翼'),
+          h('span', { class: 'faint small' }, '教堂、舞台地板和三聯畫外框在「規則」頁設定，所有場景共用。'))),
+        section('三聯畫',
+          h('p', { class: 'dim small' }, '中央板比例約 8：7（例如 640 × 560），兩翼各是中央板一半寬（例如 320 × 560）。畫面要比紙偶暗、彩度低，不要畫文字。'),
+          h('div', { class: 'grid2' },
+            up('center', '中央板'),
+            up('left', '左翼（正面）', '傳統上畫天堂、聖人；位於主角身後'),
+            up('right', '右翼（正面）', '傳統上畫地獄、受難；位於敵人身後'),
+            up('leftBack', '左翼（背面）', '兩翼闔上時看到的一面，傳統上是灰色調的聖人像'),
+            up('rightBack', '右翼（背面）'))));
     },
   }),
 
@@ -517,7 +546,7 @@ const VIEWS = {
       const prev = previewFn; previewFn = () => { prev?.(); txt.textContent = describePowers(idx, r.powers) || '（還沒有效果）'; };
       previewFn();
       return h('div', {},
-        section('基本資料', h('div', { class: 'grid2' }, field('名稱', inText(r, 'name')), field('風味文字', inText(r, 'flavor'))), field('狀態', publishToggle(r))),
+        section('基本資料', h('div', { class: 'grid2' }, field('名稱', inText(r, 'name')), field('風味文字', inText(r, 'flavor'))), field('圖示', imageField(r, { max: 512 }), '去背 PNG，正方形，建議 256 × 256'), field('狀態', publishToggle(r))),
         section('效果', powersEditor(r.powers), h('div', { class: 'faint small', style: { marginTop: '10px' } }, '自動產生的說明：'), txt));
     },
   }),
@@ -530,7 +559,8 @@ const VIEWS = {
       const n = (k, label, hint) => field(label, inNum(s, k, { def: 0 }), hint);
       return h('div', {},
         section('基本資料', h('div', { class: 'grid2' }, field('名稱', inText(s, 'name')), field('類別', inSel(s, 'kind', dict(SC.STATUS_KINDS))), field('回合結束時', inSel(s, 'decay', dict(SC.STATUS_DECAY)))),
-          field('說明（玩家看到的文字）', inArea(s, 'desc'))),
+          field('說明（玩家看到的文字）', inArea(s, 'desc')),
+          field('圖示', imageField(s, { max: 256 }), '去背 PNG，正方形，建議 128 × 128。有圖示時，戰鬥中只顯示圖示和層數')),
         section('作用（不需要的留 0）',
           s.special === 'delay' ? h('p', { class: 'gold' }, '這是內建的「延遲」：推遲敵人的下一個行動。它的規則由引擎處理，下面的數字不適用。') : null,
           h('div', { class: 'grid2' },
@@ -548,6 +578,7 @@ const VIEWS = {
       section('基本資料',
         h('div', { class: 'grid2' }, field('名稱', inText(f, 'name')), field('代表色', h('input', { type: 'color', value: f.color, oninput: (e) => { f.color = e.target.value; commit(); } }), '卡名文字會用這個顏色；建議和卡框的主色一致')),
         field('說明', inArea(f, 'desc')),
+        field('徽記', imageField(f, { max: 512 }), '去背 PNG，正方形，建議 256 × 256；顯示在選角畫面'),
         f.id === 'nameless' ? h('p', { class: 'gold small' }, '「無名」是通用陣營：所有角色的獎勵都會出現它的牌。請不要刪除。') : null),
       frameEditor(f)),
   }),
@@ -581,6 +612,15 @@ const VIEWS = {
       section('視覺效果',
         inBool(R.fx ||= {}, 'closeup', '出手特寫：出招時背景壓暗、角色放大、背後放射光'), h('br'),
         inBool(R.fx, 'paperEdge', '紙片白邊：自動替紙偶加上剪紙的白邊與陰影')),
+      section('戰鬥場景',
+        h('p', { class: 'dim small' }, '各階段預設使用的三聯畫（遭遇可以另外指定）。'),
+        h('div', { class: 'grid2' }, Object.entries(SC.ENCOUNTER_POOLS).map(([pool, label]) => field(label, inSel(R.sceneByPool ||= {}, pool, ents(C.scenes), { empty: '（第一組場景）' })))),
+        h('hr', { class: 'rule' }),
+        h('p', { class: 'dim small' }, '所有場景共用的固定素材。沒有上傳時會顯示暗色的暫代圖樣。'),
+        h('div', { class: 'grid2' },
+          field('教堂遠景', imgUpload((C.meta.stage ||= {}).church ||= {}, 'img', { max: 2560 }), '2560 × 1080，左右各多留一些給寬螢幕；整體要暗'),
+          field('舞台地板', imgUpload(C.meta.stage.floor ||= {}, 'img', { max: 1920 }), '去背 PNG，1920 × 1080，上半部透明'),
+          field('三聯畫外框', imgUpload(C.meta.stage.frame ||= {}, 'img', { max: 1100 }), '去背 PNG，套在中央板外圍，比例同中央板'))),
       section('關卡流程（經典模式・第一章）', stages),
       issueBox('rules', 'rules'));
   },
@@ -602,7 +642,7 @@ const VIEWS = {
       if (!ids.length) return toast('牌組是空的');
       const deck = ids.map((id) => ({ uid: uid(), id }));
       const top = S.only ? [] : deck.slice(-S.extra.length).slice(0, 3).map((c) => c.uid);
-      const state = await runBattle(stage, idx, { player: { hp: ch.hp, maxHp: ch.hp, name: ch.name, poses: ch.poses, color: idx.factions.get(ch.faction)?.color, faction: ch.faction }, deck, top, relics: ch.relic ? [ch.relic] : [], enemies: enc.enemies.filter((id) => idx.enemies.has(id)), seed: Date.now() });
+      const state = await runBattle(stage, idx, { player: { hp: ch.hp, maxHp: ch.hp, name: ch.name, poses: ch.poses, color: idx.factions.get(ch.faction)?.color, faction: ch.faction }, scene: sceneFor(idx, enc), deck, top, relics: ch.relic ? [ch.relic] : [], enemies: enc.enemies.filter((id) => idx.enemies.has(id)), seed: Date.now() });
       fill(stage, h('div', { class: 'empty' },
         h('h2', {}, state.phase === 'won' ? '勝利' : '落敗'),
         h('p', { class: 'dim' }, `用了 ${state.turn} 回合，剩餘生命 ${state.player.hp}。`, state.captured.length ? `捕獲：${state.captured.join('、')}。` : ''),
@@ -731,7 +771,7 @@ function cardEditor(c) {
 }
 
 // ───────── 匯入匯出 ─────────
-const LISTS = ['cards', 'characters', 'enemies', 'encounters', 'relics', 'statuses', 'factions'];
+const LISTS = ['cards', 'characters', 'enemies', 'encounters', 'relics', 'statuses', 'factions', 'scenes'];
 const stamp = () => { const d = new Date(), p = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`; };
 function saveFile(blob, name) {
   const a = h('a', { href: URL.createObjectURL(blob), download: name });
@@ -826,6 +866,8 @@ async function importFile(file) {
       for (const k of ['frame', 'back']) if (o[k]?.img && !f[k]?.img) f[k] = clone(o[k]);
     }
     if (official.meta?.cardBack?.img && !C.meta?.cardBack?.img) (C.meta ||= {}).cardBack = clone(official.meta.cardBack);
+    if (!C.scenes?.length && official.scenes?.length) C.scenes = clone(official.scenes);
+    if (!C.rules.sceneByPool && official.rules?.sceneByPool) C.rules.sceneByPool = clone(official.rules.sceneByPool);
     C.meta ||= {}; for (const k of LISTS) C[k] ||= [];
     await convertDataUrls(C);
     // 已經放進儲存庫的圖片，改用儲存庫裡的檔案

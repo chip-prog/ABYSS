@@ -2,7 +2,7 @@
 import { h, cardEl, modal, showCards, loadOfficial, loadWorking, confirmBox, KEY_RUN } from './ui/common.js';
 import { indexContent, cardDef } from './engine/battle.js';
 import { describePowers } from './engine/describe.js';
-import { newRun, pickEncounter, rewardCards, applyBattleResult, addCardToRun, restHeal, upgradable, isLive } from './engine/run.js';
+import { sceneFor, newRun, pickEncounter, rewardCards, applyBattleResult, addCardToRun, restHeal, upgradable, isLive } from './engine/run.js';
 import { runBattle } from './ui/battle-view.js';
 import { imgUrl } from './ui/store.js';
 
@@ -29,7 +29,7 @@ function hud() {
     h('div', { class: 'pips' }, run.stages.map((s, i) => h('span', { class: `pip s-${s.type}${s.pool === 'boss' ? ' boss' : ''}${i < run.stage ? ' done' : i === run.stage ? ' now' : ''}`, title: s.type === 'rest' ? '篝火' : s.pool === 'boss' ? '頭目' : '戰鬥' }))),
     h('span', { class: 'dim small' }, `第 ${Math.min(run.stage + 1, total)} / ${total} 關`),
     h('span', { class: 'grow' }),
-    run.relics.map((id) => { const r = idx.relics.get(id); return r ? h('span', { class: 'chip relic', title: describePowers(idx, r.powers) }, '◈ ' + r.name) : null; }),
+    run.relics.map((id) => { const r = idx.relics.get(id); return r ? h('span', { class: 'chip relic', title: describePowers(idx, r.powers) }, imgUrl(r.image) ? h('img', { class: 'chip-img', src: imgUrl(r.image), alt: '' }) : '◈ ', r.name) : null; }),
     h('button', { class: 'btn sm', onclick: () => showCards(idx, `牌組（${run.deck.length} 張）`, [...run.deck].sort((a, b) => a.id.localeCompare(b.id))) }, `牌組 ${run.deck.length}`),
     h('button', { class: 'btn sm ghost', onclick: async () => { if (await confirmBox('要放棄這一輪冒險嗎？', '放棄', true)) { run = null; save(); title(); } } }, '放棄'));
 }
@@ -55,10 +55,10 @@ function select() {
       return h('div', { class: 'char panel', style: { '--fc': fac?.color } },
         (() => { const idle = imgUrl(c.poses?.idle?.img), port = imgUrl(c.image); return h('div', { class: 'medal' + (!port && idle ? ' cutout' : '') }, port || idle ? h('img', { src: port || idle, alt: '' }) : h('span', {}, [...c.name][0])); })(),
         h('h2', {}, c.name, c.publish === 'draft' ? h('span', { class: 'badge draft', style: { marginLeft: '8px' } }, '草稿') : null),
-        h('div', { class: 'char-title' }, `${c.title || ''}・${fac?.name || ''}`),
+        h('div', { class: 'char-title' }, imgUrl(fac?.image) ? h('img', { class: 'emblem', src: imgUrl(fac.image), alt: '' }) : null, `${c.title || ''}・${fac?.name || ''}`),
         h('p', { class: 'dim' }, c.desc || ''),
         h('div', { class: 'small' }, `生命 ${c.hp}`),
-        relic ? h('div', { class: 'small relic-line' }, h('b', {}, '◈ ' + relic.name), '　', describePowers(idx, relic.powers)) : null,
+        relic ? h('div', { class: 'small relic-line' }, imgUrl(relic.image) ? h('img', { class: 'relic-img', src: imgUrl(relic.image), alt: '' }) : null, h('b', {}, (imgUrl(relic.image) ? '' : '◈ ') + relic.name), '　', describePowers(idx, relic.powers)) : null,
         h('div', { class: 'row', style: { justifyContent: 'center', marginTop: '12px' } },
           h('button', { class: 'btn sm ghost', onclick: () => showCards(idx, `${c.name} 的初始牌組`, c.deck.map((id) => ({ id })).filter((x) => idx.cards.has(x.id))) }, '查看牌組'),
           h('button', { class: 'btn primary', onclick: () => { run = newRun(idx, c.id, { includeDraft: preview }); save(); advance(); } }, '選擇')));
@@ -78,7 +78,7 @@ async function advance() {
   frame(hud(), h('div', { class: 'enc-name' }, enc.name), stageEl);
   const state = await runBattle(stageEl, idx, {
     player: { hp: run.hp, maxHp: run.maxHp, name: run.name, poses: ch.poses, color: idx.factions.get(ch.faction)?.color, faction: ch.faction },
-    deck: run.deck, relics: run.relics, enemies: enc.enemies, seed: run.seed + run.stage * 31,
+    deck: run.deck, relics: run.relics, enemies: enc.enemies, scene: sceneFor(idx, enc), seed: run.seed + run.stage * 31,
   });
   applyBattleResult(idx, run, state);
   if (state.phase === 'lost') return ending(false);
