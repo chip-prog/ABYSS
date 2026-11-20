@@ -5,7 +5,7 @@
   "subtitle": "第一章・鐘樓",
   "lang": "zh-Hant",
   "cardBack": {
-   "img": "assets/backs/default.webp"
+   "img": "assets/backs/default-v2.webp"
   },
   "stage": {
    "church": {
@@ -130,7 +130,7 @@
    "color": "#a8323a",
    "desc": "血肉與鐵血。自損、吸血、以守為攻。",
    "back": {
-    "img": "assets/backs/crimson.webp"
+    "img": "assets/backs/crimson-v2.webp"
    },
    "frame": {
     "img": "assets/frames/crimson.webp"
@@ -146,7 +146,7 @@
    "color": "#7a5cc4",
    "desc": "咒法運轉與蝕咒。把整個牌堆當作資源。",
    "back": {
-    "img": "assets/backs/arcane.webp"
+    "img": "assets/backs/arcane-v2.webp"
    },
    "frame": {
     "img": "assets/frames/arcane.webp",
@@ -193,7 +193,7 @@
    "color": "#2f8a80",
    "desc": "秘密教團。獻祭生贄，驅使高費的不可名狀之力。",
    "back": {
-    "img": "assets/backs/abyss.webp"
+    "img": "assets/backs/abyss-v2.webp"
    },
    "frame": {
     "img": "assets/frames/abyss-v2.webp",
@@ -240,7 +240,7 @@
    "color": "#8c7a5e",
    "desc": "通用牌，所有角色都能取得。",
    "back": {
-    "img": "assets/backs/nameless.webp"
+    "img": "assets/backs/nameless-v2.webp"
    },
    "image": "assets/emblems/nameless.webp",
    "frame": {
