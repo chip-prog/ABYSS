@@ -3969,6 +3969,32 @@
      "motion": "sway",
      "speed": 3,
      "amp": 8
+    },
+    {
+     "img": "assets/parts/puppet-cross.webp",
+     "layer": "mid",
+     "x": 40,
+     "y": 10,
+     "size": 7,
+     "rot": -6,
+     "flip": false,
+     "opacity": 100,
+     "motion": "sway",
+     "speed": 4,
+     "amp": 5
+    },
+    {
+     "img": "assets/parts/candle.webp",
+     "layer": "mid",
+     "x": 89,
+     "y": 42,
+     "size": 4,
+     "rot": 0,
+     "flip": false,
+     "opacity": 100,
+     "motion": "flicker",
+     "speed": 2.5,
+     "amp": 6
     }
    ]
   },
@@ -4094,6 +4120,32 @@
      "motion": "sway",
      "speed": 3,
      "amp": 8
+    },
+    {
+     "img": "assets/parts/scissors.webp",
+     "layer": "mid",
+     "x": 84,
+     "y": 14,
+     "size": 7,
+     "rot": 20,
+     "flip": false,
+     "opacity": 100,
+     "motion": "sway",
+     "speed": 5,
+     "amp": 4
+    },
+    {
+     "img": "assets/parts/needle.webp",
+     "layer": "mid",
+     "x": 12,
+     "y": 16,
+     "size": 5,
+     "rot": -15,
+     "flip": false,
+     "opacity": 100,
+     "motion": "bob",
+     "speed": 4,
+     "amp": 6
     }
    ]
   },
@@ -4218,6 +4270,32 @@
      "opacity": 100,
      "motion": "spin",
      "speed": 24,
+     "amp": 6
+    },
+    {
+     "img": "assets/parts/key.webp",
+     "layer": "mid",
+     "x": 64,
+     "y": 18,
+     "size": 4,
+     "rot": 0,
+     "flip": false,
+     "opacity": 100,
+     "motion": "sway",
+     "speed": 3.5,
+     "amp": 8
+    },
+    {
+     "img": "assets/parts/puppet-hand.webp",
+     "layer": "mid",
+     "x": 36,
+     "y": 16,
+     "size": 6,
+     "rot": 0,
+     "flip": false,
+     "opacity": 100,
+     "motion": "sway",
+     "speed": 4,
      "amp": 6
     }
    ]

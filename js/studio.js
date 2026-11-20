@@ -232,6 +232,11 @@ function triFrameUpload(o, label) {
   return wrap;
 }
 
+// 儲存庫裡現成的場景零件
+const PART_LIBRARY = [['pillar','柱子'],['arch','尖拱'],['rose-window','玫瑰窗'],['stairs','樓梯'],['window','小窗'],['bell','鐘'],
+  ['saint-bust','聖人半身像'],['wings','翅膀'],['eye-row','一排眼睛'],['halos','光環'],['eye-hand','掌心眼'],['stitched-doll','縫合娃娃'],
+  ['candle','燭台'],['scissors','剪刀'],['needle','針線'],['key','鑰匙'],['puppet-hand','木偶手'],['puppet-cross','提線十字']].map(([f, l]) => [`assets/parts/${f}.webp`, l]);
+
 // ───────── 場景編輯器 ─────────
 function scenePreview(sc) {
   const box = h('div', { class: 'scene-preview' });
@@ -297,6 +302,8 @@ function sceneEditor(sc) {
           h('div', { class: 'row' },
             h('b', {}, `零件 ${i + 1}`),
             imgUpload(p, 'img', { max: 1024, green: true, trim: true, label: '上傳', onChange: () => { drawParts(); redraw(); } }),
+            h('select', { title: '從素材庫選一個零件', onchange: (e) => { if (e.target.value) { p.img = e.target.value; commit(); drawParts(); redraw(); } } },
+              h('option', { value: '' }, '或從素材庫選…'), PART_LIBRARY.map(([v, l]) => h('option', { value: v, selected: p.img === v }, l))),
             inSel(p, 'layer', dict(SC.PART_LAYERS)),
             inSel(p, 'motion', dict(SC.PART_MOTIONS)),
             h('label', { class: 'check small' }, h('input', { type: 'checkbox', checked: !!p.flip, onchange: (e) => set('flip', e.target.checked) }), '左右翻轉'),
