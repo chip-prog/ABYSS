@@ -204,6 +204,7 @@ function frameEditor(f) {
       h('div', { class: 'frame-side' },
         field('卡框', imgUpload(f.frame, 'img', { label: '上傳卡框', onChange: drawPreview, green: true })),
         field('卡背', imgUpload(f.back, 'img', { label: '上傳卡背', onChange: drawPreview }), '沒上傳時使用「規則」頁的共用卡背'),
+        h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: !!f.frame.nameDark, onchange: (e) => { f.frame.nameDark = e.target.checked; commit(); drawPreview(); } }), '名稱用深色字（名稱布條是淺色時勾選）'),
         h('div', { class: 'sub-title' }, '位置微調'),
         h('p', { class: 'faint small' }, '卡框和預設位置有落差時再調整。數值是卡片寬度、高度的百分比。名稱會對齊「中線」，太長時才往內讓開，不會超出「最左／最右」。'),
         tune),

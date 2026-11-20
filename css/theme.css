@@ -180,3 +180,6 @@ input[type=checkbox] { accent-color: var(--brass); width: 16px; height: 16px; }
 .toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 400; padding: 9px 20px; background: #20160f; border: 1px solid var(--brass); border-radius: 99px; box-shadow: 0 6px 20px rgba(0,0,0,.6); }
 
 .ver { font-size: 11px; color: var(--ink-faint); text-align: center; letter-spacing: .05em; }
+
+/* 名稱布條是淺色羊皮紙時，名稱改用深色墨字 */
+.card.framed.name-dark .fc-name { color: #24140a; -webkit-text-stroke: 0; text-shadow: 0 0 .15em rgba(245,232,200,.7); }

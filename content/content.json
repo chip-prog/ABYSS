@@ -242,7 +242,42 @@
    "back": {
     "img": "assets/backs/nameless.webp"
    },
-   "image": "assets/emblems/nameless.webp"
+   "image": "assets/emblems/nameless.webp",
+   "frame": {
+    "img": "assets/frames/nameless.webp",
+    "nameDark": true,
+    "layout": {
+     "art": {
+      "left": 9.4,
+      "top": 10,
+      "right": 90.8,
+      "bottom": 56.4
+     },
+     "cost": {
+      "x": 10.6,
+      "y": 5.4,
+      "size": 12
+     },
+     "name": {
+      "left": 24,
+      "right": 78,
+      "center": 51,
+      "top": 3.6,
+      "bottom": 9.8
+     },
+     "text": {
+      "left": 11.5,
+      "right": 88.5,
+      "top": 60,
+      "bottom": 92
+     },
+     "gem": {
+      "x": 50,
+      "y": 57.5,
+      "size": 6
+     }
+    }
+   }
   }
  ],
  "statuses": [

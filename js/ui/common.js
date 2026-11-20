@@ -124,7 +124,7 @@ function framedCard(idx, def, fac, na, upgraded, opts) {
   const textW = (chars * 1.12 * nameSize / 13.5) * 100; // 名稱寬度（卡片寬度的 %）
   const center = Math.min(Math.max(nb.center ?? 50, nb.left + textW / 2), nb.right - textW / 2);
   const el = h('div', {
-    class: `card framed r-${def.rarity} t-${def.type}${upgraded ? ' upgraded' : ''}${opts.class ? ' ' + opts.class : ''}`,
+    class: `card framed${fac.frame.nameDark ? ' name-dark' : ''} r-${def.rarity} t-${def.type}${upgraded ? ' upgraded' : ''}${opts.class ? ' ' + opts.class : ''}`,
     style: { '--fc': fac.color || '#8c7a5e', ...(opts.width ? { '--cw': opts.width + 'px' } : {}), ...(opts.style || {}) },
   },
     h('div', { class: 'fc-art', style: box(L.art) }, artEl(def)),
