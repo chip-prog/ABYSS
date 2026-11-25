@@ -183,7 +183,7 @@ export const FRAME_LAYOUT = {
   // 名稱以 center 為中心（預設卡片中線）；left、right 是不能超過的範圍（例如避開封蠟）
   name: { left: 31, right: 88, center: 50, top: 6.4, bottom: 11.6 },
   text: { left: 12, right: 89, top: 61.2, bottom: 89.8 },
-  gem: { x: 51.3, y: 54.9, size: 7 },
+  gem: { x: 50, y: 54.4, size: 5.6 },
 };
 export const FRAME_PARTS = {
   art: { label: '卡圖', kind: 'box' }, name: { label: '名稱', kind: 'box' }, text: { label: '文字區', kind: 'box' },

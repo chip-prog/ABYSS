@@ -133,7 +133,14 @@
     "img": "assets/backs/crimson-v2.webp"
    },
    "frame": {
-    "img": "assets/frames/crimson.webp"
+    "img": "assets/frames/crimson.webp",
+    "layout": {
+     "gem": {
+      "x": 50.0,
+      "y": 54.4,
+      "size": 5.6
+     }
+    }
    },
    "image": "assets/emblems/crimson.webp",
    "book": {
@@ -176,9 +183,9 @@
       "bottom": 91
      },
      "gem": {
-      "x": 50.2,
-      "y": 54.4,
-      "size": 6
+      "x": 50.0,
+      "y": 54.0,
+      "size": 5.6
      }
     }
    },
@@ -223,9 +230,9 @@
       "bottom": 91.2
      },
      "gem": {
-      "x": 51.5,
-      "y": 57.9,
-      "size": 6
+      "x": 51.4,
+      "y": 57.5,
+      "size": 5.8
      }
     }
    },
@@ -272,9 +279,9 @@
       "bottom": 92
      },
      "gem": {
-      "x": 50,
-      "y": 57.5,
-      "size": 6
+      "x": 50.0,
+      "y": 57.0,
+      "size": 6.6
      }
     }
    }
