@@ -1000,9 +1000,11 @@ async function importFile(file) {
     const offFac = new Map((official.factions || []).map((x) => [x.id, x]));
     for (const f of C.factions || []) {
       const o = offFac.get(f.id); if (!o) continue;
-      for (const k of ['frame', 'back']) if (o[k]?.img && !f[k]?.img) f[k] = clone(o[k]);
+      // 卡框、卡背、書、徽記：空著的補上；指向儲存庫素材（不是自己上傳的）但和正式內容不同的，換成正式版（舊檔可能已被刪除）
+      for (const k of ['frame', 'back', 'book']) if (o[k]?.img && (!f[k]?.img || (f[k].img.startsWith('assets/') && f[k].img !== o[k].img))) f[k] = clone(o[k]);
+      if (o.image && (!f.image || (f.image.startsWith('assets/') && f.image !== o.image))) f.image = o.image;
     }
-    if (official.meta?.cardBack?.img && !C.meta?.cardBack?.img) (C.meta ||= {}).cardBack = clone(official.meta.cardBack);
+    if (official.meta?.cardBack?.img && (!C.meta?.cardBack?.img || (C.meta.cardBack.img.startsWith('assets/') && C.meta.cardBack.img !== official.meta.cardBack.img))) (C.meta ||= {}).cardBack = clone(official.meta.cardBack);
     // 正式內容的舞台素材：工作內容裡空著的就補上
     for (const k of ['bg', 'table', 'top']) if (official.meta?.select?.[k]?.img && !C.meta.select?.[k]?.img) (C.meta.select ||= {})[k] = clone(official.meta.select[k]);
     for (const f of C.factions || []) { const o = (official.factions || []).find((x) => x.id === f.id); if (o?.book?.img && !f.book?.img) f.book = clone(o.book); }
