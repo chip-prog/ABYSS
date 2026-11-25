@@ -187,7 +187,7 @@ export const FRAME_LAYOUT = {
 };
 export const FRAME_PARTS = {
   art: { label: '卡圖', kind: 'box' }, name: { label: '名稱', kind: 'box' }, text: { label: '文字區', kind: 'box' },
-  cost: { label: '費用', kind: 'point' }, gem: { label: '稀有度寶石', kind: 'point' },
+  cost: { label: '費用', kind: 'point' },
 };
 export function frameLayout(fac) {
   const L = fac?.frame?.layout || {};

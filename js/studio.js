@@ -1001,6 +1001,8 @@ async function importFile(file) {
     for (const f of C.factions || []) {
       const o = offFac.get(f.id); if (!o) continue;
       // 卡框、卡背、書、徽記：空著的補上；指向儲存庫素材（不是自己上傳的）但和正式內容不同的，換成正式版（舊檔可能已被刪除）
+      // 稀有度寶石的位置固定跟著卡框（正式內容），不保留工作內容裡的調整
+      if (f.frame?.layout?.gem) { if (o.frame?.layout?.gem && f.frame.img === o.frame?.img) f.frame.layout.gem = clone(o.frame.layout.gem); else delete f.frame.layout.gem; }
       for (const k of ['frame', 'back', 'book']) if (o[k]?.img && (!f[k]?.img || (f[k].img.startsWith('assets/') && f[k].img !== o[k].img))) f[k] = clone(o[k]);
       if (o.image && (!f.image || (f.image.startsWith('assets/') && f.image !== o.image))) f.image = o.image;
     }
